@@ -38,5 +38,5 @@ capability matrix.
 
 ## Compliance
 
-Enforced by `claude/rules/*`, `.clinerules/*`, the capability matrix, and
+Enforced by `.claude/rules/*`, `.clinerules/*`, the capability matrix, and
 `reviewer-agent` checks.

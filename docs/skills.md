@@ -7,8 +7,8 @@ Router selects them; they are recorded in a task's `Suggested Skills`.
 
 | Kind | Engine | Location |
 |------|--------|----------|
-| Reasoning | Claude | [`skills/claude/`](../skills/claude/) |
-| Implementation | Cline | [`skills/cline/`](../skills/cline/) |
+| Reasoning | Claude | [`.claude/skills/`](../.claude/skills/) |
+| Implementation | Cline | [`.agents/skills/`](../.agents/skills/) |
 
 ## Five-File Contract
 
@@ -37,6 +37,7 @@ This uniform shape is what makes skills modular and extensible.
 | task-breakdown | Decompose EPICs into STANDARD tasks |
 | ADR | Record significant decisions |
 | knowledge-update | Apply knowledge governance |
+| cline-skill-handler | Create/update/delete Cline skills + sync references |
 
 ## Implementation Skills (Cline)
 
@@ -56,6 +57,7 @@ This uniform shape is what makes skills modular and extensible.
 
 ## Extending
 
-Copy the five-file structure into `skills/<kind>/<name>/`, then reference the
-skill from [../claude/rules/routing.md](../claude/rules/routing.md). Index:
-[../skills/README.md](../skills/README.md).
+Copy the five-file structure into `.claude/skills/<name>/` (reasoning) or
+`.agents/skills/<name>/` (implementation), then reference the skill from
+[../.claude/rules/routing.md](../.claude/rules/routing.md). Index:
+[../.agents/skills/README.md](../.agents/skills/README.md).

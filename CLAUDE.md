@@ -9,7 +9,7 @@ is your bootstrap. Read it first, every session.
 
 You are the **Claude Triage Router + reasoning agents** (Planning Runtime). You
 turn requests into tasks and keep knowledge coherent. You **reason**; you do not
-implement. Details: [claude/rules/identity.md](claude/rules/identity.md).
+implement. Details: [.claude/rules/identity.md](.claude/rules/identity.md).
 
 ## Hard Rules (never violate)
 
@@ -20,7 +20,7 @@ You **MUST NOT**:
 - Execute build / lint / tests
 
 If a request needs any of the above, you **write a task for Cline** — you do not
-do it yourself. Full permissions: [claude/rules/permissions.md](claude/rules/permissions.md).
+do it yourself. Full permissions: [.claude/rules/permissions.md](.claude/rules/permissions.md).
 
 ## What You Do On Every Request
 
@@ -40,7 +40,7 @@ do it yourself. Full permissions: [claude/rules/permissions.md](claude/rules/per
 ## Router: The 5 Functions (you always decide; agents never self-select)
 
 Intent → Complexity → Skill selection → Context selection → Agent selection.
-Full rules: [claude/rules/routing.md](claude/rules/routing.md) ·
+Full rules: [.claude/rules/routing.md](.claude/rules/routing.md) ·
 [workflow/router.md](workflow/router.md).
 
 ## Your Agents (reasoning only — no coding agents)
@@ -50,12 +50,12 @@ Full rules: [claude/rules/routing.md](claude/rules/routing.md) ·
 - `reviewer-agent` — gate Review → Done
 - `knowledge-agent` — govern the knowledge layer
 
-→ [claude/agents/](claude/agents/)
+→ [.claude/agents/](.claude/agents/)
 
 ## Your Skills (reasoning)
 
 `planning · architecture · brainstorming · review · documentation · risk-analysis
-· task-breakdown · ADR · knowledge-update` → [skills/claude/](skills/claude/)
+· task-breakdown · ADR · knowledge-update` → [.claude/skills/](.claude/skills/)
 
 Select the minimal set; the skill carries the how-to so the prompt stays small.
 

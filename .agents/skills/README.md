@@ -8,8 +8,8 @@ agent or workflow never self-selects.
 
 | Kind | Engine | Directory | Purpose |
 |------|--------|-----------|---------|
-| **Reasoning** | Claude | [`skills/claude/`](./claude/) | How to think: plan, design, review, govern |
-| **Implementation** | Cline | [`skills/cline/`](./cline/) | How to build: code, test, ship |
+| **Reasoning** | Claude | [`.claude/skills/`](../../.claude/skills/) | How to think: plan, design, review, govern |
+| **Implementation** | Cline | [`.agents/skills/`](./) | How to build: code, test, ship |
 
 ## Every Skill Has Five Files
 
@@ -29,7 +29,8 @@ new skill by copying the five-file structure.
 ## Reasoning Skills (Claude)
 
 `planning` · `architecture` · `brainstorming` · `review` · `documentation` ·
-`risk-analysis` · `task-breakdown` · `ADR` · `knowledge-update`
+`risk-analysis` · `task-breakdown` · `ADR` · `knowledge-update` ·
+`cline-skill-handler`
 
 ## Implementation Skills (Cline)
 
@@ -38,10 +39,10 @@ new skill by copying the five-file structure.
 
 ## Extending
 
-1. Pick the kind (reasoning → `skills/claude/`, implementation → `skills/cline/`).
-2. Create `skills/<kind>/<name>/` with the five files.
-3. Reference it from the Router's [routing rules](../claude/rules/routing.md) so
+1. Pick the kind (reasoning → `.claude/skills/`, implementation → `.agents/skills/`).
+2. Create `.claude/skills/<name>/` or `.agents/skills/<name>/` with the five files.
+3. Reference it from the Router's [routing rules](../../.claude/rules/routing.md) so
    it can be selected.
 
 > Reasoning skills never execute; implementation skills never redesign. The
-> [capability matrix](../workflow/capability-matrix.md) keeps the line firm.
+> [capability matrix](../../workflow/capability-matrix.md) keeps the line firm.

@@ -56,7 +56,7 @@ capability: task_breakdown
 | review | any | reviewer-agent |
 | knowledge | any | knowledge-agent |
 
-Full rules: [../claude/rules/routing.md](../claude/rules/routing.md) ·
+Full rules: [../.claude/rules/routing.md](../.claude/rules/routing.md) ·
 [../workflow/router.md](../workflow/router.md).
 
 ## Invariants

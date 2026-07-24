@@ -73,18 +73,18 @@ strix/
 │   ├── task-lifecycle.md         # Queue->Active->Review->Done->Archive
 │   ├── capability-matrix.md      # capabilities -> engines (no hard-coding)
 │   └── router.md                 # the five routing functions
-├── claude/                       # Planning Runtime config
+├── .claude/                      # Planning Runtime config
 │   ├── rules/                    # identity, workflow, permissions, routing, knowledge
-│   └── agents/                   # triage, task-creator, reviewer, knowledge
+│   ├── agents/                   # triage, task-creator, reviewer, knowledge
+│   └── skills/                   # 10 reasoning skills (5 files each)
+├── .agents/                      # Execution Runtime config
+│   └── skills/                   # 11 implementation skills (5 files each)
 ├── knowledge/                    # source of truth (Claude R/W, Cline R)
 │   ├── project-context.md
 │   ├── coding-conventions.md
 │   ├── architecture.md
 │   ├── glossary.md
 │   └── decisions/                # ADRs + template
-├── skills/                       # reusable know-how (5 files each)
-│   ├── claude/                   # 9 reasoning skills
-│   └── cline/                    # 11 implementation skills
 ├── tasks/                        # the board
 │   ├── TEMPLATE.md
 │   └── queue/ active/ review/ done/ archive/

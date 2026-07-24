@@ -21,22 +21,22 @@ flowchart LR
 ### triage-agent
 First responder. Runs intent + complexity detection and routes the request.
 Never lets a raw request reach Cline; never sends an EPIC to execution.
-Spec: [../claude/agents/triage-agent.md](../claude/agents/triage-agent.md).
+Spec: [../.claude/agents/triage-agent.md](../.claude/agents/triage-agent.md).
 
 ### task-creator-agent
 Authors well-formed tasks; decomposes EPICs into STANDARD tasks with
 dependencies and scope estimates. Fills every required task field.
-Spec: [../claude/agents/task-creator-agent.md](../claude/agents/task-creator-agent.md).
+Spec: [../.claude/agents/task-creator-agent.md](../.claude/agents/task-creator-agent.md).
 
 ### reviewer-agent
 Gate between Review and Done. Verifies Acceptance Criteria, conventions, risk,
 and over-engineering; approves or returns a precise checklist. Reads source,
-never edits it. Spec: [../claude/agents/reviewer-agent.md](../claude/agents/reviewer-agent.md).
+never edits it. Spec: [../.claude/agents/reviewer-agent.md](../.claude/agents/reviewer-agent.md).
 
 ### knowledge-agent
 Keeper of the knowledge layer. After approval, applies governance: updates
 `knowledge/*` and authors ADRs only when a trigger fires.
-Spec: [../claude/agents/knowledge-agent.md](../claude/agents/knowledge-agent.md).
+Spec: [../.claude/agents/knowledge-agent.md](../.claude/agents/knowledge-agent.md).
 
 ## Why No Coding Agents
 

@@ -1,19 +1,19 @@
 # Rules
 
-Rules bind each engine to its runtime. Claude rules live in `claude/rules/`;
+Rules bind each engine to its runtime. Claude rules live in `.claude/rules/`;
 Cline rules live in `.clinerules/` (repo root, so Cline auto-loads them). They
 are derived from the
 [capability matrix](../workflow/capability-matrix.md), which is authoritative.
 
-## Claude Rules — `claude/rules/`
+## Claude Rules — `.claude/rules/`
 
 | File | Describes |
 |------|-----------|
-| [identity.md](../claude/rules/identity.md) | Who Claude is: the reasoning engine; what it owns and never does |
-| [workflow.md](../claude/rules/workflow.md) | How Claude processes a request end to end |
-| [permissions.md](../claude/rules/permissions.md) | Allowed/forbidden actions for the Planning Runtime |
-| [routing.md](../claude/rules/routing.md) | The five routing functions + routing table |
-| [knowledge.md](../claude/rules/knowledge.md) | When/how Claude updates knowledge; read-only map |
+| [identity.md](../.claude/rules/identity.md) | Who Claude is: the reasoning engine; what it owns and never does |
+| [workflow.md](../.claude/rules/workflow.md) | How Claude processes a request end to end |
+| [permissions.md](../.claude/rules/permissions.md) | Allowed/forbidden actions for the Planning Runtime |
+| [routing.md](../.claude/rules/routing.md) | The five routing functions + routing table |
+| [knowledge.md](../.claude/rules/knowledge.md) | When/how Claude updates knowledge; read-only map |
 
 **Core:** Claude thinks, delegates, and never writes code, runs a terminal,
 builds, lints, or tests.

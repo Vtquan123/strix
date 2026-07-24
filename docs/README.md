@@ -9,7 +9,7 @@ The complete documentation set for the Strix workflow framework.
 | [router.md](./router.md) | The five routing functions + capability dispatch |
 | [knowledge.md](./knowledge.md) | The knowledge layer + access model |
 | [agents.md](./agents.md) | The four Claude agents (no coding agents) |
-| [skills.md](./skills.md) | The 20 skills + five-file contract |
+| [skills.md](./skills.md) | The 21 skills + five-file contract |
 | [rules.md](./rules.md) | Claude + Cline rules and workflows |
 | [governance.md](./governance.md) | When knowledge updates; anti-over-engineering |
 | [task-templates.md](./task-templates.md) | Task fields + lifecycle |
@@ -19,10 +19,10 @@ The complete documentation set for the Strix workflow framework.
 ## Canonical Specs (outside docs/)
 
 - Engine-agnostic core: [../workflow/](../workflow/)
-- Claude rules + agents: [../claude/](../claude/)
+- Claude rules + agents + reasoning skills: [../.claude/](../.claude/)
 - Cline rules + workflows: [../.clinerules/](../.clinerules/)
 - Knowledge source of truth: [../knowledge/](../knowledge/)
-- Skills: [../skills/](../skills/)
+- Cline implementation skills: [../.agents/skills/](../.agents/skills/)
 - Tasks: [../tasks/](../tasks/)
 
 Start at the [root README](../README.md).
