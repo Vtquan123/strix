@@ -41,7 +41,7 @@ Spec: [../claude/agents/knowledge-agent.md](../claude/agents/knowledge-agent.md)
 ## Why No Coding Agents
 
 Coding is execution. Execution belongs to Cline, structured by the five
-[Cline workflows](../cline/workflows/), not by Claude agents. Keeping agents
+[Cline workflows](../.clinerules/workflows/), not by Claude agents. Keeping agents
 reasoning-only preserves the runtime boundary and prevents responsibility
 overlap.
 

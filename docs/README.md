@@ -20,7 +20,7 @@ The complete documentation set for the Strix workflow framework.
 
 - Engine-agnostic core: [../workflow/](../workflow/)
 - Claude rules + agents: [../claude/](../claude/)
-- Cline rules + workflows: [../cline/](../cline/)
+- Cline rules + workflows: [../.clinerules/](../.clinerules/)
 - Knowledge source of truth: [../knowledge/](../knowledge/)
 - Skills: [../skills/](../skills/)
 - Tasks: [../tasks/](../tasks/)

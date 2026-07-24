@@ -66,4 +66,4 @@ Canonical: [../workflow/runtime-separation.md](../workflow/runtime-separation.md
 ## Cline Workflows
 
 `implement` · `fix` · `refactor` · `testing` · `review-fixes` —
-[../cline/workflows/](../cline/workflows/).
+[../.clinerules/workflows/](../.clinerules/workflows/).

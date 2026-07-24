@@ -31,7 +31,7 @@ task for changes.
 - **Approve** → task proceeds to Done; signals `knowledge-agent` to evaluate
   updates.
 - **Changes Requested** → task returns to Active via the
-  [`review-fixes`](../../cline/workflows/review-fixes.md) workflow with an
+  [`review-fixes`](../../.clinerules/workflows/review-fixes.md) workflow with an
   explicit checklist.
 
 ## Rules

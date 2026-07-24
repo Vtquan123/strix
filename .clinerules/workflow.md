@@ -26,10 +26,10 @@ flowchart TD
 
 1. **Pull** a task whose Definition of Ready is met and dependencies are Done.
 2. **Read** the task and only the knowledge/skills it lists. Minimise context.
-3. **Choose the workflow**: [implement](../cline/workflows/implement.md),
-   [fix](../cline/workflows/fix.md), [refactor](../cline/workflows/refactor.md),
-   [testing](../cline/workflows/testing.md), or
-   [review-fixes](../cline/workflows/review-fixes.md).
+3. **Choose the workflow**: [implement](workflows/implement.md),
+   [fix](workflows/fix.md), [refactor](workflows/refactor.md),
+   [testing](workflows/testing.md), or
+   [review-fixes](workflows/review-fixes.md).
 4. **Implement** strictly within `Estimated Files` and Requirements.
 5. **Verify**: build → lint → test. Iterate on implementation bugs.
 6. **Escalate** if a stop condition hits (design decision, ADR/convention

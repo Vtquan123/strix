@@ -31,15 +31,15 @@ builds, lints, or tests.
 **Core:** Cline executes only what the task defines and never redesigns,
 changes conventions/knowledge/ADRs, or expands scope.
 
-## Cline Workflows — `cline/workflows/`
+## Cline Workflows — `.clinerules/workflows/`
 
 | Workflow | Use |
 |----------|-----|
-| [implement.md](../cline/workflows/implement.md) | Build a new feature |
-| [fix.md](../cline/workflows/fix.md) | Resolve a defect |
-| [refactor.md](../cline/workflows/refactor.md) | Restructure without behaviour change |
-| [testing.md](../cline/workflows/testing.md) | Add/strengthen tests |
-| [review-fixes.md](../cline/workflows/review-fixes.md) | Apply reviewer changes |
+| [implement.md](../.clinerules/workflows/implement.md) | Build a new feature |
+| [fix.md](../.clinerules/workflows/fix.md) | Resolve a defect |
+| [refactor.md](../.clinerules/workflows/refactor.md) | Restructure without behaviour change |
+| [testing.md](../.clinerules/workflows/testing.md) | Add/strengthen tests |
+| [review-fixes.md](../.clinerules/workflows/review-fixes.md) | Apply reviewer changes |
 
 ## Why Rules Are Split
 

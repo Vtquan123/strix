@@ -32,7 +32,7 @@ everything through tasks.
 |---------|---------|
 | A **skill** | Create `skills/<claude|cline>/<name>/` with the five files; reference it in `claude/rules/routing.md` |
 | An **agent** | Add `claude/agents/<name>.md` (reasoning only — no coding agents) |
-| A **Cline workflow** | Add `cline/workflows/<name>.md` describing its execution flow |
+| A **Cline workflow** | Add `.clinerules/workflows/<name>.md` describing its execution flow |
 | A **capability** | Add a row to `workflow/capability-matrix.md`; rules read it |
 | A **future engine** | Add a column to the capability matrix + its own rules dir — no existing rule changes |
 | A **convention** | Update `knowledge/coding-conventions.md` (Claude only) + often an ADR |
@@ -57,7 +57,7 @@ CLAUDE.md    Claude bootstrap contract (auto-loaded)
 .clinerules/ Cline bootstrap rules (identity, workflow, permissions, execution, coding)
 workflow/    engine-agnostic core (runtimes, lifecycle, capability matrix, router)
 claude/      Claude rules + reasoning agents
-cline/       Cline execution workflows (implement, fix, refactor, testing, review-fixes)
+.clinerules/workflows/  Cline execution workflows (implement, fix, refactor, testing, review-fixes)
 knowledge/   source of truth (context, conventions, architecture, glossary, ADRs)
 skills/      reusable reasoning + implementation skills
 tasks/       the task board (queue/active/review/done/archive)
