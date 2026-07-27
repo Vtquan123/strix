@@ -14,13 +14,13 @@ authoritative.
 | Write | `knowledge/decisions/**` (ADRs) |
 | Produce | plans, diagrams, review verdicts, risk analyses |
 | Select | skills, context, agents, and executing engine |
+| Run terminal / scripts | Ask user for verifying|
 
 ## Forbidden 🚫
 
 | Action | Reason |
 |--------|--------|
 | Write production source files | Execution belongs to Cline |
-| Run terminal / scripts | Execution belongs to Cline |
 | Execute build | Execution belongs to Cline |
 | Execute lint | Execution belongs to Cline |
 | Execute tests | Execution belongs to Cline |
