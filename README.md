@@ -79,7 +79,7 @@ strix/
 │   └── skills/                   # 10 reasoning skills (5 files each)
 ├── .agents/                      # Execution Runtime config (catalog only)
 ├── .cline/
-│   └── skills/                   # 9 implementation skills (SKILL.md each)
+│   └── skills/                   # implementation skills (SKILL.md each) — none yet
 ├── knowledge/                    # source of truth (Claude R/W, Cline R)
 │   ├── project-context.md
 │   ├── coding-conventions.md

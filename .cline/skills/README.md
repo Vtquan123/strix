@@ -11,36 +11,37 @@ agent or workflow never self-selects.
 | **Reasoning** | Claude | [`.claude/skills/`](../../.claude/skills/) | How to think: plan, design, review, govern |
 | **Implementation** | Cline | [`.cline/skills/`](./) | How to build: code, test, ship |
 
-## Every Skill Has Five Files
+## Every Skill Is One `SKILL.md`
 
-Each skill directory contains exactly:
+Skills follow the open [Agent Skills format](https://agentskills.io/specification):
+one `SKILL.md` per skill directory, with YAML frontmatter followed by instructions.
 
-| File | Contents |
-|------|----------|
-| `skill.md` | Overview: purpose, when to use, inputs/outputs, related skills |
-| `examples.md` | Worked examples showing the skill applied |
-| `rules.md` | Do / Don't — the guardrails |
-| `commands.md` | Reasoning skills: the step procedure. Implementation skills: real CLI commands |
-| `checklist.md` | Pre-flight / done checklist to self-verify |
+```yaml
+---
+name: skill-name          # lowercase-hyphen; must match the folder name
+description: What the skill does and when to activate it.
+---
+```
 
-This uniform shape makes skills modular, comparable, and easy to extend — add a
-new skill by copying the five-file structure.
+The body carries the purpose, when-to-use, procedure, rules, checklist, and
+examples. Optional subdirs (`references/`/`docs/`, `templates/`, `scripts/`) load
+on demand via progressive disclosure. This uniform shape makes skills modular,
+comparable, and easy to extend — add a new skill by copying the `SKILL.md` shape.
 
 ## Reasoning Skills (Claude)
 
 `planning` · `architecture` · `brainstorming` · `review` · `documentation` ·
-`risk-analysis` · `task-breakdown` · `ADR` · `knowledge-update` ·
+`risk-analysis` · `task-breakdown` · `adr` · `knowledge-update` ·
 `cline-skill-handler`
 
 ## Implementation Skills (Cline)
 
-`react` · `nextjs` · `node` · `typescript` · `sql` · `testing` · `debugging` ·
-`git` · `performance`
+_None yet._ Add one with the `cline-skill-handler` Claude skill.
 
 ## Extending
 
 1. Pick the kind (reasoning → `.claude/skills/`, implementation → `.cline/skills/`).
-2. Create `.claude/skills/<name>/` or `.cline/skills/<name>/` with the five files.
+2. Create `.claude/skills/<name>/SKILL.md` or `.cline/skills/<name>/SKILL.md`.
 3. Reference it from the Router's [routing rules](../../.claude/rules/routing.md) so
    it can be selected.
 

@@ -9,7 +9,7 @@ The complete documentation set for the Strix workflow framework.
 | [router.md](./router.md) | The five routing functions + capability dispatch |
 | [knowledge.md](./knowledge.md) | The knowledge layer + access model |
 | [agents.md](./agents.md) | The four Claude agents (no coding agents) |
-| [skills.md](./skills.md) | The 21 skills + five-file contract |
+| [skills.md](./skills.md) | The skills + single-`SKILL.md` contract |
 | [rules.md](./rules.md) | Claude + Cline rules and workflows |
 | [governance.md](./governance.md) | When knowledge updates; anti-over-engineering |
 | [task-templates.md](./task-templates.md) | Task fields + lifecycle |

@@ -27,7 +27,7 @@ un-requested context is violating the framework.
 | feature | EPIC | `task-creator-agent` → decompose | planning, task-breakdown, architecture |
 | fix | TRIVIAL/SIMPLE | `task-creator-agent` → `fix` | — |
 | refactor | STANDARD | `task-creator-agent` → `refactor` | architecture, risk-analysis |
-| arch | STANDARD/EPIC | `task-creator-agent` + `ADR` | architecture, risk-analysis, ADR |
+| arch | STANDARD/EPIC | `task-creator-agent` + `adr` | architecture, risk-analysis, adr |
 | review | any | `reviewer-agent` | review, risk-analysis |
 | knowledge | any | `knowledge-agent` | knowledge-update, documentation |
 

@@ -30,7 +30,7 @@ everything through tasks.
 
 | To add… | Do this |
 |---------|---------|
-| A **skill** | Reasoning: create `.claude/skills/<name>/` with the five-file contract. Implementation: create `.cline/skills/<name>/SKILL.md` with `name`+`description` frontmatter (use `cline-skill-handler`); reference it in `.claude/rules/routing.md` |
+| A **skill** | Reasoning: create `.claude/skills/<name>/SKILL.md` with `name`+`description` frontmatter. Implementation: create `.cline/skills/<name>/SKILL.md` with `name`+`description` frontmatter (use `cline-skill-handler`); reference it in `.claude/rules/routing.md` |
 | An **agent** | Add `.claude/agents/<name>.md` (reasoning only — no coding agents) |
 | A **Cline workflow** | Add `.clinerules/workflows/<name>.md` describing its execution flow |
 | A **capability** | Add a row to `workflow/capability-matrix.md`; rules read it |

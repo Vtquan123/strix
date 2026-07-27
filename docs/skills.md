@@ -12,17 +12,27 @@ Router selects them; they are recorded in a task's `Suggested Skills`.
 
 ## File Contracts
 
-**Reasoning skills** (Claude) — five-file contract under `.claude/skills/<name>/`:
+Both kinds follow the open [Agent Skills format](https://agentskills.io/specification):
+a single `SKILL.md` per skill, with YAML frontmatter (`name` + `description`
+required) followed by the instructions. Optional subdirs (`references/`,
+`scripts/`, `assets/`) load on demand via progressive disclosure.
 
-| File | Purpose |
-|------|---------|
-| `skill.md` | Overview: purpose, when to use, I/O, related skills |
-| `examples.md` | Worked examples |
-| `rules.md` | Do / Don't guardrails |
-| `commands.md` | The step procedure |
-| `checklist.md` | Self-verification checklist |
+**Reasoning skills** (Claude) — single file under `.claude/skills/<name>/SKILL.md`:
 
-**Implementation skills** (Cline) — single file under `.cline/skills/<name>/SKILL.md` with YAML frontmatter:
+```yaml
+---
+name: skill-name          # lowercase-hyphen; must match the folder name
+description: What the skill does and when the Router should select it.
+metadata:
+  kind: reasoning
+  engine: claude
+---
+```
+
+The body merges the skill's purpose, when-to-use, procedure, rules, checklist,
+and examples. Keep it under ~500 lines; move any deep reference into `references/`.
+
+**Implementation skills** (Cline) — single file under `.cline/skills/<name>/SKILL.md`:
 
 ```yaml
 ---
@@ -31,7 +41,7 @@ description: One sentence — when Cline should activate this skill.
 ---
 ```
 
-The `description` field drives Cline's progressive loading. Optional subdirs: `docs/`, `templates/`, `scripts/`.
+The `description` field drives progressive loading. Optional subdirs: `docs/`, `templates/`, `scripts/`.
 
 ## Reasoning Skills (Claude)
 
@@ -44,26 +54,17 @@ The `description` field drives Cline's progressive loading. Optional subdirs: `d
 | documentation | Keep docs/knowledge accurate + minimal |
 | risk-analysis | Surface + mitigate risks |
 | task-breakdown | Decompose EPICs into STANDARD tasks |
-| ADR | Record significant decisions |
+| adr | Record significant decisions |
 | knowledge-update | Apply knowledge governance |
 | cline-skill-handler | Create/update/delete Cline skills + sync references |
 
 ## Implementation Skills (Cline)
 
-| Skill | Role |
-|-------|------|
-| react | Components |
-| node | Backend/APIs |
-| typescript | Precise typing |
-| sql | Queries + migrations |
-| testing | Behaviour tests |
-| debugging | Root-cause fixes |
-| git | Branches + commits |
-| performance | Measured optimization |
+_None yet._ Add one with the `cline-skill-handler` Claude skill.
 
 ## Extending
 
-- **Reasoning skill** → copy the five-file contract into `.claude/skills/<name>/`.
+- **Reasoning skill** → create `.claude/skills/<name>/SKILL.md` with `name` + `description` frontmatter.
 - **Implementation skill** → create `.cline/skills/<name>/SKILL.md` using the `cline-skill-handler` Claude skill.
 
 Then reference the skill from [../.claude/rules/routing.md](../.claude/rules/routing.md).
