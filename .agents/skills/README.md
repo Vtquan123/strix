@@ -35,7 +35,7 @@ new skill by copying the five-file structure.
 ## Implementation Skills (Cline)
 
 `react` · `nextjs` · `node` · `typescript` · `sql` · `testing` · `debugging` ·
-`git` · `docker` · `security` · `performance`
+`git` · `performance`
 
 ## Extending
 

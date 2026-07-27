@@ -51,8 +51,6 @@ This uniform shape is what makes skills modular and extensible.
 | testing | Behaviour tests |
 | debugging | Root-cause fixes |
 | git | Branches + commits |
-| docker | Containerization |
-| security | Secure implementation |
 | performance | Measured optimization |
 
 ## Extending
