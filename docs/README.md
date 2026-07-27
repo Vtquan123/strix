@@ -22,7 +22,7 @@ The complete documentation set for the Strix workflow framework.
 - Claude rules + agents + reasoning skills: [../.claude/](../.claude/)
 - Cline rules + workflows: [../.clinerules/](../.clinerules/)
 - Knowledge source of truth: [../knowledge/](../knowledge/)
-- Cline implementation skills: [../.agents/skills/](../.agents/skills/)
+- Cline implementation skills: [../.cline/skills/](../.cline/skills/)
 - Tasks: [../tasks/](../tasks/)
 
 Start at the [root README](../README.md).

@@ -8,21 +8,30 @@ Router selects them; they are recorded in a task's `Suggested Skills`.
 | Kind | Engine | Location |
 |------|--------|----------|
 | Reasoning | Claude | [`.claude/skills/`](../.claude/skills/) |
-| Implementation | Cline | [`.agents/skills/`](../.agents/skills/) |
+| Implementation | Cline | [`.cline/skills/`](../.cline/skills/) |
 
-## Five-File Contract
+## File Contracts
 
-Every skill directory contains exactly five files:
+**Reasoning skills** (Claude) — five-file contract under `.claude/skills/<name>/`:
 
 | File | Purpose |
 |------|---------|
 | `skill.md` | Overview: purpose, when to use, I/O, related skills |
 | `examples.md` | Worked examples |
 | `rules.md` | Do / Don't guardrails |
-| `commands.md` | Reasoning: the procedure. Implementation: real CLI commands |
+| `commands.md` | The step procedure |
 | `checklist.md` | Self-verification checklist |
 
-This uniform shape is what makes skills modular and extensible.
+**Implementation skills** (Cline) — single file under `.cline/skills/<name>/SKILL.md` with YAML frontmatter:
+
+```yaml
+---
+name: skill-name
+description: One sentence — when Cline should activate this skill.
+---
+```
+
+The `description` field drives Cline's progressive loading. Optional subdirs: `docs/`, `templates/`, `scripts/`.
 
 ## Reasoning Skills (Claude)
 
@@ -44,7 +53,6 @@ This uniform shape is what makes skills modular and extensible.
 | Skill | Role |
 |-------|------|
 | react | Components |
-| nextjs | Routing/rendering |
 | node | Backend/APIs |
 | typescript | Precise typing |
 | sql | Queries + migrations |
@@ -55,7 +63,8 @@ This uniform shape is what makes skills modular and extensible.
 
 ## Extending
 
-Copy the five-file structure into `.claude/skills/<name>/` (reasoning) or
-`.agents/skills/<name>/` (implementation), then reference the skill from
-[../.claude/rules/routing.md](../.claude/rules/routing.md). Index:
-[../.agents/skills/README.md](../.agents/skills/README.md).
+- **Reasoning skill** → copy the five-file contract into `.claude/skills/<name>/`.
+- **Implementation skill** → create `.cline/skills/<name>/SKILL.md` using the `cline-skill-handler` Claude skill.
+
+Then reference the skill from [../.claude/rules/routing.md](../.claude/rules/routing.md).
+Index: [../.cline/skills/README.md](../.cline/skills/README.md).

@@ -77,8 +77,9 @@ strix/
 │   ├── rules/                    # identity, workflow, permissions, routing, knowledge
 │   ├── agents/                   # triage, task-creator, reviewer, knowledge
 │   └── skills/                   # 10 reasoning skills (5 files each)
-├── .agents/                      # Execution Runtime config
-│   └── skills/                   # 9 implementation skills (5 files each)
+├── .agents/                      # Execution Runtime config (catalog only)
+├── .cline/
+│   └── skills/                   # 9 implementation skills (SKILL.md each)
 ├── knowledge/                    # source of truth (Claude R/W, Cline R)
 │   ├── project-context.md
 │   ├── coding-conventions.md
