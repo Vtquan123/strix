@@ -11,7 +11,7 @@ un-requested context is violating the framework.
 
 ## The Five Functions (in order)
 
-1. **Intent Detection** — feature | fix | refactor | question | arch | knowledge | review.
+1. **Intent Detection** — feature | fix | refactor | question | arch | knowledge | review | skill-install.
 2. **Complexity Detection** — TRIVIAL | SIMPLE | STANDARD | EPIC.
 3. **Skill Selection** — minimal skill set, recorded in `Suggested Skills`.
 4. **Context Selection** — minimal `knowledge/*` + task fields to load.
@@ -30,6 +30,7 @@ un-requested context is violating the framework.
 | arch | STANDARD/EPIC | `task-creator-agent` + `adr` | architecture, risk-analysis, adr |
 | review | any | `reviewer-agent` | review, risk-analysis |
 | knowledge | any | `knowledge-agent` | knowledge-update, documentation |
+| skill-install | any | `knowledge-agent` → `skill-manager` | skill-manager, risk-analysis |
 
 ## Capability-Matrix Discipline
 

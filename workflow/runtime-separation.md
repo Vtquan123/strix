@@ -46,8 +46,9 @@ flowchart LR
 **Responsibilities:** requirement analysis, brainstorming, triage, planning,
 architecture, task breakdown, review, knowledge updates, ADR management.
 
-**Claude MUST NOT:** write production code, run the terminal, modify source
-files directly, execute build, execute lint, execute tests.
+**Claude MUST NOT:** write production code, modify source files directly,
+execute build, execute lint, execute tests. Claude **MAY** run the terminal on
+demand (inspect state, verify) — this capability is shared with Cline.
 
 ## Execution Runtime
 

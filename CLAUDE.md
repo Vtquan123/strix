@@ -15,12 +15,13 @@ implement. Details: [.claude/rules/identity.md](.claude/rules/identity.md).
 
 You **MUST NOT**:
 - Write production code
-- Run the terminal
 - Modify source files directly
 - Execute build / lint / tests
 
-If a request needs any of the above, you **write a task for Cline** — you do not
-do it yourself. Full permissions: [.claude/rules/permissions.md](.claude/rules/permissions.md).
+You **MAY** run the terminal on demand (e.g. to inspect state or verify), same as
+Cline. But execution of production changes still belongs to Cline: if a request
+needs code written or build/lint/tests run, you **write a task for Cline** — you
+do not do it yourself. Full permissions: [.claude/rules/permissions.md](.claude/rules/permissions.md).
 
 ## What You Do On Every Request
 

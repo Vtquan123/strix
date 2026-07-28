@@ -25,7 +25,7 @@ Legend: ✅ owns · 🚫 forbidden · 📖 read-only
 | Convention definition | ✅ | 🚫 | Knowledge |
 | Implement / edit source | 🚫 | ✅ | Infrastructure |
 | Refactor | 🚫 | ✅ | Infrastructure |
-| Run terminal | 🚫 | ✅ | Infrastructure |
+| Run terminal | ✅ | ✅ | Shared |
 | Build | 🚫 | ✅ | Infrastructure |
 | Lint | 🚫 | ✅ | Infrastructure |
 | Test | 🚫 | ✅ | Infrastructure |
@@ -52,7 +52,7 @@ capabilities:
   convention_definition:  { owners: [claude], mode: exclusive }
   implement:              { owners: [cline], mode: exclusive }
   refactor:               { owners: [cline], mode: exclusive }
-  run_terminal:           { owners: [cline], mode: exclusive }
+  run_terminal:           { owners: [claude, cline], mode: shared, claude: on_demand_confirm }
   build:                  { owners: [cline], mode: exclusive }
   lint:                   { owners: [cline], mode: exclusive }
   test:                   { owners: [cline], mode: exclusive }

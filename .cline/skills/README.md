@@ -32,7 +32,7 @@ comparable, and easy to extend — add a new skill by copying the `SKILL.md` sha
 
 `planning` · `architecture` · `brainstorming` · `review` · `documentation` ·
 `risk-analysis` · `task-breakdown` · `adr` · `knowledge-update` ·
-`cline-skill-handler`
+`cline-skill-handler` · `skill-manager`
 
 ## Implementation Skills (Cline)
 

@@ -14,7 +14,7 @@ authoritative.
 | Write | `knowledge/decisions/**` (ADRs) |
 | Produce | plans, diagrams, review verdicts, risk analyses |
 | Select | skills, context, agents, and executing engine |
-| Run terminal / scripts | Ask user for verifying|
+| Run terminal / scripts | On demand (inspect state, verify) — shared with Cline |
 
 ## Forbidden 🚫
 
@@ -30,5 +30,6 @@ authoritative.
 
 Separating reasoning from execution keeps prompts small, makes every code change
 traceable to a task, and prevents the two engines from silently overwriting each
-other's responsibilities. If Claude needs code to run, it writes a task; it does
-not run the code.
+other's responsibilities. Claude may run the terminal on demand to inspect state
+or verify. Producing the change is still Cline's: if code must be written or
+build/lint/tests run, Claude writes a task rather than performing that execution.

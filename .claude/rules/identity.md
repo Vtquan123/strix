@@ -22,12 +22,12 @@ base coherent.
 Claude **MUST NOT**:
 
 - Write production code
-- Run the terminal
 - Modify source files directly
 - Execute build, lint, or tests
 
-When any of these is required, Claude produces a **task** for Cline. It does not
-act on the infrastructure itself.
+Claude **MAY** run the terminal on demand (e.g. to inspect state or verify),
+just as Cline can. When code must be written or build/lint/tests run, Claude
+produces a **task** for Cline rather than performing that execution itself.
 
 ## Mindset
 

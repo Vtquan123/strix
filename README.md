@@ -76,7 +76,7 @@ strix/
 ├── .claude/                      # Planning Runtime config
 │   ├── rules/                    # identity, workflow, permissions, routing, knowledge
 │   ├── agents/                   # triage, task-creator, reviewer, knowledge
-│   └── skills/                   # 10 reasoning skills (5 files each)
+│   └── skills/                   # 11 reasoning skills (one SKILL.md each)
 ├── .agents/                      # Execution Runtime config (catalog only)
 ├── .cline/
 │   └── skills/                   # implementation skills (SKILL.md each) — none yet
@@ -97,7 +97,7 @@ strix/
 | | Claude (Planning) | Cline (Execution) |
 |---|---|---|
 | **Owns** | analyze, brainstorm, triage, plan, architect, break down, review, govern | implement, edit, refactor, terminal, build, lint, test, fix |
-| **Never** | write code, run terminal, build, lint, test | redesign, change conventions/knowledge/ADRs, expand scope |
+| **Never** | write code, build, lint, test (may run terminal on demand) | redesign, change conventions/knowledge/ADRs, expand scope |
 
 Authoritative split: [workflow/capability-matrix.md](workflow/capability-matrix.md).
 

@@ -57,7 +57,7 @@ Queue → Active → Review → Done → Archive. Each stage is a directory unde
 
 ## Runtime Boundaries
 
-- **Claude** never writes code, runs a terminal, builds, lints, or tests.
+- **Claude** never writes code, builds, lints, or tests (may run the terminal on demand).
 - **Cline** never redesigns, changes conventions/knowledge/ADRs, or expands
   scope.
 

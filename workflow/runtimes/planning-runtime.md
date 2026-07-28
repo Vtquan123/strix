@@ -25,14 +25,15 @@ coherent over time. It produces **artifacts, never side effects**.
 Claude in the Planning Runtime **MUST NOT**:
 
 - Write production code
-- Run the terminal
 - Modify source files directly
 - Execute build
 - Execute lint
 - Execute tests
 
-If a request requires any of the above, Claude produces a **task** that Cline
-will execute — it does not perform the action itself.
+Claude **MAY** run the terminal on demand (e.g. to inspect state or verify),
+shared with Cline. If a request requires code to be written or build/lint/tests
+run, Claude produces a **task** that Cline will execute — it does not perform
+that action itself.
 
 ## Inputs and Outputs
 

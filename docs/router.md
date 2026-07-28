@@ -12,7 +12,7 @@ flowchart LR
     M -.-> E
 ```
 
-1. **Intent Detection** — feature | fix | refactor | question | arch | knowledge | review.
+1. **Intent Detection** — feature | fix | refactor | question | arch | knowledge | review | skill-install.
 2. **Complexity Detection** — TRIVIAL | SIMPLE | STANDARD | EPIC.
 3. **Skill Selection** — minimal skills → task `Suggested Skills`.
 4. **Context Selection** — minimal `knowledge/*` + task fields to load.
@@ -55,6 +55,7 @@ capability: task_breakdown
 | arch | STANDARD/EPIC | task-creator-agent + ADR |
 | review | any | reviewer-agent |
 | knowledge | any | knowledge-agent |
+| skill-install | any | knowledge-agent → skill-manager |
 
 Full rules: [../.claude/rules/routing.md](../.claude/rules/routing.md) ·
 [../workflow/router.md](../workflow/router.md).

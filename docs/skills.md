@@ -57,6 +57,7 @@ The `description` field drives progressive loading. Optional subdirs: `docs/`, `
 | adr | Record significant decisions |
 | knowledge-update | Apply knowledge governance |
 | cline-skill-handler | Create/update/delete Cline skills + sync references |
+| skill-manager | Install/update/remove skills.sh skills into `.claude` or `.cline` + sync docs |
 
 ## Implementation Skills (Cline)
 
@@ -66,6 +67,7 @@ _None yet._ Add one with the `cline-skill-handler` Claude skill.
 
 - **Reasoning skill** → create `.claude/skills/<name>/SKILL.md` with `name` + `description` frontmatter.
 - **Implementation skill** → create `.cline/skills/<name>/SKILL.md` using the `cline-skill-handler` Claude skill.
+- **From the [skills.sh](https://www.skills.sh) registry** → use the `skill-manager` Claude skill to search, install, update, or remove a ready-made skill into either layer.
 
 Then reference the skill from [../.claude/rules/routing.md](../.claude/rules/routing.md).
 Index: [../.cline/skills/README.md](../.cline/skills/README.md).

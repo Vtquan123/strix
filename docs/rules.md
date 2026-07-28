@@ -15,8 +15,8 @@ are derived from the
 | [routing.md](../.claude/rules/routing.md) | The five routing functions + routing table |
 | [knowledge.md](../.claude/rules/knowledge.md) | When/how Claude updates knowledge; read-only map |
 
-**Core:** Claude thinks, delegates, and never writes code, runs a terminal,
-builds, lints, or tests.
+**Core:** Claude thinks, delegates, and never writes code, builds, lints, or
+tests. It may run the terminal on demand (shared with Cline).
 
 ## Cline Rules — `.clinerules/`
 
