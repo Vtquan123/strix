@@ -9,7 +9,7 @@ agent or workflow never self-selects.
 | Kind | Engine | Directory | Purpose |
 |------|--------|-----------|---------|
 | **Reasoning** | Claude | [`.claude/skills/`](../../.claude/skills/) | How to think: plan, design, review, govern |
-| **Implementation** | Cline | [`.cline/skills/`](./) | How to build: code, test, ship |
+| **Implementation** | Cline | [`.clinerules/skills/`](./) | How to build: code, test, ship |
 
 ## Every Skill Is One `SKILL.md`
 
@@ -40,8 +40,8 @@ _None yet._ Add one with the `cline-skill-handler` Claude skill.
 
 ## Extending
 
-1. Pick the kind (reasoning → `.claude/skills/`, implementation → `.cline/skills/`).
-2. Create `.claude/skills/<name>/SKILL.md` or `.cline/skills/<name>/SKILL.md`.
+1. Pick the kind (reasoning → `.claude/skills/`, implementation → `.clinerules/skills/`).
+2. Create `.claude/skills/<name>/SKILL.md` or `.clinerules/skills/<name>/SKILL.md`.
 3. Reference it from the Router's [routing rules](../../.claude/rules/routing.md) so
    it can be selected.
 

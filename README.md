@@ -61,7 +61,8 @@ strix/
 ├── README.md                     # you are here
 ├── CLAUDE.md                     # Claude's bootstrap — loaded first every session
 ├── .clinerules/                  # Cline's bootstrap — identity, workflow, permissions, execution, coding
-│   └── workflows/                # implement, fix, refactor, testing, review-fixes
+│   ├── workflows/                # implement, fix, refactor, testing, review-fixes
+│   └── skills/                   # implementation skills (SKILL.md each) — none yet
 ├── workflow/                     # engine-agnostic core
 │   ├── README.md                 # principles + 7 layers + flow
 │   ├── runtime-separation.md     # Claude vs Cline boundary
@@ -78,8 +79,6 @@ strix/
 │   ├── agents/                   # triage, task-creator, reviewer, knowledge
 │   └── skills/                   # 11 reasoning skills (one SKILL.md each)
 ├── .agents/                      # Execution Runtime config (catalog only)
-├── .cline/
-│   └── skills/                   # implementation skills (SKILL.md each) — none yet
 ├── knowledge/                    # source of truth (Claude R/W, Cline R)
 │   ├── project-context.md
 │   ├── coding-conventions.md

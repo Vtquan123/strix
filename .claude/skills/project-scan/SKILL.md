@@ -62,7 +62,7 @@ build/lint/test — reasoning + knowledge authoring only._
 
 **Don't**
 - Don't invent a tech stack, module, or convention the repo does not exhibit.
-- Don't touch `tasks/**`, `.claude/**`, `.cline/**`, or any source file.
+- Don't touch `tasks/**`, `.claude/**`, `.clinerules/**`, or any source file.
 - Don't let Cline write knowledge — Claude only.
 - Don't re-scan an already-populated layer; route that through
   [knowledge-update](../knowledge-update/SKILL.md).

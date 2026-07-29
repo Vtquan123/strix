@@ -8,7 +8,7 @@ Router selects them; they are recorded in a task's `Suggested Skills`.
 | Kind | Engine | Location |
 |------|--------|----------|
 | Reasoning | Claude | [`.claude/skills/`](../.claude/skills/) |
-| Implementation | Cline | [`.cline/skills/`](../.cline/skills/) |
+| Implementation | Cline | [`.clinerules/skills/`](../.clinerules/skills/) |
 
 ## File Contracts
 
@@ -32,7 +32,7 @@ metadata:
 The body merges the skill's purpose, when-to-use, procedure, rules, checklist,
 and examples. Keep it under ~500 lines; move any deep reference into `references/`.
 
-**Implementation skills** (Cline) — single file under `.cline/skills/<name>/SKILL.md`:
+**Implementation skills** (Cline) — single file under `.clinerules/skills/<name>/SKILL.md`:
 
 ```yaml
 ---
@@ -58,7 +58,7 @@ The `description` field drives progressive loading. Optional subdirs: `docs/`, `
 | project-scan | Scan an existing codebase to populate knowledge/* on adoption |
 | knowledge-update | Apply knowledge governance |
 | cline-skill-handler | Create/update/delete Cline skills + sync references |
-| skill-manager | Install/update/remove skills.sh skills into `.claude` or `.cline` + sync docs |
+| skill-manager | Install/update/remove skills.sh skills into `.claude` or `.clinerules` + sync docs |
 
 ## Implementation Skills (Cline)
 
@@ -67,8 +67,8 @@ _None yet._ Add one with the `cline-skill-handler` Claude skill.
 ## Extending
 
 - **Reasoning skill** → create `.claude/skills/<name>/SKILL.md` with `name` + `description` frontmatter.
-- **Implementation skill** → create `.cline/skills/<name>/SKILL.md` using the `cline-skill-handler` Claude skill.
+- **Implementation skill** → create `.clinerules/skills/<name>/SKILL.md` using the `cline-skill-handler` Claude skill.
 - **From the [skills.sh](https://www.skills.sh) registry** → use the `skill-manager` Claude skill to search, install, update, or remove a ready-made skill into either layer.
 
 Then reference the skill from [../.claude/rules/routing.md](../.claude/rules/routing.md).
-Index: [../.cline/skills/README.md](../.cline/skills/README.md).
+Index: [../.clinerules/skills/README.md](../.clinerules/skills/README.md).

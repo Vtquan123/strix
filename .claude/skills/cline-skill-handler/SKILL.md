@@ -1,6 +1,6 @@
 ---
 name: cline-skill-handler
-description: Govern the lifecycle of Cline's implementation skills in .cline/skills/ — create, update, or delete a skill in the open Agent Skills (agentskills.io) format and keep every document that references it consistent. Use when a request asks to add, rewrite, modify, or remove a Cline implementation skill (e.g. "create a graphql skill", "rewrite the skill in .cline/skills/", "delete the docker skill"). Claude authors the definition; Cline executes it.
+description: Govern the lifecycle of Cline's implementation skills in .clinerules/skills/ — create, update, or delete a skill in the open Agent Skills (agentskills.io) format and keep every document that references it consistent. Use when a request asks to add, rewrite, modify, or remove a Cline implementation skill (e.g. "create a graphql skill", "rewrite the skill in .clinerules/skills/", "delete the docker skill"). Claude authors the definition; Cline executes it.
 metadata:
   kind: reasoning
   engine: claude
@@ -9,7 +9,7 @@ metadata:
 # Cline Skill Handler
 
 ## Purpose
-Govern the lifecycle of Cline's implementation skills in `.cline/skills/`:
+Govern the lifecycle of Cline's implementation skills in `.clinerules/skills/`:
 create, update, or delete a skill on request, authored in the open
 [Agent Skills format](https://agentskills.io/specification), while keeping every
 document that points to it consistent. Claude authors the skill definition
@@ -18,7 +18,7 @@ document that points to it consistent. Claude authors the skill definition
 ## When to use
 The Router selects this when a request asks to add, rewrite, modify, or remove a
 Cline implementation skill — e.g. "create a `graphql` skill", "rewrite the skill
-I dropped in `.cline/skills/`", "delete the `docker` skill".
+I dropped in `.clinerules/skills/`", "delete the `docker` skill".
 
 ## Agent Skills format (agentskills.io)
 
@@ -59,7 +59,7 @@ description: What the skill does and WHEN Cline should activate it.
 
 ### Directory layout
 ```
-.cline/skills/<name>/
+.clinerules/skills/<name>/
   SKILL.md          ← required; frontmatter + instructions (< 500 lines / 5 000 tokens)
   references/       ← optional; deeper docs, loaded on demand
   scripts/          ← optional; executable code (only output enters context, not source)
@@ -72,15 +72,15 @@ description: What the skill does and WHEN Cline should activate it.
 - Keep the body lean: front-load core instructions; move overflow to `references/`.
 
 ## Inputs / Outputs
-- **In:** user request, target skill name, existing `.cline/skills/*`, and the
+- **In:** user request, target skill name, existing `.clinerules/skills/*`, and the
   reference documents (see Reference documents below).
-- **Out:** a created/updated/deleted skill under `.cline/skills/<name>/` plus
+- **Out:** a created/updated/deleted skill under `.clinerules/skills/<name>/` plus
   synchronized references — or an explicit "no change" when the user declines.
 
 ## Reference documents to keep in sync
 Any create (with rename), or delete of a Cline skill must be reflected in:
 
-- `.cline/skills/README.md` — Implementation Skills catalog (Claude-side registry)
+- `.clinerules/skills/README.md` — Implementation Skills catalog (Claude-side registry)
 - `docs/skills.md` — "Implementation Skills (Cline)" table + skill count
 - `docs/README.md` — skill count in the `skills.md` row
 - `README.md` — repo-structure tree ("N implementation skills")
@@ -92,14 +92,14 @@ _No terminal commands — reasoning + file authoring only._
 
 **Create**
 1. Confirm the skill name (lowercase-hyphen, will match the folder) and scope.
-2. If the user already hand-authored a skill under `.cline/skills/<name>/`,
+2. If the user already hand-authored a skill under `.clinerules/skills/<name>/`,
    read it and **ask** whether to rewrite it for consistency before touching it.
-3. Write `.cline/skills/<name>/SKILL.md` with valid frontmatter (`name` matching
+3. Write `.clinerules/skills/<name>/SKILL.md` with valid frontmatter (`name` matching
    the dir, a trigger-accurate `description`).
 4. Fill the body minimally: when-to-use, step-by-step instructions, key rules,
    examples. Move any content over ~500 lines / 5,000 tokens into `references/`
    and point to it on demand.
-5. Validate the frontmatter/naming (e.g. `skills-ref validate .cline/skills/<name>`).
+5. Validate the frontmatter/naming (e.g. `skills-ref validate .clinerules/skills/<name>`).
 6. Add the skill to every reference document above.
 
 **Update**
@@ -113,12 +113,12 @@ _No terminal commands — reasoning + file authoring only._
 **Delete**
 1. **Ask** the user to confirm they really want to delete the skill.
 2. If **no** → do nothing and stop.
-3. If **yes** → remove `.cline/skills/<name>/` and its entry from every
+3. If **yes** → remove `.clinerules/skills/<name>/` and its entry from every
    reference document; verify no workflow or routing row still points to it.
 
 ## Rules
 **Do**
-- Author Cline skills as a single `SKILL.md` under `.cline/skills/<name>/`,
+- Author Cline skills as a single `SKILL.md` under `.clinerules/skills/<name>/`,
   following the [Agent Skills spec](https://agentskills.io/specification).
 - Set `name` (lowercase-hyphen, matches the folder) and a specific, imperative
   `description` (≤1024 chars) that controls when Cline activates the skill.
@@ -150,7 +150,7 @@ _No terminal commands — reasoning + file authoring only._
 ## Checklist
 - [ ] Operation identified: create / update / delete
 - [ ] Create: user-authored skill reviewed and rewrite confirmed before editing
-- [ ] Create: `SKILL.md` written under `.cline/skills/<name>/`
+- [ ] Create: `SKILL.md` written under `.clinerules/skills/<name>/`
 - [ ] Frontmatter valid: `name` lowercase-hyphen matching folder + `description`
       (≤1024, says what + when)
 - [ ] `SKILL.md` body under ~500 lines / 5,000 tokens; overflow moved to `references/`
@@ -159,25 +159,25 @@ _No terminal commands — reasoning + file authoring only._
 - [ ] Update: critical changes (rename, capability/workflow break) confirmed
 - [ ] Delete: user explicitly confirmed before removal
 - [ ] All reference documents synced (README, docs/skills.md, docs/README.md,
-      .cline/skills/README.md, routing table)
+      .clinerules/skills/README.md, routing table)
 - [ ] Skill counts accurate; no dangling references remain
 
 ## Examples
 ### Create a new skill
 User: "Add a `graphql` skill for Cline." → Confirm scope, write
-`.cline/skills/graphql/SKILL.md` with `name: graphql` and a specific, imperative
-`description`, keep the body lean, then add `graphql` to `.cline/skills/README.md`,
+`.clinerules/skills/graphql/SKILL.md` with `name: graphql` and a specific, imperative
+`description`, keep the body lean, then add `graphql` to `.clinerules/skills/README.md`,
 `docs/skills.md`, and bump the counts in `docs/README.md` and `README.md`.
 
 ### Rewrite a hand-authored skill
-User dropped a rough `.cline/skills/kafka/SKILL.md` and asks Claude to make it
+User dropped a rough `.clinerules/skills/kafka/SKILL.md` and asks Claude to make it
 consistent. → Read it first, **ask** "Rewrite to valid Agent Skills
 `name`/`description` frontmatter and structure, keeping your scope?" Only rewrite
 after a yes.
 
 ### Update with a critical change
 User: "Rename `node` to `backend`." → Breaks references, so **confirm** first,
-then rename the folder `.cline/skills/node/` → `.cline/skills/backend/` (so `name`
+then rename the folder `.clinerules/skills/node/` → `.clinerules/skills/backend/` (so `name`
 still matches the dir), update the `name` field, and propagate `node → backend`
 across every reference document and any routing row.
 
@@ -188,7 +188,7 @@ A `testing` skill body exceeds 5,000 tokens. → Keep the core workflow in
 
 ### Delete
 User: "Delete the `docker` skill." → **Ask** "Delete `docker` permanently?" If
-yes, remove `.cline/skills/docker/` and strip it from all references; if no,
+yes, remove `.clinerules/skills/docker/` and strip it from all references; if no,
 do nothing.
 
 ## Related

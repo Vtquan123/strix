@@ -1,6 +1,6 @@
 ---
 name: skill-manager
-description: Install, update, or remove skills from the skills.sh registry (Vercel Labs `npx skills`) into either .claude/skills/ (reasoning) or .cline/skills/ (implementation). Use when a request asks to add or find a skill from skills.sh, install a skill by owner/repo or a direct link, or update/delete a skills.sh-installed skill — e.g. "add a react skill", "install owner/repo --skill x", "update the react skill", "remove the sql skill". Searches the registry, reviews the skill for safety, installs into the chosen layer, patches reasoning-skill metadata when needed, then syncs the registry docs.
+description: Install, update, or remove skills from the skills.sh registry (Vercel Labs `npx skills`) into either .claude/skills/ (reasoning) or .clinerules/skills/ (implementation). Use when a request asks to add or find a skill from skills.sh, install a skill by owner/repo or a direct link, or update/delete a skills.sh-installed skill — e.g. "add a react skill", "install owner/repo --skill x", "update the react skill", "remove the sql skill". Searches the registry, reviews the skill for safety, installs into the chosen layer, patches reasoning-skill metadata when needed, then syncs the registry docs.
 metadata:
   kind: reasoning
   engine: claude
@@ -12,7 +12,7 @@ metadata:
 Manage the lifecycle of skills sourced from the open-source
 [skills.sh](https://www.skills.sh) registry (the Vercel Labs `npx skills` CLI),
 installing them into Strix's two skill layers — `.claude/skills/` (reasoning) and
-`.cline/skills/` (implementation) — and keeping every document that references them
+`.clinerules/skills/` (implementation) — and keeping every document that references them
 consistent. skills.sh skills already use the open
 [Agent Skills format](https://agentskills.io/specification) (one `SKILL.md`,
 `name` + `description` frontmatter), so they drop in with minimal conversion.
@@ -35,7 +35,7 @@ The Router selects this when a request asks to:
 
 ## Inputs / Outputs
 - **In:** user request; a search query, `owner/repo`, or direct link; the chosen target
-  layer; existing `.claude/skills/*` and `.cline/skills/*`; the registry docs (below).
+  layer; existing `.claude/skills/*` and `.clinerules/skills/*`; the registry docs (below).
 - **Out:** a skill installed/updated/removed under the chosen layer, reasoning-metadata
   patched when needed, and the registry docs synced — or an explicit "no change" when the
   user declines or the security review blocks.
@@ -53,7 +53,7 @@ The Router selects this when a request asks to:
 - **Source** accepts `owner/repo`, full GitHub/GitLab URLs, `…/tree/<branch>/skills/<name>`
   deep links, and local paths. `'*'` installs every skill in a repo.
 - **Agent flag** picks the target directory: `-a claude` → `.claude/skills/`,
-  `-a cline` → `.cline/skills/`.
+  `-a cline` → `.clinerules/skills/`.
 - Use **project scope** (default; committed). Do not use `-g` (global) unless the user
   explicitly asks for a machine-wide install.
 
@@ -61,7 +61,7 @@ The Router selects this when a request asks to:
 - **Reasoning** (`-a claude` → `.claude/skills/`) — how-to-**think** skills: planning,
   review, architecture, domain reasoning. **Requires a metadata patch after install** (see
   Procedure step 5).
-- **Implementation** (`-a cline` → `.cline/skills/`) — how-to-**build** skills: code,
+- **Implementation** (`-a cline` → `.clinerules/skills/`) — how-to-**build** skills: code,
   test, ship. No patch — skills.sh format already matches Cline's.
 - If the request doesn't make the layer obvious, **ask the user** before installing.
 
@@ -149,7 +149,7 @@ entries.
 ## Docs to keep in sync
 An add / rename / remove must update the registry docs **for the layer it touched**:
 
-- [.cline/skills/README.md](../../../.cline/skills/README.md) — the Reasoning **and**
+- [.clinerules/skills/README.md](../../../.clinerules/skills/README.md) — the Reasoning **and**
   Implementation skill lists (Claude-side registry)
 - [docs/skills.md](../../../docs/skills.md) — the **Reasoning Skills** table (if `-a claude`)
   or the **Implementation Skills** table (if `-a cline`), plus any count
@@ -175,7 +175,7 @@ An add / rename / remove must update the registry docs **for the layer it touche
 
 **Don't**
 - Don't install a skill that failed the security review; never override a DANGEROUS verdict.
-- Don't add `metadata.kind`/`engine` to a **Cline** (`.cline/skills/`) install — Cline reads
+- Don't add `metadata.kind`/`engine` to a **Cline** (`.clinerules/skills/`) install — Cline reads
   only `name`+`description`.
 - Don't use `-g`/global unless the user explicitly asks.
 - Don't remove or update a skill without confirming first.
@@ -184,7 +184,7 @@ An add / rename / remove must update the registry docs **for the layer it touche
 
 ## Checklist
 - [ ] Operation identified: add / update / remove / list
-- [ ] Target layer chosen (reasoning `.claude` vs implementation `.cline`); asked if unclear
+- [ ] Target layer chosen (reasoning `.claude` vs implementation `.clinerules`); asked if unclear
 - [ ] Source resolved: search pick, `owner/repo`, or direct link
 - [ ] Security review run; verdict handled (SAFE proceed / WARNING confirm / DANGEROUS block)
 - [ ] `npx skills` command run at project scope
@@ -199,7 +199,7 @@ User: "Add a react skill." → `npx skills find react` (top row = most-installed
 present matches via AskUserQuestion, confirm layer = implementation, security-review the
 pick, then
 `npx skills add <owner/repo> --skill react -a cline` → add the row to the Implementation
-table in `docs/skills.md` and `.cline/skills/README.md`, bump counts.
+table in `docs/skills.md` and `.clinerules/skills/README.md`, bump counts.
 
 ### Add a reasoning skill from a direct link
 User pastes `https://github.com/owner/repo/tree/main/skills/architecture-review` for
