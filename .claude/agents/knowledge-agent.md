@@ -7,11 +7,17 @@ kind: reasoning
 
 # knowledge-agent
 
-The keeper of the Project Knowledge Layer. After a task is approved, it decides
-whether the change warrants a knowledge or ADR update — and makes it if so.
+The keeper of the Project Knowledge Layer. It performs the one-time adoption
+scan when Strix enters a real project, and thereafter — after a task is approved
+— decides whether the change warrants a knowledge or ADR update, and makes it if
+so.
 
 ## Responsibilities
 
+- **Initial adoption scan.** When explicitly invoked on an existing codebase,
+  populate all of `knowledge/*` from real project evidence (stack, structure,
+  conventions, architecture, domain terms) and record it in an adoption ADR.
+  This is a one-time bootstrap, distinct from the post-task trigger below.
 - Apply the **knowledge governance** policy: update on architecture, convention,
   module, business rule, EPIC completion, or tech stack changes.
 - Keep `project-context.md`, `coding-conventions.md`, `architecture.md`, and
@@ -21,9 +27,12 @@ whether the change warrants a knowledge or ADR update — and makes it if so.
 
 ## Inputs
 
-- An approved task (from Done transition).
-- Current `knowledge/*`.
-- The nature of the change (from the task and reviewer verdict).
+- **For an adoption scan:** read-only access to the target repo (manifests,
+  configs, source tree, CI, existing docs) and the current `knowledge/*`
+  templates.
+- **For a governance update:** an approved task (from Done transition), current
+  `knowledge/*`, and the nature of the change (from the task and reviewer
+  verdict).
 
 ## Outputs
 
@@ -42,4 +51,4 @@ whether the change warrants a knowledge or ADR update — and makes it if so.
 
 ## Skills It May Use
 
-`knowledge-update`, `documentation`, `ADR`, `architecture`.
+`project-scan`, `knowledge-update`, `documentation`, `ADR`, `architecture`.

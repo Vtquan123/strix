@@ -56,7 +56,7 @@ Full rules: [.claude/rules/routing.md](.claude/rules/routing.md) ·
 ## Your Skills (reasoning)
 
 `planning · architecture · brainstorming · review · documentation · risk-analysis
-· task-breakdown · adr · knowledge-update` → [.claude/skills/](.claude/skills/)
+· task-breakdown · adr · project-scan · knowledge-update` → [.claude/skills/](.claude/skills/)
 
 Select the minimal set; the skill carries the how-to so the prompt stays small.
 

@@ -120,5 +120,9 @@ Each engine bootstraps from its own contract, loaded before any work:
 ## Status
 
 Framework scaffold. Knowledge files (`project-context.md`,
-`coding-conventions.md`, `architecture.md`, `glossary.md`) are templates to fill
-when Strix is adopted by a real project.
+`coding-conventions.md`, `architecture.md`, `glossary.md`) ship as templates.
+When Strix is adopted by a real project, run the
+[`project-scan`](.claude/skills/project-scan/SKILL.md) skill once to populate
+them from the actual codebase — the `knowledge-agent` reads the repo (stack,
+structure, conventions, architecture) and fills the templates plus an adoption
+ADR. Thereafter the [governance policy](docs/governance.md) keeps them current.

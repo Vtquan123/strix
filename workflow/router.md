@@ -24,8 +24,9 @@ flowchart TD
 
 ### 1. Intent Detection
 Classify what the user actually wants: *new feature*, *bug fix*, *refactor*,
-*question*, *architecture change*, *knowledge request*, *review*. Intent drives
-which agent and which Cline workflow will ultimately run.
+*question*, *architecture change*, *knowledge request*, *review*, or *onboarding*
+(a first-time scan of an existing codebase to populate the knowledge layer).
+Intent drives which agent and which Cline workflow will ultimately run.
 
 ### 2. Complexity Detection
 Classify the request as **TRIVIAL / SIMPLE / STANDARD / EPIC**
@@ -69,7 +70,7 @@ flowchart LR
 The Router emits a small, explicit decision object so routing is auditable:
 
 ```yaml
-intent: feature            # feature | fix | refactor | question | arch | knowledge | review
+intent: feature            # feature | fix | refactor | question | arch | knowledge | review | onboarding
 complexity: STANDARD       # TRIVIAL | SIMPLE | STANDARD | EPIC
 skills: [architecture, task-breakdown]
 context: [project-context.md, coding-conventions.md]

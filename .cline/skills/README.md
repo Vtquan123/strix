@@ -31,8 +31,8 @@ comparable, and easy to extend — add a new skill by copying the `SKILL.md` sha
 ## Reasoning Skills (Claude)
 
 `planning` · `architecture` · `brainstorming` · `review` · `documentation` ·
-`risk-analysis` · `task-breakdown` · `adr` · `knowledge-update` ·
-`cline-skill-handler` · `skill-manager`
+`risk-analysis` · `task-breakdown` · `adr` · `project-scan` ·
+`knowledge-update` · `cline-skill-handler` · `skill-manager`
 
 ## Implementation Skills (Cline)
 

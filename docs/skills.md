@@ -55,6 +55,7 @@ The `description` field drives progressive loading. Optional subdirs: `docs/`, `
 | risk-analysis | Surface + mitigate risks |
 | task-breakdown | Decompose EPICs into STANDARD tasks |
 | adr | Record significant decisions |
+| project-scan | Scan an existing codebase to populate knowledge/* on adoption |
 | knowledge-update | Apply knowledge governance |
 | cline-skill-handler | Create/update/delete Cline skills + sync references |
 | skill-manager | Install/update/remove skills.sh skills into `.claude` or `.cline` + sync docs |

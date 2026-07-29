@@ -19,6 +19,7 @@ Legend: ✅ owns · 🚫 forbidden · 📖 read-only
 | Dependency generation | ✅ | 🚫 | Task Management |
 | Review / approval | ✅ | 🚫 | Planning |
 | Risk analysis | ✅ | 🚫 | Planning |
+| Project scan / onboarding | ✅ | 🚫 | Knowledge |
 | Knowledge read | ✅ | 📖 | Knowledge |
 | Knowledge write | ✅ | 🚫 | Knowledge |
 | ADR authoring | ✅ | 🚫 | Knowledge |
@@ -46,6 +47,7 @@ capabilities:
   dependency_generation:  { owners: [claude], mode: exclusive }
   review:                 { owners: [claude], mode: exclusive }
   risk_analysis:          { owners: [claude], mode: exclusive }
+  project_scan:           { owners: [claude], mode: exclusive }
   knowledge_read:         { owners: [claude, cline], mode: shared, cline: read_only }
   knowledge_write:        { owners: [claude], mode: exclusive }
   adr_authoring:          { owners: [claude], mode: exclusive }

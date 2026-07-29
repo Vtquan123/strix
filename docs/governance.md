@@ -30,6 +30,26 @@ flowchart TD
 For "never" cases, record `n/a` in the task's Definition of Done so the decision
 is explicit and auditable.
 
+## Initial Adoption Scan (One-Time Exception)
+
+The policy above governs updates *after an approved task*. Adopting Strix into an
+existing codebase is the one case where a full `knowledge/*` population happens
+**without a prior task or trigger** — because there is no task yet to gate
+against. The `knowledge-agent`, via the [`project-scan`](../.claude/skills/project-scan/SKILL.md)
+skill, reads the real project and fills all four knowledge files at once.
+
+This exception is bounded:
+
+- **Evidence-only.** Every populated fact must trace to something in the scanned
+  repo — manifests, configs, code, or docs. Anything not evidenced stays a
+  placeholder or is marked `n/a`; the scan never fabricates a stack, module, or
+  convention.
+- **One-time.** It runs once per adoption. Once `knowledge/*` is populated, all
+  further changes go back through the trigger-gated policy above.
+- **Auditable.** The scan concludes with an adoption ADR (per
+  [`decisions/README.md`](../knowledge/decisions/README.md)) recording what was
+  scanned, the confidence per file, and what was left `n/a`.
+
 ## Who May Do What
 
 Derived from the [capability matrix](../workflow/capability-matrix.md):
