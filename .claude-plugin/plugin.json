@@ -1,0 +1,15 @@
+{
+  "name": "strix",
+  "version": "0.1.0",
+  "description": "Task-driven AI coding workflow: Claude reasons and routes (Planning Runtime), Cline executes (Execution Runtime), with a per-project .strix/ knowledge base and task board.",
+  "author": {
+    "name": "Quan Vu"
+  },
+  "keywords": [
+    "workflow",
+    "planning",
+    "task-driven",
+    "cline",
+    "knowledge-base"
+  ]
+}

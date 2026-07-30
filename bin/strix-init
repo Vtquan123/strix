@@ -1,0 +1,92 @@
+#!/usr/bin/env bash
+# strix-init — scaffold Strix into the current project.
+#
+# Copies the plugin's seed content into the target project:
+#   templates/strix/          -> <project>/.strix/        (knowledge base + task board)
+#   templates/cline/.clinerules/ -> <project>/.clinerules/ (Cline rules, workflows, skills)
+#
+# Idempotent: existing files are skipped unless --force is given.
+#
+# Usage:
+#   strix-init [--force] [--target <dir>]
+#
+# Resolution of the plugin root (where templates/ live):
+#   1. $STRIX_PLUGIN_ROOT if set
+#   2. $CLAUDE_PLUGIN_ROOT if set (provided by Claude Code when run as a plugin)
+#   3. the parent of this script's bin/ directory
+
+set -euo pipefail
+
+FORCE=0
+TARGET="$PWD"
+
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --force) FORCE=1; shift ;;
+    --target) TARGET="${2:?--target needs a directory}"; shift 2 ;;
+    -h|--help)
+      sed -n '2,14p' "$0" | sed 's/^# \{0,1\}//'
+      exit 0 ;;
+    *) echo "strix-init: unknown argument: $1" >&2; exit 2 ;;
+  esac
+done
+
+# --- resolve plugin root -----------------------------------------------------
+if [ -n "${STRIX_PLUGIN_ROOT:-}" ]; then
+  ROOT="$STRIX_PLUGIN_ROOT"
+elif [ -n "${CLAUDE_PLUGIN_ROOT:-}" ]; then
+  ROOT="$CLAUDE_PLUGIN_ROOT"
+else
+  SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+fi
+
+STRIX_SEED="$ROOT/templates/strix"
+CLINE_SEED="$ROOT/templates/cline/.clinerules"
+
+if [ ! -d "$STRIX_SEED" ] || [ ! -d "$CLINE_SEED" ]; then
+  echo "strix-init: cannot find templates under '$ROOT'." >&2
+  echo "  Set STRIX_PLUGIN_ROOT to the Strix plugin directory and retry." >&2
+  exit 1
+fi
+
+TARGET="$(cd "$TARGET" && pwd)"
+
+# --- copy one tree, honoring idempotency ------------------------------------
+# copy_tree <src-dir> <dst-dir>
+copy_tree() {
+  local src="$1" dst="$2" rel f
+  # iterate over every file in the source tree
+  while IFS= read -r -d '' f; do
+    rel="${f#"$src"/}"
+    local out="$dst/$rel"
+    if [ -e "$out" ] && [ "$FORCE" -ne 1 ]; then
+      echo "  skip (exists): $out"
+      continue
+    fi
+    mkdir -p "$(dirname "$out")"
+    cp "$f" "$out"
+    echo "  wrote: $out"
+  done < <(find "$src" -type f -print0)
+}
+
+echo "strix-init: seeding into $TARGET"
+echo "  plugin root: $ROOT"
+[ "$FORCE" -eq 1 ] && echo "  --force: overwriting existing files"
+
+echo "-> .strix/ (knowledge base + task board)"
+copy_tree "$STRIX_SEED" "$TARGET/.strix"
+
+echo "-> .clinerules/ (Cline rules, workflows, skills)"
+copy_tree "$CLINE_SEED" "$TARGET/.clinerules"
+
+cat <<EOF
+
+strix-init: done.
+  Next steps:
+   1. Open the project in Claude Code — the Strix SessionStart hook now activates
+      (it detects .strix/).
+   2. Run the 'project-scan' skill to populate .strix/knowledge/* from the real
+      codebase.
+   3. Open the project in Cline — .clinerules/ is picked up automatically.
+EOF
