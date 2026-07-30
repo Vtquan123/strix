@@ -1,0 +1,24 @@
+{
+  "name": "strix",
+  "version": "1.0.0",
+  "description": "A task-driven, hybrid AI coding workflow — packaged as a Claude Code plugin.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Vtquan123/strix.git"
+  },
+  "keywords": [
+    "AI",
+    "AI workflow",
+    "Claude Code",
+    "task-driven",
+    "hybrid workflow",
+    "plugin",
+    "cline"
+  ],
+  "author": "Quan Vu",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Vtquan123/strix/issues"
+  },
+  "homepage": "https://github.com/Vtquan123/strix#readme"
+}
