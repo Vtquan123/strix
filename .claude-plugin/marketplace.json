@@ -1,0 +1,14 @@
+{
+  "name": "strix",
+  "owner": {
+    "name": "Quan Vu"
+  },
+  "plugins": [
+    {
+      "name": "strix",
+      "source": "./",
+      "description": "Task-driven AI coding workflow: Claude reasons and routes (Planning Runtime), Cline executes (Execution Runtime), with a per-project .strix/ knowledge base and task board.",
+      "version": "0.1.0"
+    }
+  ]
+}

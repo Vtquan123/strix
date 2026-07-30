@@ -1,0 +1,14 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if [ -d \"${CLAUDE_PROJECT_DIR:-$PWD}/.strix\" ]; then cat \"${CLAUDE_PLUGIN_ROOT}/hooks/strix-context.md\"; fi"
+          }
+        ]
+      }
+    ]
+  }
+}
