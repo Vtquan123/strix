@@ -23,15 +23,32 @@ flowchart TD
 ## The Five Router Functions
 
 ### 1. Intent Detection
-Classify what the user actually wants: *new feature*, *bug fix*, *refactor*,
-*question*, *architecture change*, *knowledge request*, *review*, or *onboarding*
-(a first-time scan of an existing codebase to populate the knowledge layer).
-Intent drives which agent and which Cline workflow will ultimately run.
+Classify what the user actually wants. Intent drives which agent and which Cline
+workflow will ultimately run. Intents and complexity levels are generated from
+[`config/routing.yaml`](../../config/routing.yaml).
+
+<!-- strix:gen start id=intents-table -->
+| Intent | Means |
+| -------- | ------- |
+| `feature` | new behaviour |
+| `fix` | bug fix |
+| `refactor` | restructure without behaviour change |
+| `question` | needs an answer, may need no task |
+| `arch` | architecture or structural decision |
+| `knowledge` | knowledge layer or documentation work |
+| `review` | verify completed work against criteria |
+| `skill-install` | add, update, or remove a skill |
+| `onboarding` | first-time scan of an existing codebase to populate the knowledge layer |
+<!-- strix:gen end id=intents-table -->
 
 ### 2. Complexity Detection
-Classify the request as **TRIVIAL / SIMPLE / STANDARD / EPIC**
-(see [complexity-levels.md](./complexity-levels.md)). An EPIC is decomposed
-before anything else proceeds.
+Classify the request into exactly one level (see
+[complexity-levels.md](./complexity-levels.md)). An EPIC is decomposed before
+anything else proceeds.
+
+<!-- strix:gen start id=complexity-inline -->
+`TRIVIAL` · `SIMPLE` · `STANDARD` · `EPIC`
+<!-- strix:gen end id=complexity-inline -->
 
 ### 3. Skill Selection
 Choose the minimal set of skills the work needs — reasoning skills for Claude,
@@ -46,10 +63,13 @@ fields relevant to this request. Minimising context is a first-class goal —
 never load the whole knowledge base "just in case".
 
 ### 5. Agent Selection
-Pick the Claude agent (`triage-agent`, `task-creator-agent`, `reviewer-agent`,
-`knowledge-agent`) or the Cline workflow (`implement`, `fix`, `refactor`,
+Pick the Claude agent or the Cline workflow (`implement`, `fix`, `refactor`,
 `testing`, `review-fixes`) that will run — chosen via the capability matrix, not
-hard-coded engine names.
+hard-coded engine names. The Claude agents:
+
+<!-- strix:gen start id=agents-inline -->
+`triage-agent` (classify + route) · `task-creator-agent` (author tasks, decompose EPICs) · `reviewer-agent` (gate Review → Done) · `knowledge-agent` (govern the knowledge layer)
+<!-- strix:gen end id=agents-inline -->
 
 ## Capability-Driven Dispatch
 
@@ -69,14 +89,19 @@ flowchart LR
 
 The Router emits a small, explicit decision object so routing is auditable:
 
+<!-- strix:gen start id=decision-record -->
 ```yaml
-intent: feature            # feature | fix | refactor | question | arch | knowledge | review | onboarding
-complexity: STANDARD       # TRIVIAL | SIMPLE | STANDARD | EPIC
+intent: feature
+complexity: STANDARD
 skills: [architecture, task-breakdown]
 context: [project-context.md, coding-conventions.md]
 agent: task-creator-agent
 capability: task_breakdown
 ```
+<!-- strix:gen end id=decision-record -->
+
+`intent`, `complexity`, `skills`, and `capability` are drawn from the enumerations
+above and from [capability-matrix.md](./capability-matrix.md).
 
 ## Invariants
 

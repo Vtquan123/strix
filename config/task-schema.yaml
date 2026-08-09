@@ -1,0 +1,59 @@
+# yaml-language-server: $schema=./schemas/task-schema.schema.json
+#
+# SINGLE SOURCE OF TRUTH for the task record: its header fields, their enums,
+# and the required body sections. Both the copy-paste template and the reference
+# doc are GENERATED from this; run `npm run gen` after editing.
+
+# Fields rendered as the task's header table.
+header_fields:
+  - name: ID
+    meaning: Unique, sequential (`TASK-<n>`)
+    placeholder: TASK-<ID>
+  - name: Title
+    meaning: Short imperative summary
+    placeholder: <short imperative title>
+  - name: Priority
+    meaning: "P0–P3"
+    enum: ["P0", "P1", "P2", "P3"]
+  - name: Complexity
+    meaning: TRIVIAL / SIMPLE / STANDARD / EPIC
+    enum_from: routing.complexity_levels
+  - name: Status
+    meaning: Queued / In Progress / In Review / Done / Archived
+    enum: ["Queued", "In Progress", "In Review", "Done", "Archived"]
+
+# Sections rendered as the task body, in order.
+body_sections:
+  - name: Goal
+    meaning: The outcome in one sentence
+  - name: Background
+    meaning: Why it exists; links to knowledge
+  - name: Requirements
+    meaning: Concrete, testable requirements
+  - name: Out of Scope
+    meaning: What it explicitly does not do (binding)
+  - name: Dependencies
+    meaning: Tasks that must be Done first
+  - name: Suggested Skills
+    meaning: Skills the Router selected
+  - name: Estimated Files
+    meaning: Files expected to change
+  - name: Acceptance Criteria
+    meaning: Observable done-conditions
+  - name: Definition of Ready
+    meaning: Gate to enter Active
+  - name: Definition of Done
+    meaning: Gate to enter Review
+
+# Board stages. The directory IS the board; `Status` must agree with it.
+lifecycle:
+  - stage: queue
+    status: Queued
+  - stage: active
+    status: In Progress
+  - stage: review
+    status: In Review
+  - stage: done
+    status: Done
+  - stage: archive
+    status: Archived

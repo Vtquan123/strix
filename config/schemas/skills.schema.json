@@ -1,0 +1,41 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/Vtquan123/strix/config/schemas/skills.schema.json",
+  "title": "Strix built-in reasoning skill and agent catalog",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["skills", "agents"],
+  "properties": {
+    "skills": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "role"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "pattern": "^[a-z0-9]([a-z0-9-]*[a-z0-9])?$",
+            "maxLength": 64,
+            "description": "Must match the skills/<name>/ directory exactly (Agent Skills spec)."
+          },
+          "role": { "type": "string", "minLength": 3 }
+        }
+      }
+    },
+    "agents": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "role"],
+        "properties": {
+          "name": { "type": "string", "pattern": "^[a-z][a-z0-9-]*-agent$" },
+          "role": { "type": "string", "minLength": 3 }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,155 @@
+# yaml-language-server: $schema=./schemas/capabilities.schema.json
+#
+# SINGLE SOURCE OF TRUTH for the capability matrix. The Router keys off
+# capabilities, never engine names — adding a future engine is a data edit here.
+# Markdown renderings are GENERATED; run `npm run gen` after editing.
+
+engines:
+  - id: claude
+    label: Claude
+    runtime: planning
+    kind: reasoning
+  - id: cline
+    label: Cline
+    runtime: execution
+    kind: implementation
+
+# Access symbols used in the rendered matrix.
+access_levels:
+  owns:
+    symbol: "✅"
+    label: owns
+  forbidden:
+    symbol: "\U0001F6AB"
+    label: forbidden
+  read_only:
+    symbol: "\U0001F4D6"
+    label: read-only
+
+capabilities:
+  - id: requirement_analysis
+    label: Requirement analysis
+    layer: Router / Planning
+    mode: exclusive
+    access: { claude: owns, cline: forbidden }
+
+  - id: brainstorming
+    label: Brainstorming
+    layer: Planning
+    mode: exclusive
+    access: { claude: owns, cline: forbidden }
+
+  - id: triage
+    label: Triage / classification
+    layer: Router
+    mode: exclusive
+    access: { claude: owns, cline: forbidden }
+
+  - id: planning
+    label: Planning
+    layer: Planning
+    mode: exclusive
+    access: { claude: owns, cline: forbidden }
+
+  - id: architecture
+    label: Architecture design
+    layer: Planning
+    mode: exclusive
+    access: { claude: owns, cline: forbidden }
+
+  - id: task_breakdown
+    label: Task creation / breakdown
+    layer: Task Management
+    mode: exclusive
+    access: { claude: owns, cline: forbidden }
+
+  - id: dependency_generation
+    label: Dependency generation
+    layer: Task Management
+    mode: exclusive
+    access: { claude: owns, cline: forbidden }
+
+  - id: review
+    label: Review / approval
+    layer: Planning
+    mode: exclusive
+    access: { claude: owns, cline: forbidden }
+
+  - id: risk_analysis
+    label: Risk analysis
+    layer: Planning
+    mode: exclusive
+    access: { claude: owns, cline: forbidden }
+
+  - id: project_scan
+    label: Project scan / onboarding
+    layer: Knowledge
+    mode: exclusive
+    access: { claude: owns, cline: forbidden }
+
+  - id: knowledge_read
+    label: Knowledge read
+    layer: Knowledge
+    mode: shared
+    access: { claude: owns, cline: read_only }
+
+  - id: knowledge_write
+    label: Knowledge write
+    layer: Knowledge
+    mode: exclusive
+    access: { claude: owns, cline: forbidden }
+
+  - id: adr_authoring
+    label: ADR authoring
+    layer: Knowledge
+    mode: exclusive
+    access: { claude: owns, cline: forbidden }
+
+  - id: convention_definition
+    label: Convention definition
+    layer: Knowledge
+    mode: exclusive
+    access: { claude: owns, cline: forbidden }
+
+  - id: implement
+    label: Implement / edit source
+    layer: Infrastructure
+    mode: exclusive
+    access: { claude: forbidden, cline: owns }
+
+  - id: refactor
+    label: Refactor
+    layer: Infrastructure
+    mode: exclusive
+    access: { claude: forbidden, cline: owns }
+
+  - id: run_terminal
+    label: Run terminal
+    layer: Shared
+    mode: shared
+    access: { claude: owns, cline: owns }
+    constraints: { claude: on_demand_confirm }
+
+  - id: build
+    label: Build
+    layer: Infrastructure
+    mode: exclusive
+    access: { claude: forbidden, cline: owns }
+
+  - id: lint
+    label: Lint
+    layer: Infrastructure
+    mode: exclusive
+    access: { claude: forbidden, cline: owns }
+
+  - id: test
+    label: Test
+    layer: Infrastructure
+    mode: exclusive
+    access: { claude: forbidden, cline: owns }
+
+  - id: fix
+    label: Fix failures
+    layer: Infrastructure
+    mode: exclusive
+    access: { claude: forbidden, cline: owns }

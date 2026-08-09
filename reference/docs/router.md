@@ -12,11 +12,23 @@ flowchart LR
     M -.-> E
 ```
 
-1. **Intent Detection** — feature | fix | refactor | question | arch | knowledge | review | skill-install.
-2. **Complexity Detection** — TRIVIAL | SIMPLE | STANDARD | EPIC.
+1. **Intent Detection** — exactly one intent (below).
+2. **Complexity Detection** — exactly one level (below).
 3. **Skill Selection** — minimal skills → task `Suggested Skills`.
 4. **Context Selection** — minimal `knowledge/*` + task fields to load.
 5. **Agent Selection** — the Claude agent or Cline workflow to run.
+
+**Intents:**
+
+<!-- strix:gen start id=intents-inline -->
+`feature` · `fix` · `refactor` · `question` · `arch` · `knowledge` · `review` · `skill-install` · `onboarding`
+<!-- strix:gen end id=intents-inline -->
+
+**Complexity:**
+
+<!-- strix:gen start id=complexity-inline -->
+`TRIVIAL` · `SIMPLE` · `STANDARD` · `EPIC`
+<!-- strix:gen end id=complexity-inline -->
 
 ## Capability-Driven Dispatch
 
@@ -34,6 +46,7 @@ flowchart LR
 
 Per request the Router emits an auditable object:
 
+<!-- strix:gen start id=decision-record -->
 ```yaml
 intent: feature
 complexity: STANDARD
@@ -42,20 +55,28 @@ context: [project-context.md, coding-conventions.md]
 agent: task-creator-agent
 capability: task_breakdown
 ```
+<!-- strix:gen end id=decision-record -->
 
 ## Routing Table (summary)
 
+Generated from [`config/routing.yaml`](../../config/routing.yaml) — edit there,
+then run `npm run gen`.
+
+<!-- strix:gen start id=routing-table-summary -->
 | Intent | Complexity | Agent / Workflow |
-|--------|-----------|------------------|
-| question | any | triage-agent |
-| feature | SIMPLE/STANDARD | task-creator-agent → implement |
-| feature | EPIC | task-creator-agent → decompose |
-| fix | any | task-creator-agent → fix |
-| refactor | STANDARD | task-creator-agent → refactor |
-| arch | STANDARD/EPIC | task-creator-agent + ADR |
-| review | any | reviewer-agent |
-| knowledge | any | knowledge-agent |
-| skill-install | any | knowledge-agent → skill-manager |
+| -------- | ----------- | ------------------ |
+| question | any | `triage-agent` (answer or route) |
+| feature | SIMPLE | `task-creator-agent` → `implement` |
+| feature | STANDARD | `task-creator-agent` (+ADR) → `implement` |
+| feature | EPIC | `task-creator-agent` → `decompose` |
+| fix | TRIVIAL/SIMPLE | `task-creator-agent` → `fix` |
+| refactor | STANDARD | `task-creator-agent` → `refactor` |
+| arch | STANDARD/EPIC | `task-creator-agent` (+ADR) |
+| review | any | `reviewer-agent` |
+| onboarding | any | `knowledge-agent` → `project-scan` |
+| knowledge | any | `knowledge-agent` |
+| skill-install | any | `knowledge-agent` → `skill-manager` |
+<!-- strix:gen end id=routing-table-summary -->
 
 Full rules: [../rules/routing.md](../rules/routing.md) ·
 [../workflow/router.md](../workflow/router.md).

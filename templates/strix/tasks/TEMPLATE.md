@@ -6,13 +6,15 @@ executes only what is written here. Every field is required. Do not leave
 Acceptance Criteria, Out of Scope, or Definition of Done blank.
 -->
 
+<!-- strix:gen start id=task-header-table -->
 | Field | Value |
-|-------|-------|
+| ------- | ------- |
 | **ID** | TASK-<ID> |
 | **Title** | <short imperative title> |
 | **Priority** | P0 \| P1 \| P2 \| P3 |
 | **Complexity** | TRIVIAL \| SIMPLE \| STANDARD \| EPIC |
 | **Status** | Queued \| In Progress \| In Review \| Done \| Archived |
+<!-- strix:gen end id=task-header-table -->
 
 ## Goal
 

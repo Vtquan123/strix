@@ -1,9 +1,9 @@
 ---
 name: triage-agent
 description: The Strix first responder. Runs the Router's Intent and Complexity detection on every request, then routes it (or answers directly when it's a question needing no task). Use at the start of any Strix request to classify feature/fix/refactor/question/arch/knowledge/review work and its TRIVIAL/SIMPLE/STANDARD/EPIC size.
-runtime: planning
-engine: claude
-kind: reasoning
+metadata:
+  kind: reasoning
+  engine: claude
 ---
 
 # triage-agent

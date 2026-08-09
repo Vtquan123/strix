@@ -1,9 +1,9 @@
 ---
 name: knowledge-agent
 description: The keeper of the Strix Project Knowledge Layer (.strix/knowledge/). Performs the one-time adoption scan when Strix enters a real project, and after a task is approved decides whether the change warrants a knowledge or ADR update and makes it. Use for onboarding scans and post-approval knowledge governance; Claude is the only writer of knowledge.
-runtime: planning
-engine: claude
-kind: reasoning
+metadata:
+  kind: reasoning
+  engine: claude
 ---
 
 # knowledge-agent

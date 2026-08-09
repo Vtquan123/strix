@@ -40,17 +40,29 @@ do not do it yourself.
 
 Intent → Complexity → Skill selection → Context selection → Agent selection.
 
+**Intents:**
+
+<!-- strix:gen start id=intents-inline -->
+`feature` · `fix` · `refactor` · `question` · `arch` · `knowledge` · `review` · `skill-install` · `onboarding`
+<!-- strix:gen end id=intents-inline -->
+
+**Complexity:**
+
+<!-- strix:gen start id=complexity-short -->
+**TRIVIAL** (one obvious edit, no design content) · **SIMPLE** (one change, one skill, 1–3 files) · **STANDARD** (one feature, multi-file, bounded design) · **EPIC** (multi-feature — decompose, never execute)
+<!-- strix:gen end id=complexity-short -->
+
 ## Your Agents (reasoning only — no coding agents)
 
-- `triage-agent` — classify + route
-- `task-creator-agent` — author tasks, decompose EPICs
-- `reviewer-agent` — gate Review → Done
-- `knowledge-agent` — govern the knowledge layer
+<!-- strix:gen start id=agents-inline -->
+`triage-agent` (classify + route) · `task-creator-agent` (author tasks, decompose EPICs) · `reviewer-agent` (gate Review → Done) · `knowledge-agent` (govern the knowledge layer)
+<!-- strix:gen end id=agents-inline -->
 
 ## Your Skills (reasoning, `strix:` namespace)
 
-`planning · architecture · brainstorming · review · documentation · risk-analysis
-· task-breakdown · adr · project-scan · knowledge-update`
+<!-- strix:gen start id=skills-inline -->
+`planning` · `architecture` · `brainstorming` · `review` · `documentation` · `risk-analysis` · `task-breakdown` · `adr` · `project-scan` · `knowledge-update` · `skill-manager` · `cline-skill-handler` · `strix-init`
+<!-- strix:gen end id=skills-inline -->
 
 Select the minimal set; the skill carries the how-to so the prompt stays small.
 If `.strix/knowledge/*` still holds template placeholders, run `project-scan`
@@ -64,16 +76,31 @@ business rule · EPIC completion · tech stack.
 
 ## Task Lifecycle
 
-`.strix/tasks/{queue → active → review → done → archive}` (one directory per stage).
+<!-- strix:gen start id=lifecycle-inline -->
+`.strix/tasks/{queue → active → review → done → archive}`
+<!-- strix:gen end id=lifecycle-inline -->
+
+The directory **is** the board. Cline owns the `active → review` move; you own
+every other move. A task's `Status:` field must always agree with its directory
+— `reviewer-agent` treats a mismatch as a defect.
 
 ## Principles To Preserve
 
-Task-driven · minimize context · prevent over-engineering (respect each task's
-`Out of Scope` + `Estimated Files`) · long-term maintainability · engine-agnostic
-(extend the capability matrix, not the rules).
+Minimize context · prevent over-engineering (respect each task's `Out of Scope` +
+`Estimated Files`) · optimize for long-term maintainability.
 
 ## Where To Read More
 
-Deeper framework docs ship with the plugin under its `reference/` directory
-(architecture, router, governance, rules, workflow). Cline's counterpart
-contract lives in this project's `.clinerules/` directory.
+Under `${CLAUDE_PLUGIN_ROOT}/reference/`:
+
+- `rules/routing.md` — routing table (intent × complexity → agent + skills)
+- `workflow/capability-matrix.md` — capability → owning engine
+- `workflow/complexity-levels.md` — full classification criteria
+- `workflow/task-lifecycle.md` — stage gates (Definition of Ready / Done)
+- `docs/governance.md` — knowledge + ADR triggers
+
+Those files are the read path — consult them, never edit them. They belong to the
+plugin, and their tables are generated output: a hand edit is silently reverted.
+Changing how Strix itself routes is plugin development, not project work.
+
+Cline's counterpart contract lives in this project's `.clinerules/` directory.

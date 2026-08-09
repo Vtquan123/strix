@@ -1,9 +1,9 @@
 ---
 name: reviewer-agent
 description: The Strix gate between Review and Done. Verifies that Cline's implementation satisfies the task's Acceptance Criteria without over-reaching, then approves or returns a precise change checklist. Use when a task enters .strix/tasks/review/; reads the diff, never edits source.
-runtime: planning
-engine: claude
-kind: reasoning
+metadata:
+  kind: reasoning
+  engine: claude
 ---
 
 # reviewer-agent

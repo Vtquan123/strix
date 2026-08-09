@@ -6,10 +6,13 @@ engine means adding a column here — not editing the Router.
 
 ## Matrix
 
+<!-- strix:gen start id=capability-legend -->
 Legend: ✅ owns · 🚫 forbidden · 📖 read-only
+<!-- strix:gen end id=capability-legend -->
 
+<!-- strix:gen start id=capability-matrix -->
 | Capability | Claude | Cline | Layer |
-|------------|:------:|:-----:|-------|
+| ------------ | :------: | :------: | ------- |
 | Requirement analysis | ✅ | 🚫 | Router / Planning |
 | Brainstorming | ✅ | 🚫 | Planning |
 | Triage / classification | ✅ | 🚫 | Router |
@@ -31,40 +34,26 @@ Legend: ✅ owns · 🚫 forbidden · 📖 read-only
 | Lint | 🚫 | ✅ | Infrastructure |
 | Test | 🚫 | ✅ | Infrastructure |
 | Fix failures | 🚫 | ✅ | Infrastructure |
+<!-- strix:gen end id=capability-matrix -->
+
+## Engines
+
+<!-- strix:gen start id=engines-table -->
+| Engine | Runtime | Kind |
+| -------- | --------- | ------ |
+| `claude` | planning | reasoning |
+| `cline` | execution | implementation |
+<!-- strix:gen end id=engines-table -->
 
 ## Machine-Readable Form
 
-The Router loads this table as data. A reference encoding:
+There is no second copy of the matrix in this file. The table above is
+**generated** from [`config/capabilities.yaml`](../../config/capabilities.yaml),
+which is the single source of truth the Router reads. Edit that file and run
+`npm run gen`; never hand-edit inside a `strix:gen` region.
 
-```yaml
-capabilities:
-  requirement_analysis:   { owners: [claude], mode: exclusive }
-  brainstorming:          { owners: [claude], mode: exclusive }
-  triage:                 { owners: [claude], mode: exclusive }
-  planning:               { owners: [claude], mode: exclusive }
-  architecture:           { owners: [claude], mode: exclusive }
-  task_breakdown:         { owners: [claude], mode: exclusive }
-  dependency_generation:  { owners: [claude], mode: exclusive }
-  review:                 { owners: [claude], mode: exclusive }
-  risk_analysis:          { owners: [claude], mode: exclusive }
-  project_scan:           { owners: [claude], mode: exclusive }
-  knowledge_read:         { owners: [claude, cline], mode: shared, cline: read_only }
-  knowledge_write:        { owners: [claude], mode: exclusive }
-  adr_authoring:          { owners: [claude], mode: exclusive }
-  convention_definition:  { owners: [claude], mode: exclusive }
-  implement:              { owners: [cline], mode: exclusive }
-  refactor:               { owners: [cline], mode: exclusive }
-  run_terminal:           { owners: [claude, cline], mode: shared, claude: on_demand_confirm }
-  build:                  { owners: [cline], mode: exclusive }
-  lint:                   { owners: [cline], mode: exclusive }
-  test:                   { owners: [cline], mode: exclusive }
-  fix:                    { owners: [cline], mode: exclusive }
-
-engines:
-  claude: { runtime: planning, kind: reasoning }
-  cline:  { runtime: execution, kind: implementation }
-  # future engines are added here; the Router needs no code change.
-```
+Adding a future engine means adding an entry to `engines:` and one `access:` key
+per capability — the Router needs no code change.
 
 ## How The Router Uses It
 

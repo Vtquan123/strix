@@ -6,14 +6,18 @@ exactly what it says. Canonical template:
 
 ## Required Fields
 
-Every task **must** contain:
+Every task **must** contain the following, generated from
+[`config/task-schema.yaml`](../../config/task-schema.yaml) — edit there, then run
+`npm run gen`.
 
+<!-- strix:gen start id=task-fields -->
 | Field | Meaning |
-|-------|---------|
+| ------- | --------- |
 | ID | Unique, sequential (`TASK-<n>`) |
 | Title | Short imperative summary |
 | Priority | P0–P3 |
 | Complexity | TRIVIAL / SIMPLE / STANDARD / EPIC |
+| Status | Queued / In Progress / In Review / Done / Archived |
 | Goal | The outcome in one sentence |
 | Background | Why it exists; links to knowledge |
 | Requirements | Concrete, testable requirements |
@@ -24,7 +28,7 @@ Every task **must** contain:
 | Acceptance Criteria | Observable done-conditions |
 | Definition of Ready | Gate to enter Active |
 | Definition of Done | Gate to enter Review |
-| Status | Queued / In Progress / In Review / Done / Archived |
+<!-- strix:gen end id=task-fields -->
 
 ## Markdown Template
 

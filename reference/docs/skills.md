@@ -57,8 +57,12 @@ The `description` field drives progressive loading. Optional subdirs: `docs/`, `
 
 ## Reasoning Skills (Claude)
 
+Generated from [`config/skills.yaml`](../../config/skills.yaml), which the
+validator asserts matches the [`skills/`](../../skills/) directories exactly.
+
+<!-- strix:gen start id=skills-table -->
 | Skill | Role |
-|-------|------|
+| ------- | ------ |
 | planning | Order work into STANDARD tasks |
 | architecture | Design/evolve structure; keep diagrams true |
 | brainstorming | Explore intent + options before planning |
@@ -69,8 +73,10 @@ The `description` field drives progressive loading. Optional subdirs: `docs/`, `
 | adr | Record significant decisions |
 | project-scan | Scan an existing codebase to populate knowledge/* on adoption |
 | knowledge-update | Apply knowledge governance |
-| cline-skill-handler | Create/update/delete Cline skills + sync references |
 | skill-manager | Install/update/remove skills.sh skills into the **project's** `.claude/skills/` or `.clinerules/skills/` |
+| cline-skill-handler | Create/update/delete Cline skills + sync references |
+| strix-init | Scaffold `.strix/` and `.clinerules/` into a project |
+<!-- strix:gen end id=skills-table -->
 
 ## Implementation Skills (Cline)
 

@@ -1,0 +1,48 @@
+# yaml-language-server: $schema=./schemas/skills.schema.json
+#
+# SINGLE SOURCE OF TRUTH for the built-in reasoning skill catalog.
+# The validator asserts this list matches the directories in skills/ exactly —
+# adding a skill folder without adding it here is a build failure.
+# Markdown renderings are GENERATED; run `npm run gen` after editing.
+
+skills:
+  - name: planning
+    role: Order work into STANDARD tasks
+  - name: architecture
+    role: Design/evolve structure; keep diagrams true
+  - name: brainstorming
+    role: Explore intent + options before planning
+  - name: review
+    role: Verify a task against criteria + scope
+  - name: documentation
+    role: Keep docs/knowledge accurate + minimal
+  - name: risk-analysis
+    role: Surface + mitigate risks
+  - name: task-breakdown
+    role: Decompose EPICs into STANDARD tasks
+  - name: adr
+    role: Record significant decisions
+  - name: project-scan
+    role: Scan an existing codebase to populate knowledge/* on adoption
+  - name: knowledge-update
+    role: Apply knowledge governance
+  - name: skill-manager
+    role: >-
+      Install/update/remove skills.sh skills into the **project's**
+      `.claude/skills/` or `.clinerules/skills/`
+  - name: cline-skill-handler
+    role: Create/update/delete Cline skills + sync references
+  - name: strix-init
+    role: Scaffold `.strix/` and `.clinerules/` into a project
+
+# The four Claude reasoning agents. Kept here so the strix-context hook and the
+# docs cannot disagree about which agents exist.
+agents:
+  - name: triage-agent
+    role: classify + route
+  - name: task-creator-agent
+    role: author tasks, decompose EPICs
+  - name: reviewer-agent
+    role: gate Review → Done
+  - name: knowledge-agent
+    role: govern the knowledge layer

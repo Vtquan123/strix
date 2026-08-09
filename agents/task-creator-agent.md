@@ -1,9 +1,9 @@
 ---
 name: task-creator-agent
 description: Turns a triaged Strix request into one or more well-formed, executable tasks in .strix/tasks/queue/, using the task template. For EPICs, decomposes into STANDARD tasks with dependencies and scope estimates. Use after triage when a request needs task(s) authored or an EPIC broken down.
-runtime: planning
-engine: claude
-kind: reasoning
+metadata:
+  kind: reasoning
+  engine: claude
 ---
 
 # task-creator-agent

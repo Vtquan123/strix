@@ -1,7 +1,16 @@
 {
   "name": "@vtquan124/strix",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A task-driven, hybrid AI coding workflow — packaged as a Claude Code plugin.",
+  "scripts": {
+    "validate": "node scripts/validate-config.mjs",
+    "gen": "node scripts/gen-docs.mjs",
+    "check": "npm run validate && node scripts/gen-docs.mjs --check"
+  },
+  "devDependencies": {
+    "ajv": "^8.17.1",
+    "yaml": "^2.8.1"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Vtquan123/strix.git"

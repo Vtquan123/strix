@@ -1,0 +1,20 @@
+name: config
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    name: validate config + generated docs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install --no-audit --no-fund
+      # Fails when config/*.yaml is invalid, when a cross-file reference breaks,
+      # or when a generated doc region was hand-edited / left stale.
+      - run: npm run check

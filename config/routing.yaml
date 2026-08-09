@@ -1,0 +1,166 @@
+# yaml-language-server: $schema=./schemas/routing.schema.json
+#
+# SINGLE SOURCE OF TRUTH for Router intents, complexity levels, and the routing
+# table. Every Markdown rendering of this data is GENERATED — see config/README.md.
+# Edit here, then run `npm run gen`. Never hand-edit the generated doc blocks.
+
+intents:
+  - id: feature
+    summary: new behaviour
+  - id: fix
+    summary: bug fix
+  - id: refactor
+    summary: restructure without behaviour change
+  - id: question
+    summary: needs an answer, may need no task
+  - id: arch
+    summary: architecture or structural decision
+  - id: knowledge
+    summary: knowledge layer or documentation work
+  - id: review
+    summary: verify completed work against criteria
+  - id: skill-install
+    summary: add, update, or remove a skill
+  - id: onboarding
+    summary: first-time scan of an existing codebase to populate the knowledge layer
+
+complexity_levels:
+  - id: TRIVIAL
+    what: A single, obvious edit with no design content.
+    examples:
+      - fix a typo
+      - rename a variable
+      - tweak a CSS value
+      - update a copy string
+    files: "usually 1"
+    planning: none. Router may hand a one-line task straight to the execution engine.
+    knowledge: never updated
+    heuristic: No decision to make, one edit
+    short: one obvious edit, no design content
+
+  - id: SIMPLE
+    what: One well-understood change requiring one skill and no new decisions.
+    examples:
+      - add a field to an existing form
+      - add one endpoint mirroring an existing one
+      - add a unit test
+    files: "1–3"
+    planning: a single task with Acceptance Criteria. No architecture step.
+    knowledge: rarely updated (only if a convention is touched)
+    heuristic: One skill, no new pattern
+    short: one change, one skill, 1–3 files
+
+  - id: STANDARD
+    what: >-
+      One coherent feature or fix spanning multiple files, possibly multiple
+      skills, with a bounded design surface.
+    examples:
+      - add authentication to a route group
+      - introduce a caching layer for one module
+      - migrate one table
+    files: "3–15"
+    planning: >-
+      full task with Requirements, Out of Scope, Dependencies, Acceptance
+      Criteria, DoR/DoD. May need an ADR.
+    knowledge: updated when it introduces/changes a module, convention, or business rule
+    heuristic: New pattern but one feature
+    short: one feature, multi-file, bounded design
+    note: This is the atomic unit the execution engine runs. Everything larger is decomposed to STANDARD.
+
+  - id: EPIC
+    what: A goal that spans multiple features, modules, or subsystems.
+    examples:
+      - build the billing system
+      - migrate the app to Next.js
+      - add multi-tenancy
+    files: many, across modules
+    planning: >-
+      MUST be broken into STANDARD tasks with explicit dependencies and scope
+      estimates before any execution.
+    knowledge: updated on completion (architecture, modules, and usually one or more ADRs)
+    heuristic: Multiple features / "and then" chains
+    short: multi-feature — decompose, never execute
+
+# Heuristics that do not map 1:1 onto a single level.
+extra_heuristics:
+  - signal: Touches architecture or a new module
+    level: STANDARD (with ADR) or EPIC
+  - signal: Requires sequencing / dependencies
+    level: EPIC
+
+# intent x complexity -> agent + follow-on + skills.
+# `complexity: [any]` means the route applies at every level.
+routes:
+  - intent: question
+    complexity: [any]
+    agent: triage-agent
+    agent_note: answer or route
+    skills: []
+
+  - intent: feature
+    complexity: [SIMPLE]
+    agent: task-creator-agent
+    then: implement
+    skills: [planning]
+
+  - intent: feature
+    complexity: [STANDARD]
+    agent: task-creator-agent
+    adr: true
+    then: implement
+    skills: [architecture, task-breakdown]
+
+  - intent: feature
+    complexity: [EPIC]
+    agent: task-creator-agent
+    then: decompose
+    skills: [planning, task-breakdown, architecture]
+
+  - intent: fix
+    complexity: [TRIVIAL, SIMPLE]
+    agent: task-creator-agent
+    then: fix
+    skills: []
+
+  - intent: refactor
+    complexity: [STANDARD]
+    agent: task-creator-agent
+    then: refactor
+    skills: [architecture, risk-analysis]
+
+  - intent: arch
+    complexity: [STANDARD, EPIC]
+    agent: task-creator-agent
+    adr: true
+    skills: [architecture, risk-analysis, adr]
+
+  - intent: review
+    complexity: [any]
+    agent: reviewer-agent
+    skills: [review, risk-analysis]
+
+  - intent: onboarding
+    complexity: [any]
+    agent: knowledge-agent
+    then: project-scan
+    skills: [project-scan, architecture, adr]
+
+  - intent: knowledge
+    complexity: [any]
+    agent: knowledge-agent
+    skills: [knowledge-update, documentation]
+
+  - intent: skill-install
+    complexity: [any]
+    agent: knowledge-agent
+    then: skill-manager
+    skills: [skill-manager, risk-analysis]
+
+# Example emitted by the Router per request, rendered into the docs verbatim.
+decision_record_example:
+  intent: feature
+  complexity: STANDARD
+  skills: [architecture, task-breakdown]
+  context: [project-context.md, coding-conventions.md]
+  agent: task-creator-agent
+  capability: task_breakdown

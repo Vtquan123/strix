@@ -1,6 +1,9 @@
 ---
 name: strix-init
 description: Scaffold Strix into the current project — create the per-project .strix/ knowledge base and task board plus the .clinerules/ Cline config, by running the plugin's bin/strix-init scaffolder. Use when a user asks to initialize, set up, adopt, or turn on Strix in a project (e.g. "/strix:init", "set up Strix here", "adopt Strix"). Idempotent; existing files are preserved unless --force.
+metadata:
+  kind: reasoning
+  engine: claude
 ---
 
 # strix-init

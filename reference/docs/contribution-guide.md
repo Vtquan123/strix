@@ -28,14 +28,23 @@ everything through tasks.
 
 ## Extending Strix (changing the framework)
 
+> **Routing tables, the capability matrix, the skill catalog, and the task schema
+> are generated.** If the text you want to change sits inside a
+> `<!-- strix:gen -->` region, edit the matching `config/*.yaml` and run
+> `npm run gen` — a hand edit there is reverted on the next generation. See
+> [`config/README.md`](../../config/README.md).
+
 | To add… | Do this |
 |---------|---------|
-| A **skill** | Reasoning: create `.claude/skills/<name>/SKILL.md` with `name`+`description` frontmatter. Implementation: create `.clinerules/skills/<name>/SKILL.md` with `name`+`description` frontmatter (use `cline-skill-handler`); reference it in `.claude/rules/routing.md` |
-| An **agent** | Add `.claude/agents/<name>.md` (reasoning only — no coding agents) |
+| A **skill** | Reasoning: create `skills/<name>/SKILL.md` with `name`+`description`+`metadata` frontmatter, add it to `config/skills.yaml`, route it in `config/routing.yaml`, run `npm run gen`. Implementation: create `.clinerules/skills/<name>/SKILL.md` with `name`+`description` frontmatter (use `cline-skill-handler`) |
+| An **agent** | Add `agents/<name>.md` (reasoning only — no coding agents) **and** add it to `agents:` in `config/skills.yaml`; the validator asserts the two match |
 | A **Cline workflow** | Add `.clinerules/workflows/<name>.md` describing its execution flow |
-| A **capability** | Add a row to `workflow/capability-matrix.md`; rules read it |
-| A **future engine** | Add a column to the capability matrix + its own rules dir — no existing rule changes |
+| A **capability** | Add an entry to `capabilities:` in `config/capabilities.yaml`, with an `access:` value for every engine; run `npm run gen` |
+| A **future engine** | Add it to `engines:` in `config/capabilities.yaml` + one `access:` key per capability, plus its own rules dir — no existing rule changes |
 | A **convention** | Update `knowledge/coding-conventions.md` (Claude only) + often an ADR |
+
+After any `config/*.yaml` change, `npm run check` must pass — it validates the
+schemas and cross-references, then fails if the generated docs are stale.
 
 ## Principles To Preserve
 

@@ -1,8 +1,10 @@
 # Cline Permissions
 
-Explicit allow/deny for the Execution Runtime. Derived from the Strix
-capability matrix (shipped with the plugin, under its `reference/workflow/`);
-the matrix is authoritative.
+Explicit allow/deny for the Execution Runtime. Hand-written operational rules,
+kept consistent with the Strix capability matrix (shipped with the plugin, under
+its `reference/workflow/`) — the matrix stays authoritative on *who owns which
+capability*, while the rows below add path and task scoping the matrix does not
+model. If the two ever disagree, the matrix wins and this file is the bug.
 
 ## Allowed ✅
 

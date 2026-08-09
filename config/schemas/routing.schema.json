@@ -1,0 +1,109 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/Vtquan123/strix/config/schemas/routing.schema.json",
+  "title": "Strix routing configuration",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["intents", "complexity_levels", "routes", "decision_record_example"],
+  "definitions": {
+    "intentId": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*$"
+    },
+    "complexityId": {
+      "type": "string",
+      "enum": ["TRIVIAL", "SIMPLE", "STANDARD", "EPIC"]
+    },
+    "skillName": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*$"
+    }
+  },
+  "properties": {
+    "intents": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "summary"],
+        "properties": {
+          "id": { "$ref": "#/definitions/intentId" },
+          "summary": { "type": "string", "minLength": 3 }
+        }
+      }
+    },
+    "complexity_levels": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "what", "examples", "files", "planning", "knowledge", "heuristic", "short"],
+        "properties": {
+          "id": { "$ref": "#/definitions/complexityId" },
+          "what": { "type": "string" },
+          "examples": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+          "files": { "type": "string" },
+          "planning": { "type": "string" },
+          "knowledge": { "type": "string" },
+          "heuristic": { "type": "string" },
+          "short": { "type": "string" },
+          "note": { "type": "string" }
+        }
+      }
+    },
+    "extra_heuristics": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["signal", "level"],
+        "properties": {
+          "signal": { "type": "string" },
+          "level": { "type": "string" }
+        }
+      }
+    },
+    "routes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["intent", "complexity", "agent", "skills"],
+        "properties": {
+          "intent": { "$ref": "#/definitions/intentId" },
+          "complexity": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "oneOf": [
+                { "$ref": "#/definitions/complexityId" },
+                { "type": "string", "enum": ["any"] }
+              ]
+            }
+          },
+          "agent": { "type": "string", "pattern": "^[a-z][a-z0-9-]*-agent$" },
+          "agent_note": { "type": "string" },
+          "then": { "type": "string" },
+          "adr": { "type": "boolean" },
+          "skills": { "type": "array", "items": { "$ref": "#/definitions/skillName" } }
+        }
+      }
+    },
+    "decision_record_example": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["intent", "complexity", "skills", "context", "agent", "capability"],
+      "properties": {
+        "intent": { "$ref": "#/definitions/intentId" },
+        "complexity": { "$ref": "#/definitions/complexityId" },
+        "skills": { "type": "array", "items": { "$ref": "#/definitions/skillName" } },
+        "context": { "type": "array", "items": { "type": "string" } },
+        "agent": { "type": "string" },
+        "capability": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" }
+      }
+    }
+  }
+}
