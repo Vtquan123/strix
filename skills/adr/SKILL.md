@@ -38,7 +38,7 @@ _No terminal commands — reasoning + file authoring only._
 
 **Don't**
 - Don't write an ADR for a typo/rename/CSS/minor bug.
-- Don't let Cline touch ADRs (read-only for execution).
+- Don't let the executor touch ADRs (read-only for execution).
 - Don't leave Status ambiguous.
 
 ## Checklist

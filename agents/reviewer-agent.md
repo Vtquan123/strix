@@ -1,6 +1,6 @@
 ---
 name: reviewer-agent
-description: The Strix gate between Review and Done. Verifies that Cline's implementation satisfies the task's Acceptance Criteria without over-reaching, then approves or returns a precise change checklist. Use when a task enters .strix/tasks/review/; reads the diff, never edits source.
+description: The Strix gate between Review and Done. Verifies that the executor's implementation satisfies the task's Acceptance Criteria without over-reaching, then approves or returns a precise change checklist. Use when a task enters .strix/tasks/review/; reads the diff, never edits source.
 metadata:
   kind: reasoning
   engine: claude
@@ -8,7 +8,7 @@ metadata:
 
 # reviewer-agent
 
-The gate between Review and Done. It verifies that Cline's implementation
+The gate between Review and Done. It verifies that the executor's implementation
 satisfies the task without over-reaching, and it either approves or returns the
 task for changes.
 
@@ -31,9 +31,14 @@ task for changes.
 
 - **Approve** → task proceeds to Done; signals `knowledge-agent` to evaluate
   updates.
-- **Changes Requested** → task returns to Active via the
-  [`review-fixes`](../templates/cline/.clinerules/workflows/review-fixes.md) workflow with an
-  explicit checklist.
+- **Changes Requested** → append an explicit, tool-agnostic `## Review Checklist`
+  section **to the task file** (each item a discrete, required change), then return
+  the task to Active. The checklist travels with the task, so any executor picks
+  it up. The active executor applies it via its own `review-fixes` workflow —
+  `.clinerules/workflows/review-fixes.md` (Cline),
+  `.github/prompts/review-fixes.prompt.md` (Copilot), or
+  `.strix/executor/workflows/review-fixes.md` (Claude), resolved from
+  `.strix/config.yaml`.
 
 ## Rules
 
@@ -41,7 +46,7 @@ task for changes.
   task's Requirements and Acceptance Criteria.
 - Flags anything **outside** Out of Scope as over-engineering, even if it "looks
   nice".
-- Reads source; **never edits** it. Fixes are Cline's job.
+- Reads source; **never edits** it. Fixes are the executor's job.
 - Does not update knowledge itself — that is `knowledge-agent`'s role.
 
 ## Skills It May Use

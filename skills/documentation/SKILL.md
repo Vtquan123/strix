@@ -38,7 +38,7 @@ _No terminal commands — reasoning only._
 **Don't**
 - Don't document speculative or removed behaviour.
 - Don't duplicate what code or conventions already state.
-- Don't write docs Cline should own — Cline writes code, not knowledge.
+- Don't write docs the executor should own — the executor writes code, not knowledge.
 
 ## Checklist
 - [ ] Correct owning doc located

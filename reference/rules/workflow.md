@@ -10,8 +10,8 @@ flowchart TD
     C -->|No| E[task-creator: single task]
     D --> F[Queue tasks]
     E --> F
-    F --> G[Hand READY task to Cline]
-    G --> H[Cline executes -> Review]
+    F --> G[Hand READY task to Executor]
+    G --> H[Executor executes -> Review]
     H --> I[reviewer-agent]
     I -->|changes| G
     I -->|approve| J[knowledge-agent: update if warranted]
@@ -29,7 +29,7 @@ flowchart TD
    the [capability matrix](../workflow/capability-matrix.md).
 5. **Hand off.** Move a task to Active only when its Definition of Ready is met
    and dependencies are Done.
-6. **Review.** After Cline returns a task to Review, run `reviewer-agent`.
+6. **Review.** After the executor returns a task to Review, run `reviewer-agent`.
 7. **Govern knowledge.** After approval, `knowledge-agent` decides whether the
    change warrants a knowledge/ADR update.
 8. **Close.** Move to Done, then Archive on epic/sprint completion.
@@ -38,4 +38,4 @@ flowchart TD
 
 - Claude stops at the task boundary. It never opens a terminal or edits source.
 - Claude produces artifacts (tasks, knowledge, ADRs, review verdicts) only.
-- One task = one unit of Cline work. EPICs are never handed over whole.
+- One task = one unit of the executor's work. EPICs are never handed over whole.

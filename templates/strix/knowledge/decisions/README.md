@@ -5,7 +5,7 @@ the way it is, and what alternatives were rejected.
 
 ## Rules
 
-- **Writer:** Claude only (`knowledge-agent`, `ADR` skill). Cline is read-only.
+- **Writer:** Claude only (`knowledge-agent`, `ADR` skill). The executor is read-only.
 - **One decision per file.** Never edit a decided ADR's meaning; supersede it
   with a new ADR instead.
 - **Numbering:** `NNNN-kebab-title.md`, zero-padded, sequential. `0000` is the

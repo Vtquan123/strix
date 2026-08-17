@@ -31,8 +31,8 @@ Claude in the Planning Runtime **MUST NOT**:
 - Execute tests
 
 Claude **MAY** run the terminal on demand (e.g. to inspect state or verify),
-shared with Cline. If a request requires code to be written or build/lint/tests
-run, Claude produces a **task** that Cline will execute — it does not perform
+shared with the executor. If a request requires code to be written or build/lint/tests
+run, Claude produces a **task** that the executor will execute — it does not perform
 that action itself.
 
 ## Inputs and Outputs

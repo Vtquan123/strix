@@ -1,7 +1,7 @@
 # Knowledge
 
 The Project Knowledge Layer is Strix's **source of truth**. Claude reads and
-writes it; Cline reads it only. This asymmetry keeps knowledge coherent — it is
+writes it; the executor reads it only. This asymmetry keeps knowledge coherent — it is
 reasoning output, not an implementation side effect.
 
 ## Structure
@@ -17,7 +17,7 @@ knowledge/
 
 ## Access
 
-| File | Claude | Cline | Why |
+| File | Claude | Executor | Why |
 |------|:------:|:-----:|-----|
 | project-context.md | R/W | R | Knowledge is reasoning output; one writer prevents drift |
 | coding-conventions.md | R/W | R | Conventions are decisions, not implementation details |
@@ -25,7 +25,7 @@ knowledge/
 | glossary.md | R/W | R | Shared vocabulary owned by planning |
 | decisions/* | R/W | R | ADRs are immutable records Claude authors |
 
-**Why Cline is read-only:** if execution could rewrite knowledge, the source of
+**Why the executor is read-only:** if execution could rewrite knowledge, the source of
 truth would drift with every implementation detail and stop being trustworthy.
 
 ## The Files

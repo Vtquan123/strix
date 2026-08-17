@@ -3,7 +3,7 @@
 > **Current architecture** of the target project. Diagrams are the primary
 > artifact; keep them in sync with reality.
 > **Writer:** Claude (`knowledge-agent`/`architecture` skill). **Readers:**
-> Claude, Cline (read-only).
+> Claude, the executor (read-only).
 
 <!-- This is a TEMPLATE. Replace the placeholder diagrams with the real system. -->
 

@@ -1,7 +1,7 @@
 # Task-Driven Workflow
 
 **Nothing happens without a task.** Every request — from a typo to a subsystem —
-enters through Claude Triage and leaves as one or more tasks. Cline never acts
+enters through Claude Triage and leaves as one or more tasks. The executor never acts
 on a raw request; it acts only on tasks.
 
 ```mermaid
@@ -22,7 +22,7 @@ flowchart TD
     T2 --> QUE
     T3 --> QUE
     DEP --> QUE
-    QUE --> EX[Cline executes READY tasks]
+    QUE --> EX[Executor executes READY tasks]
 ```
 
 ## The Rule
@@ -37,12 +37,12 @@ flowchart TD
 4. Tasks enter `tasks/queue/` and follow the
    [task lifecycle](./task-lifecycle.md).
 
-> **Never send an EPIC directly to Cline.**
+> **Never send an EPIC directly to the executor.**
 
 ## Why Task-Driven
 
 - **Auditability** — every code change traces to a task and its Acceptance Criteria.
-- **Context minimisation** — Cline loads one task, not a conversation history.
+- **Context minimisation** — the executor loads one task, not a conversation history.
 - **Scope control** — Out of Scope + Estimated Files fence off over-engineering.
 - **Parallelism** — independent STANDARD tasks can be executed in any order deps allow.
 - **Resumability** — a task is a durable unit; work survives context resets.

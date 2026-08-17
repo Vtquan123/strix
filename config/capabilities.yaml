@@ -9,8 +9,8 @@ engines:
     label: Claude
     runtime: planning
     kind: reasoning
-  - id: cline
-    label: Cline
+  - id: executor
+    label: Executor
     runtime: execution
     kind: implementation
 
@@ -31,125 +31,125 @@ capabilities:
     label: Requirement analysis
     layer: Router / Planning
     mode: exclusive
-    access: { claude: owns, cline: forbidden }
+    access: { claude: owns, executor: forbidden }
 
   - id: brainstorming
     label: Brainstorming
     layer: Planning
     mode: exclusive
-    access: { claude: owns, cline: forbidden }
+    access: { claude: owns, executor: forbidden }
 
   - id: triage
     label: Triage / classification
     layer: Router
     mode: exclusive
-    access: { claude: owns, cline: forbidden }
+    access: { claude: owns, executor: forbidden }
 
   - id: planning
     label: Planning
     layer: Planning
     mode: exclusive
-    access: { claude: owns, cline: forbidden }
+    access: { claude: owns, executor: forbidden }
 
   - id: architecture
     label: Architecture design
     layer: Planning
     mode: exclusive
-    access: { claude: owns, cline: forbidden }
+    access: { claude: owns, executor: forbidden }
 
   - id: task_breakdown
     label: Task creation / breakdown
     layer: Task Management
     mode: exclusive
-    access: { claude: owns, cline: forbidden }
+    access: { claude: owns, executor: forbidden }
 
   - id: dependency_generation
     label: Dependency generation
     layer: Task Management
     mode: exclusive
-    access: { claude: owns, cline: forbidden }
+    access: { claude: owns, executor: forbidden }
 
   - id: review
     label: Review / approval
     layer: Planning
     mode: exclusive
-    access: { claude: owns, cline: forbidden }
+    access: { claude: owns, executor: forbidden }
 
   - id: risk_analysis
     label: Risk analysis
     layer: Planning
     mode: exclusive
-    access: { claude: owns, cline: forbidden }
+    access: { claude: owns, executor: forbidden }
 
   - id: project_scan
     label: Project scan / onboarding
     layer: Knowledge
     mode: exclusive
-    access: { claude: owns, cline: forbidden }
+    access: { claude: owns, executor: forbidden }
 
   - id: knowledge_read
     label: Knowledge read
     layer: Knowledge
     mode: shared
-    access: { claude: owns, cline: read_only }
+    access: { claude: owns, executor: read_only }
 
   - id: knowledge_write
     label: Knowledge write
     layer: Knowledge
     mode: exclusive
-    access: { claude: owns, cline: forbidden }
+    access: { claude: owns, executor: forbidden }
 
   - id: adr_authoring
     label: ADR authoring
     layer: Knowledge
     mode: exclusive
-    access: { claude: owns, cline: forbidden }
+    access: { claude: owns, executor: forbidden }
 
   - id: convention_definition
     label: Convention definition
     layer: Knowledge
     mode: exclusive
-    access: { claude: owns, cline: forbidden }
+    access: { claude: owns, executor: forbidden }
 
   - id: implement
     label: Implement / edit source
     layer: Infrastructure
     mode: exclusive
-    access: { claude: forbidden, cline: owns }
+    access: { claude: forbidden, executor: owns }
 
   - id: refactor
     label: Refactor
     layer: Infrastructure
     mode: exclusive
-    access: { claude: forbidden, cline: owns }
+    access: { claude: forbidden, executor: owns }
 
   - id: run_terminal
     label: Run terminal
     layer: Shared
     mode: shared
-    access: { claude: owns, cline: owns }
+    access: { claude: owns, executor: owns }
     constraints: { claude: on_demand_confirm }
 
   - id: build
     label: Build
     layer: Infrastructure
     mode: exclusive
-    access: { claude: forbidden, cline: owns }
+    access: { claude: forbidden, executor: owns }
 
   - id: lint
     label: Lint
     layer: Infrastructure
     mode: exclusive
-    access: { claude: forbidden, cline: owns }
+    access: { claude: forbidden, executor: owns }
 
   - id: test
     label: Test
     layer: Infrastructure
     mode: exclusive
-    access: { claude: forbidden, cline: owns }
+    access: { claude: forbidden, executor: owns }
 
   - id: fix
     label: Fix failures
     layer: Infrastructure
     mode: exclusive
-    access: { claude: forbidden, cline: owns }
+    access: { claude: forbidden, executor: owns }

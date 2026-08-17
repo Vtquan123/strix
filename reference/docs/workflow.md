@@ -5,7 +5,7 @@ How a request becomes shipped, reviewed, knowledge-governed code.
 ## Task-Driven, Always
 
 Nothing runs without a task. Every request is triaged by Claude, classified, and
-turned into one or more tasks before Cline touches anything. Canonical:
+turned into one or more tasks before the executor touches anything. Canonical:
 [../workflow/task-driven-workflow.md](../workflow/task-driven-workflow.md).
 
 ## Complexity Levels
@@ -18,7 +18,7 @@ turned into one or more tasks before Cline touches anything. Canonical:
 | EPIC | Multi-feature | **Break into STANDARD tasks first** |
 
 Canonical: [../workflow/complexity-levels.md](../workflow/complexity-levels.md).
-**Never send an EPIC directly to Cline.**
+**Never send an EPIC directly to the executor.**
 
 ## End-to-End
 
@@ -27,7 +27,7 @@ sequenceDiagram
     actor User
     participant Router
     participant Tasks
-    participant Cline
+    participant Executor
     participant Know as Knowledge
     User->>Router: request
     Router->>Router: triage (intent + complexity)
@@ -36,16 +36,16 @@ sequenceDiagram
     else STANDARD/SIMPLE/TRIVIAL
       Router->>Tasks: create task
     end
-    Tasks->>Cline: hand READY task
-    Cline->>Know: read-only
-    Cline->>Cline: implement -> build -> lint -> test -> fix
-    Cline->>Tasks: task -> Review
+    Tasks->>Executor: hand READY task
+    Executor->>Know: read-only
+    Executor->>Executor: implement -> build -> lint -> test -> fix
+    Executor->>Tasks: task -> Review
     Router->>Router: reviewer-agent
     alt approved
       Router->>Know: knowledge-agent updates if triggered
       Router->>Tasks: Done -> Archive
     else changes
-      Router->>Cline: review-fixes
+      Router->>Executor: review-fixes
     end
     Router->>User: outcome
 ```
@@ -58,12 +58,13 @@ Queue → Active → Review → Done → Archive. Each stage is a directory unde
 ## Runtime Boundaries
 
 - **Claude** never writes code, builds, lints, or tests (may run the terminal on demand).
-- **Cline** never redesigns, changes conventions/knowledge/ADRs, or expands
+- **The executor** never redesigns, changes conventions/knowledge/ADRs, or expands
   scope.
 
 Canonical: [../workflow/runtime-separation.md](../workflow/runtime-separation.md).
 
-## Cline Workflows
+## Executor Workflows
 
-`implement` · `fix` · `refactor` · `testing` · `review-fixes` —
-[../../templates/cline/.clinerules/workflows/](../../templates/cline/.clinerules/workflows/).
+`implement` · `fix` · `refactor` · `testing` · `review-fixes` — see the Cline
+profile (one example executor):
+[../../templates/executors/cline/.clinerules/workflows/](../../templates/executors/cline/.clinerules/workflows/).

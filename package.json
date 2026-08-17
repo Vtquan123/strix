@@ -22,7 +22,9 @@
     "task-driven",
     "hybrid workflow",
     "plugin",
-    "cline"
+    "executor",
+    "cline",
+    "github-copilot"
   ],
   "author": "Quan Vu",
   "license": "MIT",

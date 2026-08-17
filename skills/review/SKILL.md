@@ -36,7 +36,7 @@ _No terminal commands — Claude reads, never executes._
 - Confirm Status field matches the task directory.
 
 **Don't**
-- Don't edit source — fixes are Cline's job.
+- Don't edit source — fixes are the executor's job.
 - Don't approve with failing build/lint/tests.
 - Don't update knowledge — that is `knowledge-agent`.
 
@@ -44,7 +44,7 @@ _No terminal commands — Claude reads, never executes._
 - [ ] Every Acceptance Criterion verified
 - [ ] Conventions + architecture respected
 - [ ] No out-of-scope / over-engineered work
-- [ ] Build/lint/tests reported green by Cline
+- [ ] Build/lint/tests reported green by the executor
 - [ ] Status field matches directory
 - [ ] Verdict is specific and actionable
 

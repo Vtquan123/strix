@@ -15,7 +15,7 @@ un-requested context is violating the framework.
 2. **Complexity Detection** — classify its size as exactly one level (below).
 3. **Skill Selection** — minimal skill set, recorded in `Suggested Skills`.
 4. **Context Selection** — minimal `knowledge/*` + task fields to load.
-5. **Agent Selection** — the Claude agent or Cline workflow to run.
+5. **Agent Selection** — the Claude agent or the executor workflow to run.
 
 **Intents:**
 

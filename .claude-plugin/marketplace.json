@@ -7,7 +7,7 @@
     {
       "name": "strix",
       "source": "./",
-      "description": "Task-driven AI coding workflow: Claude reasons and routes (Planning Runtime), Cline executes (Execution Runtime), with a per-project .strix/ knowledge base and task board.",
+      "description": "Task-driven AI coding workflow: Claude reasons and routes (Planning Runtime); a selectable executor — Cline, GitHub Copilot, or Claude — implements (Execution Runtime), with a per-project .strix/ knowledge base and task board.",
       "version": "1.0.1"
     }
   ]

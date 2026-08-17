@@ -7,7 +7,7 @@ so the filesystem itself is the board.
 stateDiagram-v2
     [*] --> Queue
     Queue --> Active: DoR met, deps clear
-    Active --> Review: DoD met by Cline
+    Active --> Review: DoD met by Executor
     Review --> Active: changes requested
     Review --> Done: reviewer-agent approves
     Done --> Archive: epic/sprint closed
@@ -17,8 +17,8 @@ stateDiagram-v2
 | Stage | Directory | Owner of the move | Meaning |
 |-------|-----------|-------------------|---------|
 | Queue | `tasks/queue/` | Claude | Created, waiting; may still be blocked by deps |
-| Active | `tasks/active/` | Claude → Cline | Pulled for execution; Cline is working it |
-| Review | `tasks/review/` | Cline → Claude | Implementation done, awaiting reviewer-agent |
+| Active | `tasks/active/` | Claude → the executor | Pulled for execution; the executor is working it |
+| Review | `tasks/review/` | the executor → Claude | Implementation done, awaiting reviewer-agent |
 | Done | `tasks/done/` | Claude | Approved and merged; knowledge updated if warranted |
 | Archive | `tasks/archive/` | Claude | Closed out; kept for history |
 
@@ -33,13 +33,13 @@ stateDiagram-v2
 - A task can sit in Queue indefinitely while blocked.
 
 ### 2. Active
-- **Owner:** Cline (Execution Runtime).
+- **Owner:** the executor (Execution Runtime).
 - **Status field:** `In Progress`.
 - **Entry gate:** DoR met; Router assigned it; deps clear.
 - **Work:** implement, build, lint, test, fix — strictly within scope.
 - **Exit gate:** **Definition of Done** is satisfied (build/lint/tests green,
-  Acceptance Criteria met). Cline moves the task to Review.
-- **Escalation:** if Cline hits a stop condition, it returns the task to Queue
+  Acceptance Criteria met). The executor moves the task to Review.
+- **Escalation:** if the executor hits a stop condition, it returns the task to Queue
   (or flags Review) with a note; it never redesigns.
 
 ### 3. Review

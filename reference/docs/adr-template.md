@@ -27,7 +27,7 @@ An ADR has these sections:
 - **One decision per file.** Numbered `NNNN-kebab-title.md`, sequential.
 - **Immutable once Accepted.** Do not rewrite a decided ADR — write a new ADR
   and mark the old one `Superseded by ADR-NNNN`.
-- **Claude only.** Cline never authors or edits ADRs.
+- **Claude only.** The executor never authors or edits ADRs.
 - **When to write one:** architecture, convention, module boundary, tech-stack,
   or business-rule decisions with structural impact.
 - **When not to:** typo, rename, CSS, minor bug.

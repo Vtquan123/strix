@@ -2,13 +2,17 @@
 # strix-init — scaffold Strix into the current project.
 #
 # Copies the plugin's seed content into the target project:
-#   templates/strix/          -> <project>/.strix/        (knowledge base + task board)
-#   templates/cline/.clinerules/ -> <project>/.clinerules/ (Cline rules, workflows, skills)
+#   templates/strix/               -> <project>/.strix/   (knowledge base + task board)
+#   templates/executors/<exec>/... -> <project>/          (the chosen executor's config)
+#
+# The executor's tree carries its own top-level directory, so it lands at the
+# project root: Cline -> .clinerules/, Copilot -> .github/, Claude -> .claude/
+# + .strix/executor/. The choice is recorded in <project>/.strix/config.yaml.
 #
 # Idempotent: existing files are skipped unless --force is given.
 #
 # Usage:
-#   strix-init [--force] [--target <dir>]
+#   strix-init [--executor <cline|copilot|claude>] [--force] [--target <dir>]
 #
 # Resolution of the plugin root (where templates/ live):
 #   1. $STRIX_PLUGIN_ROOT if set
@@ -19,13 +23,15 @@ set -euo pipefail
 
 FORCE=0
 TARGET="$PWD"
+EXECUTOR=""
 
 while [ $# -gt 0 ]; do
   case "$1" in
+    --executor) EXECUTOR="${2:?--executor needs an id (cline|copilot|claude)}"; shift 2 ;;
     --force) FORCE=1; shift ;;
     --target) TARGET="${2:?--target needs a directory}"; shift 2 ;;
     -h|--help)
-      sed -n '2,14p' "$0" | sed 's/^# \{0,1\}//'
+      sed -n '2,20p' "$0" | sed 's/^# \{0,1\}//'
       exit 0 ;;
     *) echo "strix-init: unknown argument: $1" >&2; exit 2 ;;
   esac
@@ -42,12 +48,27 @@ else
 fi
 
 STRIX_SEED="$ROOT/templates/strix"
-CLINE_SEED="$ROOT/templates/cline/.clinerules"
+EXECUTORS_DIR="$ROOT/templates/executors"
 
-if [ ! -d "$STRIX_SEED" ] || [ ! -d "$CLINE_SEED" ]; then
+# Default executor: the `default:` in config/executors.yaml, falling back to cline.
+if [ -z "$EXECUTOR" ]; then
+  EXECUTOR="$(sed -n 's/^default:[[:space:]]*//p' "$ROOT/config/executors.yaml" 2>/dev/null | head -1)"
+  EXECUTOR="${EXECUTOR:-cline}"
+fi
+
+EXEC_SEED="$EXECUTORS_DIR/$EXECUTOR"
+
+if [ ! -d "$STRIX_SEED" ] || [ ! -d "$EXECUTORS_DIR" ]; then
   echo "strix-init: cannot find templates under '$ROOT'." >&2
   echo "  Set STRIX_PLUGIN_ROOT to the Strix plugin directory and retry." >&2
   exit 1
+fi
+
+if [ ! -d "$EXEC_SEED" ]; then
+  echo "strix-init: unknown executor '$EXECUTOR'." >&2
+  echo "  Available executors:" >&2
+  ls -1 "$EXECUTORS_DIR" | sed 's/^/    /' >&2
+  exit 2
 fi
 
 TARGET="$(cd "$TARGET" && pwd)"
@@ -72,21 +93,53 @@ copy_tree() {
 
 echo "strix-init: seeding into $TARGET"
 echo "  plugin root: $ROOT"
+echo "  executor: $EXECUTOR"
 [ "$FORCE" -eq 1 ] && echo "  --force: overwriting existing files"
 
 echo "-> .strix/ (knowledge base + task board)"
 copy_tree "$STRIX_SEED" "$TARGET/.strix"
 
-echo "-> .clinerules/ (Cline rules, workflows, skills)"
-copy_tree "$CLINE_SEED" "$TARGET/.clinerules"
+# --- decide whether to seed the executor tree + record the choice ------------
+CONFIG="$TARGET/.strix/config.yaml"
+SEED_EXECUTOR=1
+if [ -e "$CONFIG" ] && [ "$FORCE" -ne 1 ]; then
+  EXISTING="$(sed -n 's/^executor:[[:space:]]*//p' "$CONFIG" | head -1)"
+  if [ -n "$EXISTING" ] && [ "$EXISTING" != "$EXECUTOR" ]; then
+    echo "-> executor: SKIPPED"
+    echo "  warning: this project is already initialized with executor '$EXISTING'."
+    echo "  Not switching to '$EXECUTOR'. Re-run with --force to switch executors."
+    SEED_EXECUTOR=0
+    EXECUTOR="$EXISTING"
+  fi
+fi
+
+if [ "$SEED_EXECUTOR" -eq 1 ]; then
+  echo "-> $EXECUTOR executor config"
+  copy_tree "$EXEC_SEED" "$TARGET"
+
+  if [ -e "$CONFIG" ] && [ "$FORCE" -ne 1 ]; then
+    echo "  skip (exists): $CONFIG"
+  else
+    printf '# Strix per-project configuration. Written by bin/strix-init; safe to edit.\nschema: 1\nexecutor: %s\n' "$EXECUTOR" > "$CONFIG"
+    echo "  wrote: $CONFIG"
+  fi
+fi
+
+# --- executor-specific next steps -------------------------------------------
+case "$EXECUTOR" in
+  cline)   OPEN_STEP="Open the project in Cline — .clinerules/ is picked up automatically." ;;
+  copilot) OPEN_STEP="Open the project in VS Code (or a Copilot-enabled editor) — .github/ instructions and prompts load automatically. Drive execution with the /strix prompts (e.g. /implement) on the active task." ;;
+  claude)  OPEN_STEP="The Strix orchestrator invokes the isolated 'strix-executor' subagent (.claude/agents/strix-executor.md) to implement tasks; its contract lives in .strix/executor/." ;;
+  *)       OPEN_STEP="Open the project in your chosen executor; its config was seeded above." ;;
+esac
 
 cat <<EOF
 
-strix-init: done.
+strix-init: done (executor: $EXECUTOR).
   Next steps:
    1. Open the project in Claude Code — the Strix SessionStart hook now activates
       (it detects .strix/).
    2. Run the 'project-scan' skill to populate .strix/knowledge/* from the real
       codebase.
-   3. Open the project in Cline — .clinerules/ is picked up automatically.
+   3. $OPEN_STEP
 EOF

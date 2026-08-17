@@ -1,11 +1,11 @@
-# Cline Guardrails
+# Executor Guardrails
 
-Behavioral guardrails that reduce common LLM coding mistakes, adapted to Cline's
-execution role. Source: Andrej Karpathy's observations on LLM coding pitfalls.
+Behavioral guardrails that reduce common LLM coding mistakes, adapted to the
+executor's role. Source: Andrej Karpathy's observations on LLM coding pitfalls.
 
 > **Bias toward caution over speed. For trivial edits, use judgment.**
 
-Some of these already live elsewhere in `.clinerules/`; this file points there
+Some of these already live in the sibling rule files; this file points there
 rather than duplicating, so the rules cannot drift apart.
 
 ## 1. Think Before Coding
@@ -18,7 +18,8 @@ Before editing, make your reasoning explicit — don't code on a silent guess:
   picking one silently — see the stop conditions in
   [execution.md](./execution.md).
 - If a simpler approach than the task describes exists, say so before building
-  the complex one; a design change is Claude's call, not Cline's.
+  the complex one; a design change is Claude's (the orchestrator's) call, not the
+  executor's.
 
 ## 2. Simplicity First
 

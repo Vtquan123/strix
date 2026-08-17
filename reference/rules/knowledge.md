@@ -1,20 +1,20 @@
 # Claude Knowledge Rules
 
-Claude is the **only** writer of the Project Knowledge Layer. Cline reads it but
+Claude is the **only** writer of the Project Knowledge Layer. The executor reads it but
 never writes it. This file governs *when* and *how* Claude updates knowledge.
 Full policy: [../docs/governance.md](../docs/governance.md).
 
 ## Read / Write Matrix
 
-| File | Claude | Cline |
-|------|:------:|:-----:|
+| File | Claude | Executor |
+|------|:------:|:--------:|
 | `knowledge/project-context.md` | read/write | read-only |
 | `knowledge/coding-conventions.md` | read/write | read-only |
 | `knowledge/architecture.md` | read/write | read-only |
 | `knowledge/glossary.md` | read/write | read-only |
 | `knowledge/decisions/*` (ADRs) | read/write | read-only |
 
-**Why Claude writes and Cline only reads:** knowledge is *reasoning output*.
+**Why Claude writes and the executor only reads:** knowledge is *reasoning output*.
 If execution could rewrite it, the source of truth would drift with every
 implementation detail and stop being trustworthy. One writer keeps it coherent.
 

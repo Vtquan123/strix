@@ -16,8 +16,8 @@ boundaries, a task-driven flow, and a governed knowledge base.
 ## Decision
 
 We will adopt **Strix**: a hybrid, task-driven, layered workflow that separates
-a Claude **Planning Runtime** (reasoning) from a Cline **Execution Runtime**
-(implementation), routed by a single Claude Triage Router that consults a
+a Claude **Planning Runtime** (reasoning) from an **Execution Runtime**
+(implementation) run by the selected executor, routed by a single Claude Triage Router that consults a
 capability matrix.
 
 ## Options Considered

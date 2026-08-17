@@ -2,7 +2,7 @@
 
 > **Purpose:** the current state of the project. The single place to learn "what
 > is this and where is it now" without reading the whole codebase.
-> **Writer:** Claude (`knowledge-agent`). **Readers:** Claude, Cline (read-only).
+> **Writer:** Claude (`knowledge-agent`). **Readers:** Claude, the executor (read-only).
 
 <!--
 This is a TEMPLATE. When Strix is adopted by a real project, the
@@ -49,7 +49,7 @@ _What is built, what is in flight, what is next. Updated on EPIC completion._
 ## Important Constraints
 
 - _Performance, compliance, budget, deadline, or platform constraints._
-- _Anything Cline must respect but cannot infer from code._
+- _Anything the executor must respect but cannot infer from code._
 
 ---
 

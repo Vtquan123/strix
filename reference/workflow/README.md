@@ -18,7 +18,7 @@ traceable back to one of them.
 5. **Skill-First Design** — reusable skills carry the how-to; prompts stay small.
 6. **Knowledge-Driven Development** — the knowledge layer is the source of truth.
 7. **Claude Thinks.** — Claude owns reasoning.
-8. **Cline Executes.** — Cline owns execution.
+8. **The Executor Executes.** — the executor owns execution.
 9. **Minimize context.** — load only the knowledge and skills a task needs.
 10. **Prevent over-engineering.** — implement only what the task defines.
 11. **Long-term maintainability.** — modular, extensible, no duplicated responsibility.
@@ -47,11 +47,11 @@ flowchart TD
 |---|-------|----------------|-------|
 | 1 | User | Submits requests in natural language | Human |
 | 2 | Claude Triage Router | Classifies, routes, selects skills/context/agents | Claude |
-| 3 | Task Management Layer | Holds tasks and moves them through the lifecycle | Claude writes, Cline reads |
-| 4 | Project Knowledge Layer | Source of truth for context, conventions, architecture, ADRs | Claude writes, Cline reads |
+| 3 | Task Management Layer | Holds tasks and moves them through the lifecycle | Claude writes, the executor reads |
+| 4 | Project Knowledge Layer | Source of truth for context, conventions, architecture, ADRs | Claude writes, the executor reads |
 | 5 | Agent Layer | Specialised Claude reasoning agents | Claude |
 | 6 | Skill Layer | Reusable reasoning + implementation skills | Both (by kind) |
-| 7 | Infrastructure Layer | Files, terminal, build, lint, test, VCS | Cline |
+| 7 | Infrastructure Layer | Files, terminal, build, lint, test, VCS | the executor |
 
 ## End-to-End Flow
 
@@ -61,23 +61,23 @@ sequenceDiagram
     participant Router as Claude Triage Router
     participant Tasks as Task Management
     participant Know as Knowledge
-    participant Cline as Cline (Execution)
+    participant Executor as Executor (Execution)
 
     User->>Router: Request (natural language)
     Router->>Router: Intent + Complexity detection
     Router->>Know: Read relevant context
     Router->>Tasks: Create task(s) via task-creator-agent
     Note over Router,Tasks: EPIC is split into STANDARD tasks first
-    Tasks-->>Cline: Hand off a READY task
-    Cline->>Know: Read-only (context, conventions, ADRs)
-    Cline->>Cline: Implement, build, lint, test, fix
-    Cline-->>Tasks: Move task to Review
+    Tasks-->>Executor: Hand off a READY task
+    Executor->>Know: Read-only (context, conventions, ADRs)
+    Executor->>Executor: Implement, build, lint, test, fix
+    Executor-->>Tasks: Move task to Review
     Router->>Router: reviewer-agent reviews
     alt Approved
         Router->>Know: knowledge-agent updates (if warranted)
         Router->>Tasks: Move to Done -> Archive
     else Changes requested
-        Router->>Cline: review-fixes workflow
+        Router->>Executor: review-fixes workflow
     end
     Router-->>User: Report outcome
 ```

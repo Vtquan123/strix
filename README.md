@@ -3,12 +3,14 @@
 **A task-driven, hybrid AI coding workflow — packaged as a Claude Code plugin.**
 
 Strix separates *thinking* from *doing*. **Claude** plans, designs, reviews, and
-governs knowledge (the Planning Runtime). **Cline** implements, builds, lints,
-tests, and fixes (the Execution Runtime). A single Claude Triage Router decides
-everything; agents never self-select. The result is small prompts, reusable
-context, auditable changes, and a knowledge base that stays coherent over time.
+governs knowledge (the Planning Runtime). A **selectable executor** — **Cline**,
+**GitHub Copilot**, or **Claude** — implements, builds, lints, tests, and fixes
+(the Execution Runtime). You choose the executor per project at init. A single
+Claude Triage Router decides everything; agents never self-select. The result is
+small prompts, reusable context, auditable changes, and a knowledge base that
+stays coherent over time.
 
-> **Claude Thinks. Cline Executes. Never blur the two.**
+> **Claude Thinks; the executor executes. Never blur the two.**
 
 ## Why Strix
 
@@ -24,7 +26,7 @@ context, auditable changes, and a knowledge base that stays coherent over time.
 
 Strix ships as a single Claude Code plugin. The framework (agents, skills,
 rules, workflows, hooks) installs once; each project gets a small, per-project
-`.strix/` data folder plus a `.clinerules/` Cline config seeded on init.
+`.strix/` data folder plus the **chosen executor's** config seeded on init.
 
 ```sh
 # 1. Add this repo as a marketplace (it self-hosts .claude-plugin/marketplace.json)
@@ -34,14 +36,18 @@ claude plugin marketplace add <this-repo-url-or-path>
 claude plugin install strix
 
 # 3. In the project you want Strix to manage, initialize it
-/strix:init            # seeds .strix/ (knowledge + task board) and .clinerules/
+/strix:init            # asks which executor, then seeds .strix/ + that executor's config
 
 # 4. Populate the knowledge base from the real codebase (one time)
 #    Run the project-scan skill; it fills .strix/knowledge/* + an adoption ADR.
 ```
 
-`/strix:init` is idempotent — existing seed files are preserved (pass `--force`
-to overwrite). You can also run the scaffolder directly: `bin/strix-init`.
+`/strix:init` asks which executor to use (**Cline** → `.clinerules/`, **GitHub
+Copilot** → `.github/`, **Claude** → an isolated `strix-executor` subagent +
+`.strix/executor/`) and records the choice in `.strix/config.yaml`. It is
+idempotent — existing seed files are preserved (pass `--force` to overwrite or to
+switch executors). You can also run the scaffolder directly:
+`bin/strix-init --executor <cline|copilot|claude>`.
 
 ### How activation works
 
@@ -64,7 +70,7 @@ flowchart TD
     AG --> SK[Skills]
     SK --> IN[Infrastructure]
     R -. thinks .- CL[Claude]
-    IN -. executes .- CLN[Cline]
+    IN -. executes .- CLN[Executor: Cline / Copilot / Claude]
     classDef think fill:#e8f0fe,stroke:#4285f4,color:#1a1a1a;
     classDef exec fill:#fde8e8,stroke:#ea4335,color:#1a1a1a;
     class R,TM,PK,AG,CL think; class IN,CLN exec;
@@ -80,7 +86,7 @@ flowchart LR
     TRI -->|EPIC| BD[Break into STANDARD tasks + deps]
     TRI -->|else| TSK[Create task]
     BD --> TSK
-    TSK --> EXE[Cline: implement -> build -> lint -> test -> fix]
+    TSK --> EXE[Executor: implement -> build -> lint -> test -> fix]
     EXE --> REV[reviewer-agent]
     REV -->|changes| EXE
     REV -->|approve| GOV[knowledge-agent governs]
@@ -104,7 +110,10 @@ strix/
 │   └── strix-init                  # idempotent scaffolder (shared by /strix:init)
 ├── templates/                      # seed content copied into a project on init
 │   ├── strix/                      #   → <project>/.strix/  (knowledge base + task board)
-│   └── cline/.clinerules/          #   → <project>/.clinerules/  (rules, workflows, skills)
+│   └── executors/                  #   per-executor config trees, chosen at init:
+│       ├── cline/.clinerules/      #     → <project>/.clinerules/
+│       ├── copilot/.github/        #     → <project>/.github/
+│       └── claude/                 #     → <project>/.claude/agents/ + .strix/executor/
 └── reference/                      # framework docs — skill-referenced background, not auto-loaded
     ├── docs/                       #   the documentation set
     ├── workflow/                   #   engine-agnostic core (capability matrix, router, lifecycle)
@@ -112,25 +121,27 @@ strix/
     └── examples/                   #   example ADR
 ```
 
-Per-project footprint after `/strix:init`:
+Per-project footprint after `/strix:init` (executor = Cline shown; Copilot seeds
+`.github/`, Claude seeds `.claude/agents/strix-executor.md` + `.strix/executor/`):
 
 ```text
 <project>/
 ├── .strix/
+│   ├── config.yaml                 # records the chosen executor
 │   ├── knowledge/ (project-context, coding-conventions, architecture, glossary, decisions/)
 │   └── tasks/ (TEMPLATE.md + queue active review done archive)
-└── .clinerules/                    # copied from templates/cline/.clinerules
+└── .clinerules/                    # copied from templates/executors/cline/.clinerules
     ├── *.md                        #   rules
     ├── workflows/                  #   execution workflows
     └── skills/                     #   implementation skills
 ```
 
-All skills, agents, and the copied Cline config read/write one shared,
+All skills, agents, and the copied executor config read/write one shared,
 engine-agnostic data directory: `.strix/knowledge/…` and `.strix/tasks/…`.
 
 ## Runtime Responsibilities
 
-| | Claude (Planning) | Cline (Execution) |
+| | Claude (Planning) | Executor (Execution) |
 |---|---|---|
 | **Owns** | analyze, brainstorm, triage, plan, architect, break down, review, govern | implement, edit, refactor, terminal, build, lint, test, fix |
 | **Never** | write code, build, lint, test (may run terminal on demand) | redesign, change conventions/knowledge/ADRs, expand scope |

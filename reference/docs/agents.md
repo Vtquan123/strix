@@ -1,14 +1,14 @@
 # Agents
 
 Strix has **four Claude agents — all reasoning, no coding**. There are
-deliberately **no coding agents**: execution is Cline's runtime, driven by
+deliberately **no coding agents**: execution is the executor's runtime, driven by
 workflows, not agents.
 
 ```mermaid
 flowchart LR
     R[Router] --> T[triage-agent]
     T --> C[task-creator-agent]
-    C --> X((Cline workflows))
+    C --> X((Executor workflows))
     X --> V[reviewer-agent]
     V -->|approved| K[knowledge-agent]
     V -->|changes| X
@@ -20,7 +20,7 @@ flowchart LR
 
 ### triage-agent
 First responder. Runs intent + complexity detection and routes the request.
-Never lets a raw request reach Cline; never sends an EPIC to execution.
+Never lets a raw request reach the executor; never sends an EPIC to execution.
 Spec: [../../agents/triage-agent.md](../../agents/triage-agent.md).
 
 ### task-creator-agent
@@ -40,8 +40,8 @@ Spec: [../../agents/knowledge-agent.md](../../agents/knowledge-agent.md).
 
 ## Why No Coding Agents
 
-Coding is execution. Execution belongs to Cline, structured by the five
-[Cline workflows](../../templates/cline/.clinerules/workflows/), not by Claude agents. Keeping agents
+Coding is execution. Execution belongs to the executor, structured by the five
+executor workflows — the [Cline profile](../../templates/executors/cline/.clinerules/workflows/) is one example executor — not by Claude agents. Keeping agents
 reasoning-only preserves the runtime boundary and prevents responsibility
 overlap.
 

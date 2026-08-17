@@ -11,7 +11,7 @@ Legend: ✅ owns · 🚫 forbidden · 📖 read-only
 <!-- strix:gen end id=capability-legend -->
 
 <!-- strix:gen start id=capability-matrix -->
-| Capability | Claude | Cline | Layer |
+| Capability | Claude | Executor | Layer |
 | ------------ | :------: | :------: | ------- |
 | Requirement analysis | ✅ | 🚫 | Router / Planning |
 | Brainstorming | ✅ | 🚫 | Planning |
@@ -42,7 +42,7 @@ Legend: ✅ owns · 🚫 forbidden · 📖 read-only
 | Engine | Runtime | Kind |
 | -------- | --------- | ------ |
 | `claude` | planning | reasoning |
-| `cline` | execution | implementation |
+| `executor` | execution | implementation |
 <!-- strix:gen end id=engines-table -->
 
 ## Machine-Readable Form
@@ -61,6 +61,6 @@ per capability — the Router needs no code change.
 2. Router looks up the capability's `owners`.
 3. Router dispatches to an available engine in `owners`, respecting `mode`.
 
-Because the Router keys off capabilities, swapping Cline for another executor —
+Because the Router keys off capabilities, swapping one executor for another —
 or adding a second reasoning engine — is a data edit, satisfying the principle
 *"Support future engines beyond Claude and Cline."*

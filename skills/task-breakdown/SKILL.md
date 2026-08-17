@@ -1,6 +1,6 @@
 ---
 name: task-breakdown
-description: Decompose an EPIC into STANDARD tasks with explicit dependencies and per-task scope estimates — the gate that keeps EPICs from ever reaching Cline whole. Use whenever the Router classifies complexity as EPIC.
+description: Decompose an EPIC into STANDARD tasks with explicit dependencies and per-task scope estimates — the gate that keeps EPICs from ever reaching the executor whole. Use whenever the Router classifies complexity as EPIC.
 metadata:
   kind: reasoning
   engine: claude
@@ -10,7 +10,7 @@ metadata:
 
 ## Purpose
 Decompose an EPIC into STANDARD tasks with explicit dependencies and per-task
-scope estimates. The gate that keeps EPICs from ever reaching Cline whole.
+scope estimates. The gate that keeps EPICs from ever reaching the executor whole.
 
 ## When to use
 The Router selects this whenever complexity is EPIC.

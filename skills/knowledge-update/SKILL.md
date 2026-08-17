@@ -37,7 +37,7 @@ _No terminal commands — reasoning + file authoring only._
 
 **Don't**
 - Never update for: typo, rename, CSS fix, minor bug.
-- Don't let Cline write knowledge — Claude only.
+- Don't let the executor write knowledge — Claude only.
 - Don't add speculative documentation.
 
 ## Checklist
@@ -53,7 +53,7 @@ _No terminal commands — reasoning + file authoring only._
 A caching module ships. Update Current Modules + architecture.md; add ADR.
 
 ### Typo → no update
-Cline fixed a typo in a label. No knowledge trigger; record "n/a" in the task
+The executor fixed a typo in a label. No knowledge trigger; record "n/a" in the task
 DoD.
 
 ## Related

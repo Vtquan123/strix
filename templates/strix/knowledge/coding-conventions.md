@@ -1,10 +1,10 @@
 # Coding Conventions
 
 > **Single source of truth** for how code is written in this project.
-> **Writer:** Claude only. **Readers:** Claude, Cline (read-only, binding).
+> **Writer:** Claude only. **Readers:** Claude, the executor (read-only, binding).
 
 <!--
-This is a TEMPLATE. Fill each section for the target project. Cline treats this
+This is a TEMPLATE. Fill each section for the target project. The executor treats this
 file as law and will escalate rather than deviate.
 -->
 
@@ -58,5 +58,5 @@ file as law and will escalate rather than deviate.
 ---
 
 **Governance:** only Claude updates conventions. A convention change is a
-reasoned decision and often warrants an [ADR](./decisions/). Cline never edits
+reasoned decision and often warrants an [ADR](./decisions/). The executor never edits
 this file — it escalates instead. See the governance policy in the Strix plugin `reference/docs/governance.md`.

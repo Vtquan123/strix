@@ -11,7 +11,7 @@ metadata:
 ## Purpose
 Bootstrap the Project Knowledge Layer for a real codebase. Read the actual
 project and replace the `.strix/knowledge/*` template placeholders with evidence-based
-facts, so Cline and every reasoning skill start from accurate ground truth
+facts, so the executor and every reasoning skill start from accurate ground truth
 instead of scaffolding. This is a one-time adoption event, not the ongoing
 governance loop.
 
@@ -62,8 +62,8 @@ build/lint/test — reasoning + knowledge authoring only._
 
 **Don't**
 - Don't invent a tech stack, module, or convention the repo does not exhibit.
-- Don't touch `.strix/tasks/**`, `.claude/**`, `.clinerules/**`, or any source file.
-- Don't let Cline write knowledge — Claude only.
+- Don't touch `.strix/tasks/**`, `.claude/**`, `.clinerules/**`, `.github/**`, `.strix/executor/**`, or any source file.
+- Don't let the executor write knowledge — Claude only.
 - Don't re-scan an already-populated layer; route that through
   [knowledge-update](../knowledge-update/SKILL.md).
 

@@ -18,7 +18,7 @@ EPICs, it decomposes into STANDARD tasks with dependencies and scope estimates.
   or Definition of Done.
 - Decompose EPICs into STANDARD tasks; generate the dependency graph; estimate
   scope per task.
-- Set `Suggested Skills` and `Estimated Files` so the Router and Cline can load
+- Set `Suggested Skills` and `Estimated Files` so the Router and the executor can load
   minimal context.
 - Place tasks into `.strix/tasks/queue/`.
 

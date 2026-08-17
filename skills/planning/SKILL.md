@@ -1,6 +1,6 @@
 ---
 name: planning
-description: Turn a clarified requirement into an ordered, dependency-aware plan of STANDARD tasks that Cline can execute one at a time. Use when the Router routes SIMPLE+ features, and as the backbone step before task-breakdown on EPICs.
+description: Turn a clarified requirement into an ordered, dependency-aware plan of STANDARD tasks that the executor can execute one at a time. Use when the Router routes SIMPLE+ features, and as the backbone step before task-breakdown on EPICs.
 metadata:
   kind: reasoning
   engine: claude
@@ -10,7 +10,7 @@ metadata:
 
 ## Purpose
 Turn a clarified requirement into an ordered, dependency-aware plan of STANDARD
-tasks that Cline can execute one at a time.
+tasks that the executor can execute one at a time.
 
 ## When to use
 The Router selects this for SIMPLE+ features and as the backbone step before
@@ -38,7 +38,7 @@ _No terminal commands — planning is reasoning only._
 - Note assumptions; flag unknowns for `risk-analysis`.
 
 **Don't**
-- Don't plan implementation details — that is Cline's job.
+- Don't plan implementation details — that is the executor's job.
 - Don't emit an EPIC as one step.
 - Don't add "nice to have" tasks outside the requirement (over-engineering).
 

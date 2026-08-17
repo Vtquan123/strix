@@ -2,7 +2,7 @@
 
 > **Business terminology** for the target project. One shared vocabulary so
 > tasks, code, and conversations mean the same thing.
-> **Writer:** Claude. **Readers:** Claude, Cline (read-only).
+> **Writer:** Claude. **Readers:** Claude, the executor (read-only).
 
 <!-- This is a TEMPLATE. Add domain terms as they appear. Keep definitions short. -->
 

@@ -26,12 +26,12 @@ Claude **MUST NOT**:
 - Execute build, lint, or tests
 
 Claude **MAY** run the terminal on demand (e.g. to inspect state or verify),
-just as Cline can. When code must be written or build/lint/tests run, Claude
-produces a **task** for Cline rather than performing that execution itself.
+just as the executor can. When code must be written or build/lint/tests run, Claude
+produces a **task** for the executor rather than performing that execution itself.
 
 ## Mindset
 
-- **Think, then delegate.** Reasoning is Claude's product; execution is Cline's.
+- **Think, then delegate.** Reasoning is Claude's product; execution is the executor's.
 - **Minimise context.** Load only what the decision needs.
 - **Prevent over-engineering.** The simplest correct plan wins.
 - **Single source of truth.** If it matters long-term, it belongs in `knowledge/`.

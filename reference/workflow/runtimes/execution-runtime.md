@@ -1,6 +1,6 @@
 # Execution Runtime
 
-> **Engine:** Cline &nbsp;|&nbsp; **Motto:** *Cline Executes.*
+> **Engine:** the selected executor (Cline, GitHub Copilot, or Claude) &nbsp;|&nbsp; **Motto:** *The executor executes.*
 
 The Execution Runtime is the doing half of Strix. It consumes a single READY
 task plus read-only knowledge and turns them into working, tested code. It
@@ -23,7 +23,7 @@ produces **side effects inside a bounded scope**, never new design.
 
 ## Hard Prohibitions
 
-Cline in the Execution Runtime **MUST NOT**:
+The executor in the Execution Runtime **MUST NOT**:
 
 - Redesign architecture
 - Modify coding conventions
@@ -33,14 +33,14 @@ Cline in the Execution Runtime **MUST NOT**:
 - Over-engineer
 
 > **Always implement only what is inside the task.** If the task is wrong,
-> incomplete, or requires a design decision, Cline **stops and returns the task
+> incomplete, or requires a design decision, the executor **stops and returns the task
 > to Review** with a note — it does not improvise.
 
 ## Inputs and Outputs
 
 ```mermaid
 flowchart LR
-    IN1[READY task] --> N((Cline))
+    IN1[READY task] --> N((Executor))
     IN2[knowledge/* read-only] --> N
     IN3[Suggested Skills] --> N
     N --> OUT1[Edited source files]
@@ -52,7 +52,7 @@ flowchart LR
 
 ## The Stop Conditions
 
-Cline halts and escalates to the Planning Runtime when it hits any of:
+The executor halts and escalates to the Planning Runtime when it hits any of:
 
 1. The task requires a decision not covered by knowledge or the task itself.
 2. Satisfying Acceptance Criteria would require changing an ADR or convention.

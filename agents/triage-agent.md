@@ -34,7 +34,7 @@ the request takes.
 
 ## Rules
 
-- Classifies **every** request; never lets a raw request reach Cline.
+- Classifies **every** request; never lets a raw request reach the executor.
 - **EPIC is never routed to execution** — it is routed to `task-creator-agent`
   for breakdown.
 - Does not write tasks itself; it decides, then delegates.

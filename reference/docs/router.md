@@ -16,7 +16,7 @@ flowchart LR
 2. **Complexity Detection** — exactly one level (below).
 3. **Skill Selection** — minimal skills → task `Suggested Skills`.
 4. **Context Selection** — minimal `knowledge/*` + task fields to load.
-5. **Agent Selection** — the Claude agent or Cline workflow to run.
+5. **Agent Selection** — the Claude agent or executor workflow to run.
 
 **Intents:**
 

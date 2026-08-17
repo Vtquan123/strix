@@ -6,7 +6,7 @@
  *
  *   node scripts/validate-config.mjs
  */
-import { readdirSync } from 'node:fs';
+import { readdirSync, existsSync } from 'node:fs';
 import { join, basename } from 'node:path';
 import Ajv from 'ajv';
 import { ROOT, loadAll, loadSchema, loadJson, dirNames, readFrontmatter } from './lib/config.mjs';
@@ -27,6 +27,7 @@ for (const [name, key] of [
   ['capabilities', 'capabilities'],
   ['skills', 'skills'],
   ['task-schema', 'taskSchema'],
+  ['executors', 'executors'],
 ]) {
   const validate = ajv.compile(loadSchema(name));
   if (!validate(cfg[key])) {
@@ -36,7 +37,7 @@ for (const [name, key] of [
   }
 }
 
-const { routing, capabilities, skills, taskSchema } = cfg;
+const { routing, capabilities, skills, taskSchema, executors } = cfg;
 
 /* ── 2. referential integrity between configs ───────────────────────── */
 
@@ -61,11 +62,11 @@ for (const [idx, r] of routing.routes.entries()) {
     if (!skillNames.includes(s)) fail(`${at}: unknown skill "${s}"`);
   }
   if (r.then && skillNames.includes(r.then) === false) {
-    // `then` may be a Cline workflow or the literal "decompose"; only warn on typos
-    // that look like a skill name but are not one of the known follow-ons.
+    // `then` may be an executor workflow or the literal "decompose"; only warn on
+    // typos that look like a skill name but are not one of the known follow-ons.
     const knownFollowOns = ['implement', 'fix', 'refactor', 'testing', 'review-fixes', 'decompose'];
     if (!knownFollowOns.includes(r.then)) {
-      fail(`${at}: "then: ${r.then}" is neither a known Cline workflow nor a built-in skill`);
+      fail(`${at}: "then: ${r.then}" is neither a known executor workflow nor a built-in skill`);
     }
   }
 }
@@ -98,6 +99,32 @@ for (const c of capabilities.capabilities) {
   for (const e of Object.keys(c.constraints ?? {})) {
     if (!engineIds.includes(e)) fail(`config/capabilities.yaml ${c.id}: constraint for unknown engine "${e}"`);
   }
+}
+
+/* ── 2b. selectable executor catalog ────────────────────────────────── */
+
+const executorIds = executors.executors.map((e) => e.id);
+const dupExecutors = executorIds.filter((id, i) => executorIds.indexOf(id) !== i);
+if (dupExecutors.length) fail(`config/executors.yaml: duplicate executor id(s): ${[...new Set(dupExecutors)].join(', ')}`);
+
+if (!executorIds.includes(executors.default)) {
+  fail(`config/executors.yaml: default "${executors.default}" is not a declared executor id`);
+}
+
+for (const e of executors.executors) {
+  const dir = join(ROOT, e.template_dir);
+  if (!existsSync(dir)) {
+    fail(`config/executors.yaml ${e.id}: template_dir "${e.template_dir}" does not exist`);
+  } else if (readdirSync(dir).length === 0) {
+    fail(`config/executors.yaml ${e.id}: template_dir "${e.template_dir}" is empty`);
+  }
+}
+
+// The matrix must keep exactly one generic execution engine that every selectable
+// tool fills; more than one would mean the matrix was re-split per tool.
+const executionEngines = capabilities.engines.filter((e) => e.runtime === 'execution');
+if (executionEngines.length !== 1) {
+  fail(`config/capabilities.yaml: expected exactly one execution-runtime engine, found ${executionEngines.length}`);
 }
 
 const cxField = taskSchema.header_fields.find((f) => f.enum_from === 'routing.complexity_levels');

@@ -1,7 +1,7 @@
 # TASK-<ID>: <Title>
 
 <!--
-The task is the only unit of work Cline accepts. Claude authors it; Cline
+The task is the only unit of work the executor accepts. Claude authors it; the executor
 executes only what is written here. Every field is required. Do not leave
 Acceptance Criteria, Out of Scope, or Definition of Done blank.
 -->
@@ -41,7 +41,7 @@ ADRs, glossary terms.>
 
 ## Suggested Skills
 
-- <Cline implementation skills: react, node, typescript, sql, testing, …>
+- <executor implementation skills: react, node, typescript, sql, testing, …>
 - <Claude reasoning skills if planning is embedded: architecture, ADR, …>
 
 ## Estimated Files

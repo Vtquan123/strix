@@ -1,7 +1,7 @@
 # Contribution Guide
 
 How to work *inside* Strix, and how to *extend* Strix itself. The golden rule:
-respect the runtime boundary — **Claude thinks, Cline executes** — and route
+respect the runtime boundary — **Claude thinks, the executor executes** — and route
 everything through tasks.
 
 ## Working Inside Strix (using the framework)
@@ -10,7 +10,7 @@ everything through tasks.
 2. **Let Claude triage.** `triage-agent` classifies intent + complexity.
 3. **Get tasks, not code, from Claude.** For STANDARD+ work, `task-creator-agent`
    writes tasks; EPICs are decomposed first.
-4. **Cline executes one task.** It reads the task + read-only knowledge and runs
+4. **The executor executes one task.** It reads the task + read-only knowledge and runs
    the right workflow (implement/fix/refactor/testing).
 5. **Review.** `reviewer-agent` approves or returns a checklist.
 6. **Govern knowledge.** `knowledge-agent` updates knowledge/ADRs only when a
@@ -22,7 +22,7 @@ everything through tasks.
 - Escalate design decisions to the Planning Runtime.
 
 ### Don't
-- Don't ask Cline to redesign or change conventions.
+- Don't ask the executor to redesign or change conventions.
 - Don't hand an EPIC to execution.
 - Don't edit knowledge from the execution side.
 
@@ -36,11 +36,11 @@ everything through tasks.
 
 | To add… | Do this |
 |---------|---------|
-| A **skill** | Reasoning: create `skills/<name>/SKILL.md` with `name`+`description`+`metadata` frontmatter, add it to `config/skills.yaml`, route it in `config/routing.yaml`, run `npm run gen`. Implementation: create `.clinerules/skills/<name>/SKILL.md` with `name`+`description` frontmatter (use `cline-skill-handler`) |
+| A **skill** | Reasoning: create `skills/<name>/SKILL.md` with `name`+`description`+`metadata` frontmatter, add it to `config/skills.yaml`, route it in `config/routing.yaml`, run `npm run gen`. Implementation (a project): install into the active executor's skills dir with the `skill-manager` skill |
 | An **agent** | Add `agents/<name>.md` (reasoning only — no coding agents) **and** add it to `agents:` in `config/skills.yaml`; the validator asserts the two match |
-| A **Cline workflow** | Add `.clinerules/workflows/<name>.md` describing its execution flow |
+| An **executor workflow** | Add `<name>.md` under the executor profile's `workflows/` (e.g. `templates/executors/cline/.clinerules/workflows/`) describing its execution flow |
 | A **capability** | Add an entry to `capabilities:` in `config/capabilities.yaml`, with an `access:` value for every engine; run `npm run gen` |
-| A **future engine** | Add it to `engines:` in `config/capabilities.yaml` + one `access:` key per capability, plus its own rules dir — no existing rule changes |
+| A **future executor** | Add a tree under `templates/executors/<id>/` and an entry to `config/executors.yaml` (the validator checks its `template_dir` exists) — the capability matrix's generic `executor` engine is unchanged |
 | A **convention** | Update `knowledge/coding-conventions.md` (Claude only) + often an ADR |
 
 After any `config/*.yaml` change, `npm run check` must pass — it validates the
@@ -50,7 +50,7 @@ schemas and cross-references, then fails if the generated docs are stale.
 
 Modular · easy to extend · no duplicated responsibilities · reasoning separated
 from execution · small prompts · reusable context · optimized tokens · engine-
-agnostic. If a change would blur `Claude Thinks / Cline Executes`, redesign the
+agnostic. If a change would blur `Claude Thinks / The Executor Executes`, redesign the
 change.
 
 ## Style
@@ -63,12 +63,12 @@ change.
 
 ```text
 CLAUDE.md    Claude bootstrap contract (auto-loaded)
-.clinerules/ Cline bootstrap rules (identity, workflow, permissions, execution, coding)
+the executor's config directory   Executor bootstrap rules (identity, workflow, permissions, execution, coding)
 workflow/    engine-agnostic core (runtimes, lifecycle, capability matrix, router)
 .claude/     Claude rules + reasoning agents + reasoning skills
-.clinerules/workflows/  Cline execution workflows (implement, fix, refactor, testing, review-fixes)
+the executor's workflows directory   Executor execution workflows (implement, fix, refactor, testing, review-fixes)
 knowledge/   source of truth (context, conventions, architecture, glossary, ADRs)
-.clinerules/skills/   Cline implementation skills (SKILL.md per skill)
+the executor's skills directory   Executor implementation skills (SKILL.md per skill)
 tasks/       the task board (queue/active/review/done/archive)
 docs/        this documentation set
 ```

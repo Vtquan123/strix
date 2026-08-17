@@ -10,7 +10,7 @@ The complete documentation set for the Strix workflow framework.
 | [knowledge.md](./knowledge.md) | The knowledge layer + access model |
 | [agents.md](./agents.md) | The four Claude agents (no coding agents) |
 | [skills.md](./skills.md) | The skills + single-`SKILL.md` contract |
-| [rules.md](./rules.md) | Claude + Cline rules and workflows |
+| [rules.md](./rules.md) | Claude + executor rules and workflows |
 | [governance.md](./governance.md) | When knowledge updates; anti-over-engineering |
 | [task-templates.md](./task-templates.md) | Task fields + lifecycle |
 | [adr-template.md](./adr-template.md) | ADR structure + discipline |
@@ -22,9 +22,9 @@ The complete documentation set for the Strix workflow framework.
 - Claude rules: [../rules/](../rules/)
 - Claude agents: [../../agents/](../../agents/)
 - Claude reasoning skills: [../../skills/](../../skills/)
-- Cline rules + workflows (seed): [../../templates/cline/.clinerules/](../../templates/cline/.clinerules/)
+- Executor rules + workflows — the Cline profile, one example executor (seed): [../../templates/executors/cline/.clinerules/](../../templates/executors/cline/.clinerules/)
 - Knowledge source of truth (seed): [../../templates/strix/knowledge/](../../templates/strix/knowledge/)
-- Cline implementation skills (seed): [../../templates/cline/.clinerules/skills/](../../templates/cline/.clinerules/skills/)
+- Executor implementation skills — the Cline profile, one example executor (seed): [../../templates/executors/cline/.clinerules/skills/](../../templates/executors/cline/.clinerules/skills/)
 - Tasks (seed): [../../templates/strix/tasks/](../../templates/strix/tasks/)
 
 Start at the [root README](../../README.md).

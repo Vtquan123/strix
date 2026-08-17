@@ -28,12 +28,10 @@ skills:
     role: Apply knowledge governance
   - name: skill-manager
     role: >-
-      Install/update/remove skills.sh skills into the **project's**
-      `.claude/skills/` or `.clinerules/skills/`
-  - name: cline-skill-handler
-    role: Create/update/delete Cline skills + sync references
+      Install/update/remove skills.sh skills into the project's
+      `.claude/skills/` (reasoning) or the active executor's skills directory
   - name: strix-init
-    role: Scaffold `.strix/` and `.clinerules/` into a project
+    role: Scaffold `.strix/` and the chosen executor's config into a project
 
 # The four Claude reasoning agents. Kept here so the strix-context hook and the
 # docs cannot disagree about which agents exist.

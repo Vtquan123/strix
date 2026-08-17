@@ -2,7 +2,7 @@
 
 Every request is classified by the **Claude Triage Router** into exactly one of
 four levels. The level decides how much planning ceremony a request gets and
-whether it may go straight to Cline.
+whether it may go straight to the executor.
 
 ```mermaid
 flowchart TD
@@ -12,7 +12,7 @@ flowchart TD
     T -->|multi-file, 1 feature| ST[STANDARD]
     T -->|multi-feature| EP[EPIC]
     EP -->|split| ST
-    TR --> CL[Cline]
+    TR --> CL[Executor]
     SI --> CL
     ST --> CL
     EP -.->|never direct| CL
@@ -61,7 +61,7 @@ then run `npm run gen`.
 - **Knowledge:** updated on completion (architecture, modules, and usually one or more ADRs).
 <!-- strix:gen end id=complexity-criteria -->
 
-> **Never send an EPIC directly to Cline.** An EPIC that reaches execution
+> **Never send an EPIC directly to the executor.** An EPIC that reaches execution
 > un-decomposed is a routing error.
 
 ## Decision Heuristics

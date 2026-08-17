@@ -26,6 +26,7 @@ export function loadAll() {
     capabilities: loadYaml('capabilities'),
     skills: loadYaml('skills'),
     taskSchema: loadYaml('task-schema'),
+    executors: loadYaml('executors'),
   };
 }
 

@@ -1,7 +1,7 @@
 # Architecture
 
 Strix is a **hybrid, task-driven, layered** AI coding workflow. It separates
-reasoning (Claude) from execution (Cline) and routes everything through a single
+reasoning (Claude) from execution (the executor) and routes everything through a single
 decision-maker. This document is the map; each section links to the canonical
 spec.
 
@@ -29,7 +29,7 @@ flowchart TD
 | Project Knowledge | Source of truth | [knowledge.md](./knowledge.md) |
 | Agent Layer | 4 Claude agents | [agents.md](./agents.md) |
 | Skill Layer | 20 reusable skills | [skills.md](./skills.md) |
-| Infrastructure | Files, terminal, build, test | Cline runtime |
+| Infrastructure | Files, terminal, build, test | Executor runtime |
 
 ## Two Runtimes
 
@@ -38,7 +38,7 @@ flowchart LR
     subgraph Plan["Planning Runtime — Claude Thinks"]
       P[analyze · brainstorm · triage · plan · architect · break down · review · govern]
     end
-    subgraph Exec["Execution Runtime — Cline Executes"]
+    subgraph Exec["Execution Runtime — The Executor Executes"]
       E[implement · edit · build · lint · test · fix]
     end
     Plan -- "READY task + read-only knowledge" --> Exec
@@ -53,7 +53,7 @@ Canonical: [../workflow/runtime-separation.md](../workflow/runtime-separation.md
 ## Design Principles
 
 Task-Driven · Hybrid · Layered · Router-Based · Skill-First · Knowledge-Driven ·
-Claude Thinks · Cline Executes · Minimize context · Prevent over-engineering ·
+Claude Thinks · The Executor Executes · Minimize context · Prevent over-engineering ·
 Long-term maintainability. Full list:
 [../workflow/README.md](../workflow/README.md).
 

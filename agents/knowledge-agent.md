@@ -43,7 +43,7 @@ so.
 
 ## Rules
 
-- **Only Claude writes knowledge.** This agent is the writer; Cline is read-only.
+- **Only Claude writes knowledge.** This agent is the writer; the executor is read-only.
 - **Never update** for a typo, rename, CSS fix, or minor bug.
 - **Must update** for architecture, convention, module, business rule, EPIC
   completion, or tech-stack change.

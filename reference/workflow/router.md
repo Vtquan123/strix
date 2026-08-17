@@ -23,7 +23,7 @@ flowchart TD
 ## The Five Router Functions
 
 ### 1. Intent Detection
-Classify what the user actually wants. Intent drives which agent and which Cline
+Classify what the user actually wants. Intent drives which agent and which executor
 workflow will ultimately run. Intents and complexity levels are generated from
 [`config/routing.yaml`](../../config/routing.yaml).
 
@@ -52,7 +52,7 @@ anything else proceeds.
 
 ### 3. Skill Selection
 Choose the minimal set of skills the work needs — reasoning skills for Claude,
-implementation skills for Cline — and record them in the task's
+implementation skills for the executor — and record them in the task's
 `Suggested Skills`. Selection is driven by intent + complexity, validated
 against the [capability matrix](./capability-matrix.md). Skill-First Design:
 the skill carries the how-to so the prompt stays small.
@@ -63,7 +63,7 @@ fields relevant to this request. Minimising context is a first-class goal —
 never load the whole knowledge base "just in case".
 
 ### 5. Agent Selection
-Pick the Claude agent or the Cline workflow (`implement`, `fix`, `refactor`,
+Pick the Claude agent or the executor workflow (`implement`, `fix`, `refactor`,
 `testing`, `review-fixes`) that will run — chosen via the capability matrix, not
 hard-coded engine names. The Claude agents:
 
@@ -73,8 +73,8 @@ hard-coded engine names. The Claude agents:
 
 ## Capability-Driven Dispatch
 
-The Router never says "send to Cline". It says "this step needs the `implement`
-capability → the matrix says `cline` owns it → dispatch there." This indirection
+The Router never says "send to the executor". It says "this step needs the `implement`
+capability → the matrix says `executor` owns it → dispatch there." This indirection
 is what lets Strix add future engines without touching Router logic.
 
 ```mermaid

@@ -1,0 +1,46 @@
+# yaml-language-server: $schema=./schemas/executors.schema.json
+#
+# SINGLE SOURCE OF TRUTH for the selectable execution TOOLS.
+#
+# The capability matrix (capabilities.yaml) has ONE generic `executor` engine;
+# this file enumerates which concrete tool fills that role in a project. Each
+# project records its choice in `<project>/.strix/config.yaml` (`executor: <id>`),
+# written by bin/strix-init. The SessionStart hook and skill-manager resolve a
+# tool's paths and handoff text from here. Adding a future tool is a data edit.
+#
+# `template_dir` follows the convention `templates/executors/<id>` so the
+# scaffolder can build the source path from the id alone; the validator asserts
+# every `template_dir` exists on disk.
+
+default: cline
+
+executors:
+  - id: cline
+    label: Cline
+    template_dir: templates/executors/cline
+    config_root: .clinerules
+    skills_dir: .clinerules/skills
+    catalog: .clinerules/skills/README.md
+    rules_format: clinerules
+    skills_agent: cline
+    handoff: Open the project in Cline; .clinerules/ is auto-loaded.
+
+  - id: copilot
+    label: GitHub Copilot
+    template_dir: templates/executors/copilot
+    config_root: .github
+    skills_dir: .github/skills
+    catalog: .github/skills/README.md
+    rules_format: copilot-instructions
+    skills_agent: null
+    handoff: Open the project in a Copilot-enabled editor; .github/ loads automatically. Copilot is not board-autonomous, so the orchestrator moves a task to active/ then asks the human to run the matching /strix prompt (e.g. /implement); Copilot moves it to review/ on completion.
+
+  - id: claude
+    label: Claude (executor)
+    template_dir: templates/executors/claude
+    config_root: .strix/executor
+    skills_dir: .strix/executor/skills
+    catalog: .strix/executor/skills/README.md
+    rules_format: claude-md
+    skills_agent: null
+    handoff: The orchestrator invokes the isolated strix-executor subagent (.claude/agents/strix-executor.md) to implement each task; its operating contract lives in .strix/executor/, separate from the planning runtime.

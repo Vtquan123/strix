@@ -57,8 +57,8 @@ source of the [capability matrix](../workflow/capability-matrix.md).
 
 <!-- strix:gen start id=capability-ownership-summary -->
 - **Claude** owns 15 of 21 capabilities — every capability in Router / Planning, Planning, Router, Task Management, Knowledge, Shared.
-- **Cline** owns 7 of 21 capabilities — every capability in Infrastructure, Shared. Read-only on Knowledge read.
-- Shared by more than one engine: **Knowledge read** (Cline read-only), **Run terminal** (Claude on demand confirm).
+- **Executor** owns 7 of 21 capabilities — every capability in Infrastructure, Shared. Read-only on Knowledge read.
+- Shared by more than one engine: **Knowledge read** (Executor read-only), **Run terminal** (Claude on demand confirm).
 <!-- strix:gen end id=capability-ownership-summary -->
 
 ## Enforcement

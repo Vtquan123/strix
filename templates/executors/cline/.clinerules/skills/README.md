@@ -32,19 +32,21 @@ comparable, and easy to extend — add a new skill by copying the `SKILL.md` sha
 
 `planning` · `architecture` · `brainstorming` · `review` · `documentation` ·
 `risk-analysis` · `task-breakdown` · `adr` · `project-scan` ·
-`knowledge-update` · `cline-skill-handler` · `skill-manager`
+`knowledge-update` · `skill-manager`
 
 ## Implementation Skills (Cline)
 
-_None yet._ Add one with the `cline-skill-handler` Claude skill.
+_None yet._ Add one with the `skill-manager` skill (it installs from the
+skills.sh registry into this project's active executor's skills directory).
 
 ## Extending
 
-1. Pick the kind. Reasoning skills ship with the Strix plugin (add them there,
-   via the `skill-manager` skill); implementation skills live here in
-   `.clinerules/skills/` (add them via the `cline-skill-handler` skill).
-2. For an implementation skill, create `.clinerules/skills/<name>/SKILL.md`.
-3. Reference it from the Router's routing rules so it can be selected.
+1. Pick the kind. Reasoning skills ship with the Strix plugin; add project
+   reasoning skills into `.claude/skills/` via the `skill-manager` skill.
+   Implementation skills live here in `.clinerules/skills/`.
+2. For an implementation skill, use the `skill-manager` skill to install one from
+   the registry, or hand-author `.clinerules/skills/<name>/SKILL.md`.
+3. Reference it from a task's `Suggested Skills` so the Router can select it.
 
 > Reasoning skills never execute; implementation skills never redesign. The
 > Strix capability matrix (in the plugin's `reference/workflow/`) keeps the line

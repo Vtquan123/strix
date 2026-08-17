@@ -1,6 +1,6 @@
 # Task Templates
 
-The task is the only unit of work Cline accepts. Claude authors it; Cline builds
+The task is the only unit of work the executor accepts. Claude authors it; the executor builds
 exactly what it says. Canonical template:
 [../../templates/strix/tasks/TEMPLATE.md](../../templates/strix/tasks/TEMPLATE.md).
 
@@ -43,7 +43,7 @@ Canonical: [../workflow/task-lifecycle.md](../workflow/task-lifecycle.md).
 
 ## Rules of Thumb
 
-- **STANDARD is the atomic unit** Cline executes. Everything larger decomposes.
+- **STANDARD is the atomic unit** the executor executes. Everything larger decomposes.
 - **Out of Scope + Estimated Files** are the guardrails against over-engineering.
 - **DoR** must be satisfiable before a task leaves Queue; **DoD** before it
   leaves Active.
