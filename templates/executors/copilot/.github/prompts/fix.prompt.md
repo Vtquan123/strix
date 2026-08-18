@@ -1,5 +1,5 @@
 ---
-mode: agent
+agent: agent
 description: Resolve a defect defined by a Strix bug task (fix workflow) — root-cause fix plus a regression test.
 ---
 Task file: ${input:task:absolute or repo-relative path to the READY bug task in .strix/tasks/active/}

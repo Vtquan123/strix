@@ -1,5 +1,5 @@
 ---
-mode: agent
+agent: agent
 description: Improve internal structure without changing behaviour (refactor workflow), preserving the task's invariants.
 ---
 Task file: ${input:task:absolute or repo-relative path to the READY refactor task in .strix/tasks/active/}

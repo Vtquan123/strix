@@ -1,5 +1,5 @@
 ---
-mode: agent
+agent: agent
 description: Implement a READY Strix task (implement workflow) — build a new feature/capability within its scope.
 ---
 Task file: ${input:task:absolute or repo-relative path to the READY task in .strix/tasks/active/}

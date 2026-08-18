@@ -1,5 +1,5 @@
 ---
-mode: agent
+agent: agent
 description: Apply the reviewer's change checklist and return the task to Review (review-fixes workflow).
 ---
 Task file: ${input:task:absolute or repo-relative path to the task in .strix/tasks/active/ carrying a "## Review Checklist"}

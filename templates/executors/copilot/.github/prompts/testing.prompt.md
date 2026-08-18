@@ -1,5 +1,5 @@
 ---
-mode: agent
+agent: agent
 description: Add or strengthen tests for existing or new code (testing workflow) to meet the task's coverage criteria.
 ---
 Task file: ${input:task:absolute or repo-relative path to the READY testing task in .strix/tasks/active/}
