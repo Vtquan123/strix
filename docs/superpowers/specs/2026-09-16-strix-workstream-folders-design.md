@@ -1,7 +1,7 @@
 # Workstream Folders for the Strix Task Board
 
-**Status:** approved design, not yet implemented
-**Date:** 2026-09-16
+**Status:** implemented 2026-09-17 in `850aee1..0b36526`
+**Date:** 2026-09-16 (designed), 2026-09-17 (built)
 **Affects:** `config/`, `scripts/`, `bin/`, `agents/`, `skills/`, `hooks/`, `templates/`, `reference/`
 
 ---
@@ -38,11 +38,11 @@ directory level inside every stage.
 ├── workstreams.yaml
 ├── TEMPLATE.md
 ├── queue/
-│   ├── billing-system/BILL-012.md
-│   ├── search-revamp/SRCH-004.md
-│   └── general/TASK-030.md
+│   ├── billing-system/BILL-012-add-invoice-model.md
+│   ├── search-revamp/SRCH-004-reindex-nightly.md
+│   └── general/TASK-030-fix-footer-typo.md
 ├── active/
-│   └── billing-system/BILL-011.md
+│   └── billing-system/BILL-011-add-invoice-api.md
 ├── review/
 ├── done/
 └── archive/
@@ -79,7 +79,7 @@ constructs a nested path by hand.
 The path convention becomes a single generated fact:
 
 ```
-{stage}/{workstream}/{id}.md
+{stage}/{workstream}/{id}-{slug}.md
 ```
 
 Workstream directories are **not** seeded. They are created on demand and
@@ -155,7 +155,7 @@ New top-level block:
 
 ```yaml
 board:
-  path: "{stage}/{workstream}/{id}.md"
+  path: "{stage}/{workstream}/{id}-{slug}.md"
   default_workstream: general
   registry: workstreams.yaml
 ```
@@ -185,8 +185,9 @@ making hand-violation unlikely in the first place.
 
 ```
 strix-task new <workstream> --title "..." [--complexity STANDARD] [--priority P1]
-    Mints the next ID in that workstream; writes queue/<ws>/<PREFIX>-<n>.md
-    from TEMPLATE.md with header fields filled.
+    Mints the next ID in that workstream; writes
+    queue/<ws>/<PREFIX>-<n>-<kebab-title>.md from TEMPLATE.md with header
+    fields filled.
 
 strix-task move <id> <stage>
     Moves the file, rewrites the Status field, creates the destination
@@ -373,3 +374,58 @@ nothing enforces nesting until step 4 tells the agents to use it.
 | Shim breaks if the plugin relocates | Shim resolves the plugin root the same way `strix-init` does; `doctor` reports a broken shim |
 | Hand-rolled YAML reader mis-parses the registry | Strict shape enforced upstream by `npm run validate` with the real parser; reader refuses to guess outside that shape |
 | Executors that cannot shell out | Manual path form documented beside every CLI instruction; `doctor` catches errors |
+
+---
+
+## Changed during implementation
+
+Three things differed from the design as approved. Each is reflected in the text
+above; this section is the record of what moved and why.
+
+### Filenames keep the board's kebab-title
+
+The approved `board.path` was `{stage}/{workstream}/{id}.md`. That would have
+silently dropped the existing convention — `TASK-014-add-login-rate-limit.md` —
+which the flat board already used and which `templates/strix/tasks/README.md`
+documented. Readable filenames matter more on a nested board, not less: they are
+how a directory listing stays scannable once tasks are one level deeper.
+
+Shipped as `{stage}/{workstream}/{id}-{slug}.md`, with `strix-task` deriving the
+slug from `--title`. Task lookup reads the ID off the front of the filename, so a
+slugless pre-migration `TASK-012.md` still resolves and `migrate` still needs no
+renames.
+
+### The review skill's "no terminal commands" line was narrowed, not kept
+
+`skills/review/SKILL.md` carried the line _"No terminal commands — Claude reads,
+never executes."_ Taken literally, the reviewer could not run `strix-task
+doctor`, which the design depends on.
+
+The line was wrong before this change, not because of it: `config/capabilities.yaml`
+grants `run_terminal` to Claude as a shared capability with `on_demand_confirm`,
+and `reference/rules/permissions.md` explicitly allows running the terminal to
+inspect state and verify. It now says Claude reads source and never edits it,
+and that running `strix-task` is verification while build, lint and tests remain
+the executor's.
+
+### A gen-docs guard was added for a bug this work hit
+
+Adding a `strix:gen` marker to a file absent from `gen-docs.mjs` TARGETS renders
+the region **empty** and ships it blank. Nothing warned — the existing check only
+catches the reverse case, a renderer with no marker, which is the harmless
+direction. This was hit on `reference/workflow/task-lifecycle.md` and would have
+shipped an empty region into the reference docs.
+
+`gen-docs` now errors on a marker in a non-target file. Fenced code blocks are
+excluded first, so `config/README.md` can keep documenting the marker syntax by
+showing it.
+
+## Verification performed
+
+- `npm run check` green: config validation, 38 `strix-task` checks, drift gate.
+- Three throwaway projects scaffolded through `strix-init`: the two-person
+  parallel-EPIC scenario, a Copilot scaffold, and a simulated pre-workstream flat
+  board.
+- Migration confirmed on the flat board: `TASK-011` and `TASK-012` moved into
+  `general/` with IDs untouched, the `Dependencies: TASK-011` cross-reference
+  still resolving, and a second run reporting no work.
