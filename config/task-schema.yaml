@@ -7,8 +7,11 @@
 # Fields rendered as the task's header table.
 header_fields:
   - name: ID
-    meaning: Unique, sequential (`TASK-<n>`)
-    placeholder: TASK-<ID>
+    meaning: "`<PREFIX>-<n>`, sequential within its workstream"
+    placeholder: <PREFIX>-<ID>
+  - name: Workstream
+    meaning: The workstream folder this task lives in
+    placeholder: <workstream-id>
   - name: Title
     meaning: Short imperative summary
     placeholder: <short imperative title>
@@ -57,3 +60,12 @@ lifecycle:
     status: Done
   - stage: archive
     status: Archived
+
+# Where a task file lives on the board. Tasks are grouped by workstream — a named
+# line of work, normally one EPIC — so parallel efforts stay isolated in a shared
+# board. `bin/strix-task` owns every mutation of this layout; nothing should
+# construct one of these paths by hand.
+board:
+  path: "{stage}/{workstream}/{id}.md"
+  default_workstream: general
+  registry: workstreams.yaml

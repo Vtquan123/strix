@@ -6,9 +6,10 @@
  *
  *   node scripts/validate-config.mjs
  */
-import { readdirSync, existsSync } from 'node:fs';
+import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { join, basename } from 'node:path';
 import Ajv from 'ajv';
+import { parse } from 'yaml';
 import { ROOT, loadAll, loadSchema, loadJson, dirNames, readFrontmatter } from './lib/config.mjs';
 
 const problems = [];
@@ -134,6 +135,48 @@ const lifecycleStatuses = taskSchema.lifecycle.map((l) => l.status);
 const statusField = taskSchema.header_fields.find((f) => f.name === 'Status');
 if (statusField && !eq([...statusField.enum].sort(), [...lifecycleStatuses].sort())) {
   fail('config/task-schema.yaml: Status enum does not match the lifecycle stage statuses');
+}
+
+// The board path groups by workstream, so a task must carry the field that says
+// which one it is in; without it invariant 2 has nothing to check against.
+if (!taskSchema.header_fields.some((f) => f.name === 'Workstream')) {
+  fail('config/task-schema.yaml: board.path groups by workstream but no Workstream header field exists');
+}
+
+/* ── 2c. the seeded workstream registry ─────────────────────────────── */
+
+// `strix-task` reads this file in target projects with a dependency-free reader
+// that only understands the flat shape below. Validating the seed here, with the
+// real parser, is what keeps that reader safe to write.
+const registryRel = join('templates', 'strix', 'tasks', taskSchema.board.registry);
+const registryPath = join(ROOT, registryRel);
+if (!existsSync(registryPath)) {
+  fail(`${registryRel}: task-schema.yaml declares this registry but the file is missing`);
+} else {
+  const registry = parse(readFileSync(registryPath, 'utf8'));
+  const validateRegistry = ajv.compile(loadSchema('workstreams'));
+  if (!validateRegistry(registry)) {
+    for (const e of validateRegistry.errors) {
+      fail(`${registryRel}${e.instancePath || ''}: ${e.message}`);
+    }
+  } else {
+    const ids = registry.workstreams.map((w) => w.id);
+    const prefixes = registry.workstreams.map((w) => w.prefix);
+    const dupIds = ids.filter((id, i) => ids.indexOf(id) !== i);
+    const dupPrefixes = prefixes.filter((p, i) => prefixes.indexOf(p) !== i);
+    if (dupIds.length) fail(`${registryRel}: duplicate workstream id(s): ${[...new Set(dupIds)].join(', ')}`);
+    // Prefixes must be unique or an ID no longer names one workstream, which is
+    // the whole point of prefixing them.
+    if (dupPrefixes.length) {
+      fail(`${registryRel}: duplicate prefix(es): ${[...new Set(dupPrefixes)].join(', ')}`);
+    }
+    const fallback = registry.workstreams.find((w) => w.id === taskSchema.board.default_workstream);
+    if (!fallback) {
+      fail(`${registryRel}: default_workstream "${taskSchema.board.default_workstream}" is not registered`);
+    } else if (fallback.status !== 'active') {
+      fail(`${registryRel}: default_workstream "${fallback.id}" must stay active`);
+    }
+  }
 }
 
 /* ── 3. configs vs what is on disk ──────────────────────────────────── */

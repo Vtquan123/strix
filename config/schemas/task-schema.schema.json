@@ -4,7 +4,7 @@
   "title": "Strix task record schema",
   "type": "object",
   "additionalProperties": false,
-  "required": ["header_fields", "body_sections", "lifecycle"],
+  "required": ["header_fields", "body_sections", "lifecycle", "board"],
   "properties": {
     "header_fields": {
       "type": "array",
@@ -49,6 +49,29 @@
         "properties": {
           "stage": { "type": "string", "pattern": "^[a-z]+$" },
           "status": { "type": "string" }
+        }
+      }
+    },
+    "board": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Board layout: tasks are grouped by workstream inside each stage.",
+      "required": ["path", "default_workstream", "registry"],
+      "properties": {
+        "path": {
+          "type": "string",
+          "const": "{stage}/{workstream}/{id}.md",
+          "description": "A task's location, relative to .strix/tasks/."
+        },
+        "default_workstream": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]*$",
+          "description": "Reserved bucket for tasks belonging to no EPIC."
+        },
+        "registry": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9.-]*\\.yaml$",
+          "description": "Registry filename, relative to .strix/tasks/."
         }
       }
     }

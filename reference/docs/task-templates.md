@@ -13,7 +13,8 @@ Every task **must** contain the following, generated from
 <!-- strix:gen start id=task-fields -->
 | Field | Meaning |
 | ------- | --------- |
-| ID | Unique, sequential (`TASK-<n>`) |
+| ID | `<PREFIX>-<n>`, sequential within its workstream |
+| Workstream | The workstream folder this task lives in |
 | Title | Short imperative summary |
 | Priority | P0–P3 |
 | Complexity | TRIVIAL / SIMPLE / STANDARD / EPIC |

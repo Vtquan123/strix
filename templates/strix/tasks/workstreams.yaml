@@ -1,0 +1,22 @@
+# Workstream registry — the named lines of work this project's task board is
+# grouped by. A workstream is normally one EPIC; its tasks live under
+# `<stage>/<id>/` in every stage directory.
+#
+# Shape is deliberately flat (a list of four scalar keys, no nesting, no anchors)
+# so `strix-task` can read it without a YAML dependency. Keep it that way.
+#
+# Managed by `.strix/bin/strix-task workstream add|close` — hand-editing works,
+# but run `.strix/bin/strix-task doctor` afterwards.
+#
+#   id      the folder name under each stage directory
+#   prefix  the task ID prefix; unique across workstreams
+#   owner   who is driving this line of work
+#   status  active | closed  (closed = no live work outside done/ and archive/)
+
+workstreams:
+  # The reserved bucket for tasks that belong to no EPIC — typo fixes, one-off
+  # tweaks. Its prefix is TASK so plain `TASK-<n>` IDs remain valid here.
+  - id: general
+    prefix: TASK
+    owner: shared
+    status: active

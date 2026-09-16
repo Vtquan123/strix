@@ -9,7 +9,8 @@ Acceptance Criteria, Out of Scope, or Definition of Done blank.
 <!-- strix:gen start id=task-header-table -->
 | Field | Value |
 | ------- | ------- |
-| **ID** | TASK-<ID> |
+| **ID** | <PREFIX>-<ID> |
+| **Workstream** | <workstream-id> |
 | **Title** | <short imperative title> |
 | **Priority** | P0 \| P1 \| P2 \| P3 |
 | **Complexity** | TRIVIAL \| SIMPLE \| STANDARD \| EPIC |
