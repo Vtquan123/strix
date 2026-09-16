@@ -251,7 +251,7 @@ function cmdNew(boardDir, positional, flags) {
   if (!existsSync(templatePath)) die(`no TEMPLATE.md at ${templatePath}`);
 
   let text = readFileSync(templatePath, 'utf8');
-  text = text.replace(/^# TASK-<ID>: <Title>$/m, `# ${id}: ${title}`);
+  text = text.replace(/^# <PREFIX>-<ID>: <Title>$/m, `# ${id}: ${title}`);
   text = setField(text, 'ID', id);
   text = setField(text, 'Workstream', wsId);
   text = setField(text, 'Title', title);

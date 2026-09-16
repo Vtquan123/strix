@@ -1,9 +1,13 @@
-# TASK-<ID>: <Title>
+# <PREFIX>-<ID>: <Title>
 
 <!--
 The task is the only unit of work the executor accepts. Claude authors it; the executor
 executes only what is written here. Every field is required. Do not leave
 Acceptance Criteria, Out of Scope, or Definition of Done blank.
+
+Do not copy this file by hand — run `.strix/bin/strix-task new <workstream>
+--title "..."`, which allocates the ID, files it under the right workstream, and
+fills the header for you.
 -->
 
 <!-- strix:gen start id=task-header-table -->
@@ -38,7 +42,7 @@ ADRs, glossary terms.>
 
 ## Dependencies
 
-- <TASK-<ID> that must be Done first, or "none">
+- <Task ID that must be Done first, e.g. BILL-011, or "none">
 
 ## Suggested Skills
 
