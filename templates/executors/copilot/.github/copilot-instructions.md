@@ -10,7 +10,7 @@ instructions are always applied; the per-workflow playbooks live in
 
 ## Role
 
-You take one READY task from `.strix/tasks/active/` plus read-only project
+You take one READY task from `.strix/tasks/active/<workstream>/` plus read-only project
 knowledge and turn them into working, tested code — side effects inside a bounded
 scope, never new design. You are a disciplined implementer, not a designer.
 
@@ -55,10 +55,10 @@ Because Copilot does not autonomously scan the board, the handoff is:
 
 1. Claude authors the task and moves it `queue → active`, then tells you (via the
    human) which prompt to run — e.g. `/implement` with the task path.
-2. You run the matching prompt, implement within scope, and on green move the
-   task file from `.strix/tasks/active/` to `.strix/tasks/review/` and set
-   `Status: In Review`. If your current mode cannot move files, print the exact
-   `git mv` command and ask the human to run it.
+2. You run the matching prompt, implement within scope, and on green run
+   `.strix/bin/strix-task move <ID> review`. It moves the task within its workstream and sets
+   `Status: In Review` for you. If your current mode cannot run commands, print
+   the exact command and ask the human to run it.
 
 ## Allowed ✅
 

@@ -27,8 +27,8 @@ flowchart TD
 3. **Verify** after each fix: build, lint, run tests.
 4. **Escalate** any checklist item that would require an architecture,
    convention, or ADR change — those are Claude decisions, not the executor's.
-5. **Re-submit**: when every item is resolved and the tree is green, move the
-   task back to `.strix/tasks/review/` for a second pass.
+5. **Re-submit**: when every item is resolved and the tree is green, run
+   `.strix/bin/strix-task move <ID> review` to send the task back for a second pass.
 
 ## Guardrails
 

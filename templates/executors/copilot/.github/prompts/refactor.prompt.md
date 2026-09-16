@@ -2,7 +2,7 @@
 mode: agent
 description: Improve internal structure without changing behaviour (refactor workflow), preserving the task's invariants.
 ---
-Task file: ${input:task:absolute or repo-relative path to the READY refactor task in .strix/tasks/active/}
+Task file: ${input:task:absolute or repo-relative path to the READY refactor task, under .strix/tasks/active/<workstream>/}
 
 Improve internal structure **without changing external behaviour**, as defined by
 the task above. Follow the always-on Strix executor instructions in
@@ -20,9 +20,8 @@ the task above. Follow the always-on Strix executor instructions in
    identical.
 5. **Escalate** if the "refactor" actually requires a design change or new ADR —
    that is a Planning-Runtime decision.
-6. **Complete**: move the task file from `.strix/tasks/active/` to
-   `.strix/tasks/review/` and set `Status: In Review`. If you cannot move files,
-   print the exact `git mv` command for the human.
+6. **Complete**: run `.strix/bin/strix-task move <ID> review`. It moves the task within its
+   workstream and sets `Status: In Review` for you. If you cannot move files, print the exact `.strix/bin/strix-task` command for the human.
 
 ## Guardrails
 

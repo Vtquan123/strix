@@ -33,8 +33,9 @@ flowchart TD
 5. **Lint** and fix style to match `coding-conventions.md`.
 6. **Test**: add/extend tests to cover the Acceptance Criteria; run the suite.
 7. **Check** every Acceptance Criterion. Iterate on implementation bugs.
-8. **Complete**: on green + criteria met + Definition of Done satisfied, move the
-   task to `.strix/tasks/review/` and set `Status: In Review`.
+8. **Complete**: on green + criteria met + Definition of Done satisfied, run
+   `.strix/bin/strix-task move <ID> review`. It moves the task within its workstream and sets
+   `Status: In Review` for you. If you cannot run commands, move the file into the *same workstream directory* under `review/` and set `Status: In Review` by hand.
 
 ## Guardrails
 

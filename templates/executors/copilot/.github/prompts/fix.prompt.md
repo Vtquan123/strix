@@ -2,7 +2,7 @@
 mode: agent
 description: Resolve a defect defined by a Strix bug task (fix workflow) — root-cause fix plus a regression test.
 ---
-Task file: ${input:task:absolute or repo-relative path to the READY bug task in .strix/tasks/active/}
+Task file: ${input:task:absolute or repo-relative path to the READY bug task, under .strix/tasks/active/<workstream>/}
 
 Resolve the defect defined by the task above. Follow the always-on Strix executor
 instructions in `.github/copilot-instructions.md`.
@@ -16,10 +16,9 @@ instructions in `.github/copilot-instructions.md`.
 5. **Fix minimally**: the smallest change that makes the test pass.
 6. **Verify**: build, lint, and run the whole suite to check for regressions.
 7. **Escalate** if the true fix requires an architecture or convention change.
-8. **Complete**: move the task file from `.strix/tasks/active/` to
-   `.strix/tasks/review/` and set `Status: In Review`, with the new test in
-   place. If you cannot move files, print the exact `git mv` command for the
-   human.
+8. **Complete**: with the new test in place, run `.strix/bin/strix-task move <ID> review`. It
+   moves the task within its workstream and sets `Status: In Review` for you.
+   If you cannot move files, print the exact `.strix/bin/strix-task` command for the human.
 
 ## Guardrails
 

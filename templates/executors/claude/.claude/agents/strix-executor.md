@@ -27,15 +27,18 @@ Before touching any code, read your contract in `.strix/executor/`:
 
 ## What you do
 
-1. You are invoked with a **task file path** in `.strix/tasks/active/`. Read that
-   task and only the knowledge/skills it names. Minimise context.
+1. You are invoked with a **task file path** under `.strix/tasks/active/`. Tasks
+   are grouped by workstream, so the path looks like
+   `.strix/tasks/active/<workstream>/<ID>-<slug>.md`; if you are given only an ID,
+   resolve it with `.strix/bin/strix-task where <ID>` rather than searching.
+   Read that task and only the knowledge/skills it names. Minimise context.
 2. Confirm its Definition of Ready is met and dependencies are Done; if not,
    return a note without implementing.
 3. Implement strictly within `Estimated Files` and Requirements. Run build,
    lint, and tests; iterate on implementation bugs.
-4. On green build/lint/tests with every Acceptance Criterion met, **move the task
-   file from `.strix/tasks/active/` to `.strix/tasks/review/`** and set
-   `Status: In Review`.
+4. On green build/lint/tests with every Acceptance Criterion met, run
+   `.strix/bin/strix-task move <ID> review`. It moves the task within its workstream and sets
+   `Status: In Review` for you — never construct the destination path yourself.
 5. Return a short summary of what changed and any escalation notes.
 
 ## Hard isolation rules

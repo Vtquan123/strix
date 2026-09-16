@@ -2,7 +2,7 @@
 mode: agent
 description: Add or strengthen tests for existing or new code (testing workflow) to meet the task's coverage criteria.
 ---
-Task file: ${input:task:absolute or repo-relative path to the READY testing task in .strix/tasks/active/}
+Task file: ${input:task:absolute or repo-relative path to the READY testing task, under .strix/tasks/active/<workstream>/}
 
 Add or strengthen tests as defined by the task above. Follow the always-on Strix
 executor instructions in `.github/copilot-instructions.md`.
@@ -18,10 +18,9 @@ executor instructions in `.github/copilot-instructions.md`.
 4. **Run** the suite; ensure new tests pass and nothing regresses.
 5. **If a test uncovers a real defect**, do not silently patch scope — surface
    it: attach a note and, per the Router, spin a `fix` task.
-6. **Complete**: when the coverage/criteria target is met, move the task file
-   from `.strix/tasks/active/` to `.strix/tasks/review/` and set
-   `Status: In Review`. If you cannot move files, print the exact `git mv`
-   command for the human.
+6. **Complete**: when the coverage/criteria target is met, run
+   `.strix/bin/strix-task move <ID> review`. It moves the task within its workstream and sets
+   `Status: In Review` for you. If you cannot move files, print the exact `.strix/bin/strix-task` command for the human.
 
 ## Guardrails
 

@@ -2,7 +2,7 @@
 mode: agent
 description: Implement a READY Strix task (implement workflow) — build a new feature/capability within its scope.
 ---
-Task file: ${input:task:absolute or repo-relative path to the READY task in .strix/tasks/active/}
+Task file: ${input:task:absolute or repo-relative path to the READY task, under .strix/tasks/active/<workstream>/}
 
 Build the new feature or capability defined by the STANDARD (or SIMPLE) task
 above. Follow the always-on Strix executor instructions in
@@ -20,10 +20,8 @@ above. Follow the always-on Strix executor instructions in
 6. **Test**: add/extend tests to cover the Acceptance Criteria; run the suite.
 7. **Check** every Acceptance Criterion. Iterate on implementation bugs.
 8. **Complete**: on green build/lint/tests + criteria met + Definition of Done
-   satisfied, move the task file from `.strix/tasks/active/` to
-   `.strix/tasks/review/` and set `Status: In Review`. If you cannot move files
-   in the current mode, print the exact `git mv` command and ask the human to run
-   it.
+   satisfied, run `.strix/bin/strix-task move <ID> review`. It moves the task within its
+   workstream and sets `Status: In Review` for you. If you cannot move files, print the exact `.strix/bin/strix-task` command for the human.
 
 ## Guardrails
 
