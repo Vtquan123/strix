@@ -1,7 +1,7 @@
 {
   "name": "@vtquan124/strix",
-  "version": "1.0.2",
-  "description": "A task-driven, hybrid AI coding workflow \u2014 packaged as a Claude Code plugin.",
+  "version": "1.0.3",
+  "description": "A task-driven, hybrid AI coding workflow — packaged as a Claude Code plugin.",
   "scripts": {
     "validate": "node scripts/validate-config.mjs",
     "gen": "node scripts/gen-docs.mjs",
