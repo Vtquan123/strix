@@ -44,14 +44,19 @@ one is overwritten on the next `npm run gen`. Marker ids map to renderers in
 [`../scripts/gen-docs.mjs`](../scripts/gen-docs.mjs); an unknown id is a build
 error, and a renderer with no marker anywhere prints a warning.
 
+A marker in a file **missing from `TARGETS`** is a build error too. That case is
+worse than an unrendered renderer: the region ships blank instead of loudly
+missing, so it fails rather than warns. Fenced code blocks are excluded from the
+scan, which is why the example above does not trip it.
+
 ### Known leak: markers ship to consuming projects
 
-`templates/strix/tasks/TEMPLATE.md` contains a generated region, and
-`bin/strix-init` copies that file verbatim into `<project>/.strix/tasks/TEMPLATE.md`.
-The `strix:gen` comments travel with it. They are inert there — `gen` only ever
-runs in the plugin repo, and `TARGETS` lists the template's path inside the
-plugin, not the copy. Accepted as harmless noise rather than adding a
-strip-on-copy step to `bin/strix-init`. Two constraints follow:
+`templates/strix/tasks/TEMPLATE.md` and `templates/strix/tasks/README.md` each
+contain generated regions, and `bin/strix-init` copies both verbatim into
+`<project>/.strix/tasks/`. The `strix:gen` comments travel with them. They are
+inert there — `gen` only ever runs in the plugin repo, and `TARGETS` lists each
+file's path inside the plugin, not the copy. Accepted as harmless noise rather
+than adding a strip-on-copy step to `bin/strix-init`. Two constraints follow:
 
 - No generated region in a shipped template may contain a `../../config/` link;
   it would dangle once copied.
@@ -83,6 +88,14 @@ Beyond schema shape, `npm run validate` checks what a schema cannot:
 - `config/skills.yaml` matches the `skills/` directories **exactly**, both ways.
 - `config/skills.yaml` agents match `agents/*.md`.
 - `task-schema.yaml`'s `Status` enum matches the lifecycle stage statuses.
+- `task-schema.yaml` declares a `Workstream` header field, since `board.path`
+  groups by one and the reviewer's invariant has nothing to check without it.
+- The seeded workstream registry
+  (`templates/strix/tasks/workstreams.yaml`) matches `workstreams.schema.json`,
+  has unique ids and unique prefixes, and registers `board.default_workstream`
+  as `active`. `bin/strix-task` reads this file in consuming projects with a
+  dependency-free reader that understands only that flat shape, so validating
+  the seed here — with the real parser — is what keeps that reader safe.
 - Every `SKILL.md` / agent frontmatter: opens at byte 0, `name` matches its
   directory or filename, `description` ≤ 1024 chars, `metadata.kind` and
   `metadata.engine` present, `metadata.engine` is a declared engine, and no

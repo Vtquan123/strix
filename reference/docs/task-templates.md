@@ -48,4 +48,7 @@ Canonical: [../workflow/task-lifecycle.md](../workflow/task-lifecycle.md).
 - **Out of Scope + Estimated Files** are the guardrails against over-engineering.
 - **DoR** must be satisfiable before a task leaves Queue; **DoD** before it
   leaves Active.
-- The `Status` field must match the task's directory.
+- The `Status` field must match the task's stage directory, and the `Workstream`
+  field its parent directory. `strix-task doctor` checks these alongside the ID
+  prefix and the registry; see
+  [../workflow/task-lifecycle.md](../workflow/task-lifecycle.md).

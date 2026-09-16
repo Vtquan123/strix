@@ -17,7 +17,7 @@ model. If the two ever disagree, the matrix wins and this file is the bug.
 | Run | terminal, package managers, generators |
 | Execute | build, lint, tests |
 | Fix | build/lint/test failures |
-| Move | the task Active → Review |
+| Move | the task Active → Review, via `.strix/bin/strix-task move <ID> review` |
 
 ## Forbidden 🚫
 

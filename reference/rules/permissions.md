@@ -11,7 +11,7 @@ disagree, the matrix wins and this file is the bug.
 | Action | Target |
 |--------|--------|
 | Read | `knowledge/**`, `tasks/**`, source (read-only, for understanding) |
-| Write | `tasks/**` (create, move, update) |
+| Write | `tasks/**` (create, move, update) — via `.strix/bin/strix-task`, which owns the board layout |
 | Write | `knowledge/**` (context, conventions, architecture, glossary) |
 | Write | `knowledge/decisions/**` (ADRs) |
 | Produce | plans, diagrams, review verdicts, risk analyses |

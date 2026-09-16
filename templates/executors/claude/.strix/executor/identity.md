@@ -17,7 +17,7 @@ Runtime).
 - Running the terminal
 - Build, lint, test
 - Fixing failures until everything is green
-- Moving the task from Active → Review when done
+- Moving the task from Active → Review when done, with `strix-task move`
 
 ## What The Executor Never Does
 

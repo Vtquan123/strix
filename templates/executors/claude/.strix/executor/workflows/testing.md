@@ -31,8 +31,9 @@ flowchart TD
 4. **Run** the suite; ensure new tests pass and nothing regresses.
 5. **If a test uncovers a real defect**, do not silently patch scope — surface
    it: attach a note and, per Router, spin a `fix` task.
-6. **Complete**: move the task to Review when the coverage/criteria target is
-   met.
+6. **Complete**: when the coverage/criteria target is met, run
+   `.strix/bin/strix-task move <ID> review` — it moves the task inside its workstream and
+   sets `Status: In Review`.
 
 ## Guardrails
 

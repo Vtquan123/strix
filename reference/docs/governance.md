@@ -66,7 +66,10 @@ source of the [capability matrix](../workflow/capability-matrix.md).
 - `reviewer-agent` blocks tasks that over-reach scope or leave a triggered
   knowledge update undone.
 - `knowledge-agent` is the only writer of `knowledge/*` and ADRs.
-- The `Status` field and task directory must agree; mismatch is a defect.
+- The board invariants must hold — `Status` matches the stage directory,
+  `Workstream` matches the parent directory, the ID carries that workstream's
+  prefix, and the workstream is registered and active. `strix-task doctor`
+  checks all four; any mismatch is a defect.
 
 ## ADR Discipline
 

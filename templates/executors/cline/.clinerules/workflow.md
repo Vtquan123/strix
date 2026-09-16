@@ -34,7 +34,8 @@ flowchart TD
 5. **Verify**: build → lint → test. Iterate on implementation bugs.
 6. **Escalate** if a stop condition hits (design decision, ADR/convention
    change, scope growth, design flaw). Return the task with a note.
-7. **Complete**: when Definition of Done holds, move the task to Review.
+7. **Complete**: when Definition of Done holds, run `.strix/bin/strix-task move <ID> review` —
+   it moves the task inside its workstream and sets `Status: In Review`.
 
 ## Boundaries
 

@@ -35,7 +35,8 @@ flowchart TD
    identical.
 5. **Escalate** if the "refactor" actually requires a design change or new ADR —
    that is a Planning-Runtime decision.
-6. **Complete**: move the task to Review.
+6. **Complete**: run `.strix/bin/strix-task move <ID> review` — it moves the task inside its
+   workstream and sets `Status: In Review`.
 
 ## Guardrails
 

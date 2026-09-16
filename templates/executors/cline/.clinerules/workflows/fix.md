@@ -32,7 +32,8 @@ flowchart TD
 5. **Fix minimally**: the smallest change that makes the test pass.
 6. **Verify**: build, lint, and run the whole suite to check for regressions.
 7. **Escalate** if the true fix requires an architecture or convention change.
-8. **Complete**: move the task to Review with the new test in place.
+8. **Complete**: with the new test in place, run `.strix/bin/strix-task move <ID> review` — it
+   moves the task inside its workstream and sets `Status: In Review`.
 
 ## Guardrails
 
