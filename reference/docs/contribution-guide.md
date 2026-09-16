@@ -69,6 +69,6 @@ workflow/    engine-agnostic core (runtimes, lifecycle, capability matrix, route
 the executor's workflows directory   Executor execution workflows (implement, fix, refactor, testing, review-fixes)
 knowledge/   source of truth (context, conventions, architecture, glossary, ADRs)
 the executor's skills directory   Executor implementation skills (SKILL.md per skill)
-tasks/       the task board (queue/active/review/done/archive)
+tasks/       the task board (queue/active/review/done/archive, each grouped by workstream)
 docs/        this documentation set
 ```

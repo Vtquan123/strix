@@ -53,7 +53,8 @@ sequenceDiagram
 ## Task Lifecycle
 
 Queue → Active → Review → Done → Archive. Each stage is a directory under
-`tasks/`. Canonical: [../workflow/task-lifecycle.md](../workflow/task-lifecycle.md).
+`tasks/`, with tasks grouped by workstream inside it, and `strix-task` owns every
+move. Canonical: [../workflow/task-lifecycle.md](../workflow/task-lifecycle.md).
 
 ## Runtime Boundaries
 

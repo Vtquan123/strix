@@ -12,8 +12,8 @@
  *   <!-- strix:gen end id=routing-table -->
  * Never hand-edit inside one; edit config/*.yaml and re-run.
  */
-import { readFileSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
+import { join, relative } from 'node:path';
 import { ROOT, loadAll, loadJson } from './lib/config.mjs';
 
 const CHECK = process.argv.includes('--check');
@@ -275,6 +275,7 @@ const TARGETS = [
   'reference/workflow/router.md',
   'reference/workflow/capability-matrix.md',
   'reference/workflow/complexity-levels.md',
+  'reference/workflow/task-lifecycle.md',
   'templates/strix/tasks/TEMPLATE.md',
   'templates/strix/tasks/README.md',
 ];
@@ -302,6 +303,34 @@ for (const rel of TARGETS) {
   if (after !== before) {
     changed.push(rel);
     if (!CHECK) writeFileSync(abs, after);
+  }
+}
+
+/* ── stray markers: a generated region outside TARGETS renders empty ─── */
+
+// The warning below catches a renderer with no marker. This catches the reverse,
+// which is worse: the region ships blank instead of loudly missing.
+function markdownFiles(dir) {
+  const out = [];
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    if (entry.name === 'node_modules' || entry.name.startsWith('.git')) continue;
+    const abs = join(dir, entry.name);
+    if (entry.isDirectory()) out.push(...markdownFiles(abs));
+    else if (entry.name.endsWith('.md')) out.push(abs);
+  }
+  return out;
+}
+
+for (const abs of markdownFiles(ROOT)) {
+  const rel = relative(ROOT, abs);
+  if (TARGETS.includes(rel)) continue;
+  // Fenced blocks are stripped first: config/README.md documents the marker
+  // syntax by showing it, and that example is not a region to render.
+  const text = readFileSync(abs, 'utf8').replace(/^```[\s\S]*?^```/gm, '');
+  const ids = [...text.matchAll(/<!-- strix:gen start id=([a-z0-9-]+) -->/g)];
+  for (const [, id] of ids) {
+    console.error(`✗ ${rel}: has a generated region "${id}" but is not in TARGETS — it will never render`);
+    errors++;
   }
 }
 

@@ -34,8 +34,9 @@ flowchart TD
    - breaks it into **STANDARD** tasks,
    - generates **dependencies** between them,
    - **estimates scope** per task.
-4. Tasks enter `tasks/queue/` and follow the
-   [task lifecycle](./task-lifecycle.md).
+4. Tasks enter `tasks/queue/<workstream>/` and follow the
+   [task lifecycle](./task-lifecycle.md). An EPIC becomes a workstream of its own;
+   everything else joins an existing one or falls to `general`.
 
 > **Never send an EPIC directly to the executor.**
 
@@ -44,13 +45,15 @@ flowchart TD
 - **Auditability** — every code change traces to a task and its Acceptance Criteria.
 - **Context minimisation** — the executor loads one task, not a conversation history.
 - **Scope control** — Out of Scope + Estimated Files fence off over-engineering.
-- **Parallelism** — independent STANDARD tasks can be executed in any order deps allow.
+- **Parallelism** — independent STANDARD tasks can be executed in any order deps
+  allow, and workstreams keep two people's parallel efforts from crowding one
+  directory or colliding on task IDs.
 - **Resumability** — a task is a durable unit; work survives context resets.
 
 ## Task Anatomy
 
 The full task contract and markdown template live in
 [../../templates/strix/tasks/TEMPLATE.md](../../templates/strix/tasks/TEMPLATE.md). Every task must carry: ID, Title,
-Priority, Complexity, Goal, Background, Requirements, Out of Scope,
+Workstream, Priority, Complexity, Goal, Background, Requirements, Out of Scope,
 Dependencies, Suggested Skills, Estimated Files, Acceptance Criteria,
 Definition of Ready, Definition of Done, Status.
