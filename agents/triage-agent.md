@@ -16,6 +16,10 @@ the request takes.
 
 - **Intent Detection** — feature | fix | refactor | question | arch | knowledge | review.
 - **Complexity Detection** — TRIVIAL | SIMPLE | STANDARD | EPIC.
+- **Workstream selection** — which line of work the request belongs to. Pick an
+  existing one from `.strix/tasks/workstreams.yaml`; if the request is an EPIC it
+  earns a new workstream of its own; if it belongs to no EPIC it goes to
+  `general`. Never invent a workstream for a TRIVIAL one-off.
 - **Initial routing** — hand off to the correct next agent with the selected
   skills and minimal context attached.
 - **Answer directly** when the request is a question that needs no task.
@@ -27,7 +31,8 @@ the request takes.
 
 ## Outputs
 
-- A Router decision record (intent, complexity, skills, context, next agent).
+- A Router decision record (intent, complexity, workstream, skills, context,
+  next agent).
 - For questions: a direct answer.
 - For work: a routed hand-off to `task-creator-agent` (or `reviewer-agent` /
   `knowledge-agent`).
@@ -40,6 +45,8 @@ the request takes.
 - Does not write tasks itself; it decides, then delegates.
 - Uses the [capability matrix](../reference/workflow/capability-matrix.md) to pick the
   executing engine — never a hard-coded name.
+- Reads `.strix/bin/strix-task ls` to see what is already on the board before
+  choosing a workstream; it never creates one itself.
 
 ## Skills It May Use
 

@@ -17,16 +17,22 @@ The Router selects this whenever complexity is EPIC.
 
 ## Inputs / Outputs
 - **In:** EPIC intent, plan, architecture.
-- **Out:** a set of linked STANDARD tasks + dependency graph + scope estimates.
+- **Out:** a registered workstream holding a set of linked STANDARD tasks +
+  dependency graph + scope estimates.
 
 ## Procedure
 1. Restate the EPIC goal and boundaries.
-2. Identify natural seams (modules, layers, features).
-3. Cut one STANDARD task per seam.
-4. Draw the dependency graph.
-5. Estimate scope per task; hand to `task-creator-agent`.
+2. Register the EPIC as a workstream —
+   `.strix/bin/strix-task workstream add <id> --prefix <P> --owner <who>`.
+   **An EPIC is a workstream**: its tasks live together under `<stage>/<id>/`,
+   which is what lets it run in parallel with someone else's EPIC on one board.
+3. Identify natural seams (modules, layers, features).
+4. Cut one STANDARD task per seam, inside that workstream.
+5. Draw the dependency graph.
+6. Estimate scope per task; hand to `task-creator-agent`.
 
-_No terminal commands — reasoning only._
+_The only terminal command here is `strix-task`, to register the workstream.
+Decomposition itself is reasoning._
 
 ## Rules
 **Do**
@@ -34,6 +40,8 @@ _No terminal commands — reasoning only._
 - Make dependencies explicit and acyclic.
 - Give every task a scope estimate (files).
 - Keep tasks independently reviewable.
+- Give the workstream a short, distinct prefix; `strix-task` rejects one that
+  another workstream already uses.
 
 **Don't**
 - Don't emit a task that still smells like an EPIC.
@@ -42,6 +50,7 @@ _No terminal commands — reasoning only._
 
 ## Checklist
 - [ ] EPIC goal + boundaries restated
+- [ ] Workstream registered, with a unique prefix
 - [ ] Each task STANDARD or smaller
 - [ ] Dependencies explicit + acyclic
 - [ ] Scope estimated per task
@@ -50,8 +59,10 @@ _No terminal commands — reasoning only._
 
 ## Examples
 ### EPIC: billing
-Split into: schema, payment-provider adapter, checkout endpoint, invoice UI,
-webhooks. Each STANDARD; webhooks depend on the adapter.
+Registered as workstream `billing-system` (prefix `BILL`), then split into:
+schema, payment-provider adapter, checkout endpoint, invoice UI, webhooks. Each
+STANDARD; webhooks depend on the adapter. All five land in
+`queue/billing-system/` as `BILL-001`…`BILL-005`.
 
 ### Dependency graph
 Draw edges so independent tasks (schema, UI shell) can run in parallel while

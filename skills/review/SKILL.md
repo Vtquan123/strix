@@ -16,7 +16,8 @@ approve or return a precise change list.
 The Router selects this for `reviewer-agent` when a task enters Review.
 
 ## Inputs / Outputs
-- **In:** task in `.strix/tasks/review/`, the diff, conventions, architecture.
+- **In:** task in `.strix/tasks/review/<workstream>/` (find it with
+  `.strix/bin/strix-task where <ID>`), the diff, conventions, architecture.
 - **Out:** verdict — Approve or Changes Requested (checklist).
 
 ## Procedure
@@ -24,16 +25,19 @@ The Router selects this for `reviewer-agent` when a task enters Review.
 2. Walk the diff against each criterion.
 3. Check convention + architecture adherence.
 4. Run risk-analysis on the change.
-5. Emit Approve or a numbered Changes-Requested checklist.
+5. Run `.strix/bin/strix-task doctor` to check the board invariants.
+6. Emit Approve or a numbered Changes-Requested checklist.
 
-_No terminal commands — Claude reads, never executes._
+_Claude reads source and never edits it. Running `strix-task` to inspect the
+board is verification, not execution; build, lint and tests remain the
+executor's._
 
 ## Rules
 **Do**
 - Review against the task, not personal taste.
 - Flag anything outside Out of Scope as over-engineering.
 - Give specific, actionable change items.
-- Confirm Status field matches the task directory.
+- Confirm the board invariants with `strix-task doctor`.
 
 **Don't**
 - Don't edit source — fixes are the executor's job.
@@ -45,7 +49,7 @@ _No terminal commands — Claude reads, never executes._
 - [ ] Conventions + architecture respected
 - [ ] No out-of-scope / over-engineered work
 - [ ] Build/lint/tests reported green by the executor
-- [ ] Status field matches directory
+- [ ] `strix-task doctor` is clean (status, workstream, prefix, registry)
 - [ ] Verdict is specific and actionable
 
 ## Examples

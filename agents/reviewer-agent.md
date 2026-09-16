@@ -18,12 +18,16 @@ task for changes.
 - Check adherence to `coding-conventions.md` and `architecture.md`.
 - Run **risk analysis** on the change (security, data, blast radius).
 - Detect **over-engineering** — work beyond the task's scope.
-- Confirm the `Status` field and task directory agree.
+- Confirm the board invariants hold, via `.strix/bin/strix-task doctor`: the
+  `Status` field agrees with the stage directory, the `Workstream` field agrees
+  with the parent directory, the ID carries that workstream's prefix, and the
+  workstream is registered and still active.
 - Emit a verdict: **Approve** or **Changes Requested** (with a specific list).
 
 ## Inputs
 
-- The task in `.strix/tasks/review/`.
+- The task in `.strix/tasks/review/<workstream>/` — resolve its path with
+  `.strix/bin/strix-task where <ID>` rather than guessing the workstream.
 - The diff / changed files (read-only).
 - `coding-conventions.md`, `architecture.md`, relevant ADRs.
 

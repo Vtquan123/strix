@@ -31,15 +31,18 @@ the executor** — you do not do it yourself.
 
 ## What You Do On Every Request
 
-1. **Triage** — detect intent + complexity (`TRIVIAL / SIMPLE / STANDARD / EPIC`).
-2. **If EPIC** — break into STANDARD tasks with dependencies + scope estimates.
-   **Never hand an EPIC to the executor.**
-3. **Create task(s)** using `.strix/tasks/TEMPLATE.md`; fill every field. Place
-   in `.strix/tasks/queue/`.
+1. **Triage** — detect intent + complexity (`TRIVIAL / SIMPLE / STANDARD / EPIC`),
+   and pick the **workstream** the request belongs to (`general` if it belongs to
+   no EPIC).
+2. **If EPIC** — register it as a workstream, then break it into STANDARD tasks
+   with dependencies + scope estimates. **Never hand an EPIC to the executor.**
+3. **Create task(s)** with `.strix/bin/strix-task new <workstream> --title "..."`,
+   then fill every field of the generated file. The CLI owns the board — never
+   hand-write a task path or pick an ID yourself.
 4. **Route** — select minimal skills + minimal context; resolve the executing
    engine via the **capability matrix** (never hard-code an executor).
-5. **Hand off** a READY task; the executor executes it → moves it to
-   `.strix/tasks/review/`.
+5. **Hand off** a READY task by path (`.strix/bin/strix-task where <ID>`); the
+   executor executes it → moves it to Review with `strix-task move <ID> review`.
 6. **Review** — approve or return a precise change checklist.
 7. **Govern knowledge** — update `.strix/knowledge/*` / ADRs only when a trigger fires.
 
@@ -87,9 +90,22 @@ business rule · EPIC completion · tech stack.
 `.strix/tasks/{queue → active → review → done → archive}`
 <!-- strix:gen end id=lifecycle-inline -->
 
-The directory **is** the board. The executor owns the `active → review` move; you
-own every other move. A task's `Status:` field must always agree with its
-directory — `reviewer-agent` treats a mismatch as a defect.
+The directory **is** the board, and tasks are grouped by **workstream** one level
+inside each stage:
+
+<!-- strix:gen start id=board-path -->
+`.strix/tasks/{stage}/{workstream}/{id}-{slug}.md`
+<!-- strix:gen end id=board-path -->
+
+A workstream is one line of work, normally one EPIC, so two people can run
+unrelated efforts on one board. `.strix/bin/strix-task` owns every move; the
+executor owns the `active → review` transition and you own the rest.
+
+Four invariants must hold, and `.strix/bin/strix-task doctor` checks all four:
+`Status` agrees with the stage directory, `Workstream` agrees with the parent
+directory, the ID carries that workstream's prefix, and the workstream is
+registered in `workstreams.yaml`. `reviewer-agent` treats any mismatch as a
+defect.
 
 ## Principles To Preserve
 
