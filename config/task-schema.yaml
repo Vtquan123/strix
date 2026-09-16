@@ -66,6 +66,6 @@ lifecycle:
 # board. `bin/strix-task` owns every mutation of this layout; nothing should
 # construct one of these paths by hand.
 board:
-  path: "{stage}/{workstream}/{id}.md"
+  path: "{stage}/{workstream}/{id}-{slug}.md"
   default_workstream: general
   registry: workstreams.yaml

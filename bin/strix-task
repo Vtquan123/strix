@@ -4,7 +4,7 @@
  *
  * The board groups tasks by workstream, one directory level inside every stage:
  *
- *   .strix/tasks/<stage>/<workstream>/<PREFIX>-<n>.md
+ *   .strix/tasks/<stage>/<workstream>/<PREFIX>-<n>-<kebab-title>.md
  *
  * Nothing else — no agent, no executor prompt, no human — should build one of
  * those paths by hand. `move` and `where` exist so they never have to.
@@ -51,6 +51,14 @@ const DEFAULT_WORKSTREAM = 'general';
 const REGISTRY = 'workstreams.yaml';
 // Stages where a task counts as finished, so its workstream may be closed.
 const TERMINAL_STAGES = ['done', 'archive'];
+
+/** `Add invoice model` -> `add-invoice-model`, for the filename's trailing slug. */
+const slugify = (title) =>
+  title
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 48) || 'task';
 
 const die = (msg) => {
   console.error(`strix-task: ${msg}`);
@@ -127,6 +135,15 @@ function writeRegistry(boardDir, workstreams) {
 
 /* ── board scanning ──────────────────────────────────────────────────── */
 
+/**
+ * The task id embedded in a filename: `BILL-012-add-invoice.md` -> `BILL-012`.
+ * Falls back to the whole basename so a slugless `TASK-012.md` still resolves.
+ */
+function idOf(file) {
+  const m = basename(file, '.md').match(/^([A-Z][A-Z0-9]*-\d+)(?:-|$)/);
+  return m ? m[1] : basename(file, '.md');
+}
+
 /** Every task on the board, as { id, workstream, stage, path, file }. */
 function scanBoard(boardDir) {
   const tasks = [];
@@ -138,7 +155,7 @@ function scanBoard(boardDir) {
         for (const file of readdirSync(join(stageDir, entry.name))) {
           if (!file.endsWith('.md')) continue;
           tasks.push({
-            id: basename(file, '.md'),
+            id: idOf(file),
             workstream: entry.name,
             stage,
             file,
@@ -149,7 +166,7 @@ function scanBoard(boardDir) {
         // A loose task predates the nested layout; `migrate` relocates it and
         // `doctor` reports it. Recorded with workstream null so both can see it.
         tasks.push({
-          id: basename(entry.name, '.md'),
+          id: idOf(entry.name),
           workstream: null,
           stage,
           file: entry.name,
@@ -244,7 +261,7 @@ function cmdNew(boardDir, positional, flags) {
 
   const dir = join(boardDir, 'queue', wsId);
   mkdirSync(dir, { recursive: true });
-  const path = join(dir, `${id}.md`);
+  const path = join(dir, `${id}-${slugify(title)}.md`);
   if (existsSync(path)) die(`${path} already exists`);
   writeFileSync(path, text);
   console.log(path);

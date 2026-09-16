@@ -210,6 +210,33 @@ const RENDER = {
   'lifecycle-inline': () =>
     '`.strix/tasks/{' + taskSchema.lifecycle.map((l) => l.stage).join(' → ') + '}`',
 
+  'board-path': () => code(`.strix/tasks/${taskSchema.board.path}`),
+
+  'board-layout': () => {
+    const { default_workstream: fallback, registry } = taskSchema.board;
+    const [first, second, ...rest] = taskSchema.lifecycle.map((l) => l.stage);
+    // Each entry is [tree line, trailing comment]; comments align to the widest.
+    const entries = [
+      [`│   ├── billing-system/BILL-012-add-invoice-model.md`, 'one EPIC'],
+      [`│   ├── search-revamp/SRCH-004-reindex-nightly.md`, 'another, in parallel'],
+      [`│   └── ${fallback}/TASK-030-fix-footer-typo.md`, 'belongs to no EPIC'],
+    ];
+    const width = Math.max(...entries.map(([line]) => line.length));
+    return [
+      '```',
+      '.strix/tasks/',
+      `├── ${registry}`,
+      '├── TEMPLATE.md',
+      `├── ${first}/`,
+      ...entries.map(([line, note]) => `${line.padEnd(width + 2)}# ${note}`),
+      `├── ${second}/`,
+      '│   └── billing-system/BILL-011-add-invoice-api.md',
+      ...rest.slice(0, -1).map((st) => `├── ${st}/`),
+      `└── ${rest[rest.length - 1]}/`,
+      '```',
+    ].join('\n');
+  },
+
   'task-fields': () =>
     table(
       ['Field', 'Meaning'],
@@ -249,6 +276,7 @@ const TARGETS = [
   'reference/workflow/capability-matrix.md',
   'reference/workflow/complexity-levels.md',
   'templates/strix/tasks/TEMPLATE.md',
+  'templates/strix/tasks/README.md',
 ];
 
 const MARKER =

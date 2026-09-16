@@ -60,7 +60,7 @@
       "properties": {
         "path": {
           "type": "string",
-          "const": "{stage}/{workstream}/{id}.md",
+          "const": "{stage}/{workstream}/{id}-{slug}.md",
           "description": "A task's location, relative to .strix/tasks/."
         },
         "default_workstream": {

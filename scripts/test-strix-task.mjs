@@ -63,7 +63,7 @@ console.log('happy path');
   const created = run(board, 'new', 'billing-system', '--title', 'Add invoice model');
   check('new succeeds', created.code === 0, created.err);
   check('new mints a prefixed id in the workstream directory',
-    created.out.endsWith(join('queue', 'billing-system', 'BILL-001.md')), created.out);
+    created.out.endsWith(join('queue', 'billing-system', 'BILL-001-add-invoice-model.md')), created.out);
 
   const body = readFileSync(created.out, 'utf8');
   check('new fills the Workstream field', /\| \*\*Workstream\*\* \| billing-system \|/.test(body));
@@ -73,17 +73,22 @@ console.log('happy path');
   // Per-workstream counters are independent: a second workstream restarts at 001.
   run(board, 'workstream', 'add', 'search-revamp', '--prefix', 'SRCH', '--owner', 'colleague');
   const other = run(board, 'new', 'search-revamp', '--title', 'Reindex nightly');
-  check('a second workstream has its own counter', other.out.endsWith('SRCH-001.md'), other.out);
+  check('a second workstream has its own counter',
+    other.out.endsWith('SRCH-001-reindex-nightly.md'), other.out);
 
   const second = run(board, 'new', 'billing-system', '--title', 'Add invoice API');
-  check('the counter advances within a workstream', second.out.endsWith('BILL-002.md'), second.out);
+  check('the counter advances within a workstream',
+    second.out.endsWith('BILL-002-add-invoice-api.md'), second.out);
 
   const moved = run(board, 'move', 'BILL-001', 'active');
   check('move succeeds', moved.code === 0, moved.err);
   check('move keeps the task in its workstream',
-    moved.out.endsWith(join('active', 'billing-system', 'BILL-001.md')), moved.out);
+    moved.out.endsWith(join('active', 'billing-system', 'BILL-001-add-invoice-model.md')), moved.out);
   check('move rewrites the Status field',
     /\| \*\*Status\*\* \| In Progress \|/.test(readFileSync(moved.out, 'utf8')));
+
+  check('the filename keeps the board\'s kebab-title convention',
+    /BILL-001-add-invoice-model\.md$/.test(created.out), created.out);
 
   const where = run(board, 'where', 'BILL-001');
   check('where finds a task without a hand-built path', where.out === moved.out, where.out);
@@ -144,7 +149,7 @@ console.log('doctor catches each broken invariant');
   // 3. ID prefix vs the workstream's registered prefix.
   {
     const { board, path } = seeded();
-    const renamed = join(board, 'queue', 'billing-system', 'WRONG-001.md');
+    const renamed = join(board, 'queue', 'billing-system', 'WRONG-001-seed.md');
     renameSync(path, renamed);
     writeFileSync(renamed, readFileSync(renamed, 'utf8').replace('| **ID** | BILL-001 |', '| **ID** | WRONG-001 |'));
     const r = run(board, 'doctor');
@@ -157,7 +162,7 @@ console.log('doctor catches each broken invariant');
     const { board, path } = seeded();
     const stray = join(board, 'queue', 'ghost-stream');
     mkdirSync(stray, { recursive: true });
-    renameSync(path, join(stray, 'BILL-001.md'));
+    renameSync(path, join(stray, 'BILL-001-seed.md'));
     const r = run(board, 'doctor');
     check('invariant 4: an unregistered workstream fails', r.code === 1, r.out);
     check('invariant 4: the message names the registry', /is not in workstreams\.yaml/.test(r.err), r.err);
