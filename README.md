@@ -45,9 +45,20 @@ claude plugin install strix
 `/strix:init` asks which executor to use (**Cline** → `.clinerules/`, **GitHub
 Copilot** → `.github/`, **Claude** → an isolated `strix-executor` subagent +
 `.strix/executor/`) and records the choice in `.strix/config.yaml`. It is
-idempotent — existing seed files are preserved (pass `--force` to overwrite or to
-switch executors). You can also run the scaffolder directly:
-`bin/strix-init --executor <cline|copilot|claude>`.
+idempotent — existing seed files are preserved. Pass `--force-executor` to switch
+executors or refresh the executor's files (the old executor's files are listed,
+never deleted), or `--force` to refresh every plugin-owned seed file. Neither flag
+overwrites project state: `.strix/knowledge/**`, the workstream registry, and the
+executor's skill catalog are only written when missing, and a file you already had
+where an executor's config goes is kept and flagged rather than replaced. You can also run the
+scaffolder directly: `bin/strix-init --executor <cline|copilot|claude>`.
+
+The board is managed through `.strix/bin/strix-task`, a small shim that is safe
+to commit: it finds the plugin at run time (`STRIX_PLUGIN_ROOT`, then the plugin's
+`bin/` on Claude Code's `PATH`, then the gitignored `.strix/local.yaml` that
+`strix-init` and the SessionStart hook keep current, then the plugin cache). Set
+`STRIX_PLUGIN_ROOT` where none of those exist, such as CI. The CLI needs Node 22
+or newer.
 
 ### How activation works
 

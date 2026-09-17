@@ -29,5 +29,8 @@ Then report which files were written vs. skipped, and remind the user to:
 2. Run the `project-scan` skill to populate `.strix/knowledge/*` from the real codebase.
 3. Open/enable the chosen executor (the scaffolder prints the executor-specific step).
 
-Do not pass `--force` unless the user explicitly asked to overwrite existing seed
-files or to switch a project to a different executor.
+Do not pass `--force-executor` unless the user explicitly asked to switch the
+project to a different executor or to refresh the executor's files. Do not pass
+`--force` unless the user explicitly asked to refresh every plugin-owned seed file.
+Neither flag overwrites `.strix/knowledge/**`, the workstream registry, or the
+executor's skill catalog.

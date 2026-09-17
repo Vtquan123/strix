@@ -14,7 +14,10 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { ROOT } from './lib/config.mjs';
 
-const CLI = join(ROOT, 'bin', 'strix-task');
+// The implementation is an explicit ES module so it never depends on Node's
+// syntax detection; `bin/strix-task` is the bash entry point that runs it.
+const CLI = join(ROOT, 'bin', 'strix-task.mjs');
+const WRAPPER = join(ROOT, 'bin', 'strix-task');
 const STAGES = ['queue', 'active', 'review', 'done', 'archive'];
 
 let failures = 0;
@@ -225,6 +228,95 @@ console.log('registry reader');
   const r = run(board, 'doctor');
   check('nested registry syntax is rejected rather than mis-parsed', r.code === 1, r.out);
   check('the rejection explains the constraint', /must stay flat/.test(r.err), r.err);
+}
+
+/* ── help needs no board and no flag value ───────────────────────────── */
+
+console.log('help');
+{
+  /** Run the CLI with no --board, from a directory that has no board either. */
+  const bare = (...args) => {
+    const r = spawnSync(process.execPath, [CLI, ...args], { encoding: 'utf8', cwd: tmpdir() });
+    return { code: r.status, out: (r.stdout ?? '').trim(), err: (r.stderr ?? '').trim() };
+  };
+  for (const flag of ['--help', '-h', 'help']) {
+    const r = bare(flag);
+    check(`${flag} prints usage and exits 0`, r.code === 0 && r.out.includes('manage a Strix task board'), r.err);
+  }
+  const sub = bare('new', '--help');
+  check('--help after a command still prints usage', sub.code === 0 && sub.out.includes('manage a Strix task board'), sub.err);
+  const none = bare();
+  check('no command prints usage and exits 2', none.code === 2 && none.out.includes('manage a Strix task board'), none.err);
+
+  const viaWrapper = spawnSync(WRAPPER, ['--help'], { encoding: 'utf8', cwd: tmpdir() });
+  check('the bin/strix-task wrapper runs the module', viaWrapper.status === 0 && viaWrapper.stdout.includes('manage a Strix task board'),
+    `${viaWrapper.status} ${viaWrapper.stderr}`);
+}
+
+/* ── user text is data, never a replacement pattern ──────────────────── */
+
+console.log('title handling');
+{
+  const board = newBoard();
+  // Each of these is a special pattern in String.prototype.replace.
+  const titles = ['Fix price $1 and $& bug', 'Keep $` before', "Keep $' after", 'Literal $$ sign', 'Tab\tis fine'];
+  for (const title of titles) {
+    const r = run(board, 'new', 'general', '--title', title);
+    check(`new accepts ${JSON.stringify(title)}`, r.code === 0, r.err);
+    if (r.code !== 0) continue;
+    const text = readFileSync(r.out, 'utf8');
+    check(`heading keeps ${JSON.stringify(title)} verbatim`, text.split('\n')[0].endsWith(`: ${title}`), text.split('\n')[0]);
+    check(`Title field keeps ${JSON.stringify(title)} verbatim`, text.includes(`| **Title** | ${title} |`), text.slice(0, 400));
+  }
+
+  for (const [label, title] of [
+    ['a pipe', 'Split a | b'],
+    ['a newline', 'Line one\nLine two'],
+    ['a carriage return', 'Line one\rLine two'],
+    ['only whitespace', '   '],
+    ['a unicode line separator', 'Line one\u2028Line two'],
+    ['a unicode paragraph separator', 'Line one\u2029Line two'],
+    ['a control character', 'Bell \u0007 here'],
+  ]) {
+    const r = run(board, 'new', 'general', '--title', title);
+    check(`new rejects a title with ${label}`, r.code === 1 && /title/i.test(r.err), `${r.code} ${r.err}`);
+  }
+
+  // A hand-edited legacy ID cell must survive the Workstream row being inserted.
+  const legacyBoard = newBoard();
+  const legacy = readFileSync(join(ROOT, 'templates', 'strix', 'tasks', 'TEMPLATE.md'), 'utf8')
+    .replace('| **ID** | <PREFIX>-<ID> |', () => "| **ID** | TASK-012 ($& $') |")
+    .replace(/\| \*\*Workstream\*\* \| <workstream-id> \|\n/, '')
+    .replace('| **Status** | Queued \\| In Progress \\| In Review \\| Done \\| Archived |', '| **Status** | Queued |');
+  writeFileSync(join(legacyBoard, 'queue', 'TASK-012.md'), legacy);
+  run(legacyBoard, 'migrate');
+  const migrated = readFileSync(join(legacyBoard, 'queue', 'general', 'TASK-012.md'), 'utf8');
+  check('inserting a field leaves a $-bearing ID row intact',
+    migrated.includes("| **ID** | TASK-012 ($& $') |\n| **Workstream** | general |"), migrated.slice(0, 400));
+}
+
+/* ── header enums ────────────────────────────────────────────────────── */
+
+console.log('header enums');
+{
+  const board = newBoard();
+  const ok = run(board, 'new', 'general', '--title', 'Valid enums', '--priority', 'P0', '--complexity', 'SIMPLE');
+  check('new accepts a valid priority and complexity', ok.code === 0, ok.err);
+  if (ok.code === 0) {
+    const text = readFileSync(ok.out, 'utf8');
+    check('new records the priority', text.includes('| **Priority** | P0 |'));
+    check('new records the complexity', text.includes('| **Complexity** | SIMPLE |'));
+  }
+
+  const badPriority = run(board, 'new', 'general', '--title', 'x', '--priority', 'P9');
+  check('new rejects an unknown priority', badPriority.code === 1 && /priority/.test(badPriority.err), badPriority.err);
+
+  const badComplexity = run(board, 'new', 'general', '--title', 'x', '--complexity', 'HUGE');
+  check('new rejects an unknown complexity', badComplexity.code === 1 && /complexity/.test(badComplexity.err), badComplexity.err);
+
+  const epic = run(board, 'new', 'general', '--title', 'x', '--complexity', 'EPIC');
+  check('new refuses to mint an EPIC task', epic.code === 1 && /EPIC/.test(epic.err) && /workstream/.test(epic.err), epic.err);
+  check('a rejected new writes nothing', run(board, 'ls').out.split('\n').filter((l) => /TASK-/.test(l)).length === 1);
 }
 
 /* ── report ──────────────────────────────────────────────────────────── */

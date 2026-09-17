@@ -137,6 +137,38 @@ if (statusField && !eq([...statusField.enum].sort(), [...lifecycleStatuses].sort
   fail('config/task-schema.yaml: Status enum does not match the lifecycle stage statuses');
 }
 
+// bin/strix-task.mjs runs dependency-free in target projects, so it carries its own
+// copy of these lists. Read them back out of the source and hold them to config.
+{
+  const cli = readFileSync(join(ROOT, 'bin', 'strix-task.mjs'), 'utf8');
+  const listIn = (name) => {
+    const m = cli.match(new RegExp(`const ${name} = \\[([^\\]]*)\\]`));
+    return m ? [...m[1].matchAll(/'([^']*)'/g)].map((x) => x[1]) : null;
+  };
+  const priorityField = taskSchema.header_fields.find((f) => f.name === 'Priority');
+  for (const [name, want] of [
+    ['STAGES', taskSchema.lifecycle.map((l) => l.stage)],
+    ['PRIORITIES', priorityField?.enum ?? []],
+    ['COMPLEXITIES', complexityIds],
+  ]) {
+    const have = listIn(name);
+    if (!have) fail(`bin/strix-task.mjs: no \`const ${name} = [...]\` to check against config`);
+    else if (!eq(have, want)) fail(`bin/strix-task.mjs: ${name} [${have.join(', ')}] != config [${want.join(', ')}]`);
+  }
+
+  const statusBlock = cli.match(/const STATUS_OF = \{([^}]*)\}/);
+  const statusOf = statusBlock
+    ? Object.fromEntries([...statusBlock[1].matchAll(/(\w+):\s*'([^']*)'/g)].map((x) => [x[1], x[2]]))
+    : null;
+  if (!statusOf) fail('bin/strix-task.mjs: no `const STATUS_OF = {...}` to check against config');
+  else {
+    const want = Object.fromEntries(taskSchema.lifecycle.map((l) => [l.stage, l.status]));
+    if (JSON.stringify(statusOf) !== JSON.stringify(want)) {
+      fail(`bin/strix-task.mjs: STATUS_OF ${JSON.stringify(statusOf)} != config lifecycle ${JSON.stringify(want)}`);
+    }
+  }
+}
+
 // The board path groups by workstream, so a task must carry the field that says
 // which one it is in; without it invariant 2 has nothing to check against.
 if (!taskSchema.header_fields.some((f) => f.name === 'Workstream')) {
