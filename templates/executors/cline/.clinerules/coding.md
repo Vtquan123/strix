@@ -20,7 +20,7 @@ how to apply it.
 | Components | Mirror the established component shape and boundaries |
 | APIs | Follow the project's request/response and error conventions |
 | Testing | Meet the project's coverage and structure expectations |
-| Git | Use the project's commit and branch conventions |
+| Git | Use the project's commit and branch conventions; every commit for a task ends with a `Strix-Task: <ID>` trailer |
 | Security | Apply the project's security conventions by default |
 
 ## Code Quality Bar

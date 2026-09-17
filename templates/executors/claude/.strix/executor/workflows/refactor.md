@@ -19,8 +19,8 @@ flowchart TD
     E --> F[Run tests — behaviour unchanged]
     F --> G{Green + no behaviour change + criteria met?}
     G -->|No| D
-    G -->|Scope needs redesign| ESC[Escalate to Review]
-    G -->|Yes| H[Move task to Review]
+    G -->|Scope needs redesign| ESC[Escalate: move to queue with a reason]
+    G -->|Yes| H[Commit, report, move to Review]
 ```
 
 ## Steps
@@ -35,8 +35,15 @@ flowchart TD
    identical.
 5. **Escalate** if the "refactor" actually requires a design change or new ADR —
    that is a Planning-Runtime decision.
-6. **Complete**: run `.strix/bin/strix-task move <ID> review` — it moves the task inside its
-   workstream and sets `Status: In Review`.
+   Escalate with `.strix/bin/strix-task move <ID> queue --reason "<what needs deciding>" --by executor` and stop.
+6. **Complete**: when the Definition of Done holds:
+   - commit the work; every commit message ends with the trailer line
+     `Strix-Task: <ID>`;
+   - record the Execution Report with
+     `.strix/bin/strix-task note <ID> --section "Execution Report" --text "..." --by executor`:
+     each command run, its exit code, the tail of its output, and the commit SHAs;
+   - run `.strix/bin/strix-task move <ID> review --by executor`. It refuses without the report,
+     and it moves the task within its workstream and sets `Status: In Review`.
 
 ## Guardrails
 

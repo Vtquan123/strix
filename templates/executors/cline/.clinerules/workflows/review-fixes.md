@@ -15,20 +15,27 @@ flowchart TD
     B --> C[Build + Lint + Test after each]
     C --> D{All checklist items resolved + green?}
     D -->|No| B
-    D -->|Item requires design change| ESC[Escalate — needs Claude decision]
-    D -->|Yes| E[Move task back to Review]
+    D -->|Item requires design change| ESC[Escalate: move to queue with a reason]
+    D -->|Yes| E[Commit, report, move to Review]
 ```
 
 ## Steps
 
-1. **Read** the reviewer's checklist attached to the task. Each item is a
-   discrete, required change.
+1. **Read** the `## Review Checklist` section of the task. Act on the **newest**
+   entry (earlier rounds are history). Each item is a discrete, required change.
 2. **Address each item** exactly — do not add unrequested changes while in here.
 3. **Verify** after each fix: build, lint, run tests.
 4. **Escalate** any checklist item that would require an architecture,
    convention, or ADR change — those are Claude decisions, not the executor's.
-5. **Re-submit**: when every item is resolved and the tree is green, run
-   `.strix/bin/strix-task move <ID> review` to send the task back for a second pass.
+   Escalate with `.strix/bin/strix-task move <ID> queue --reason "<what needs deciding>" --by executor` and stop.
+5. **Complete**: when the Definition of Done holds:
+   - commit the work; every commit message ends with the trailer line
+     `Strix-Task: <ID>`;
+   - record a **new** Execution Report entry for this round with
+     `.strix/bin/strix-task note <ID> --section "Execution Report" --text "..." --by executor`:
+     each command run, its exit code, the tail of its output, and the commit SHAs;
+   - run `.strix/bin/strix-task move <ID> review --by executor`. It refuses without the report,
+     and it moves the task within its workstream and sets `Status: In Review`.
 
 ## Guardrails
 

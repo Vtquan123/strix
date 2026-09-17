@@ -58,9 +58,16 @@ for (const [idx, r] of routing.routes.entries()) {
   if (r.complexity.includes('any') && r.complexity.length > 1) {
     fail(`${at}: "any" cannot be combined with specific complexity levels`);
   }
-  if (!agentNames.includes(r.agent)) fail(`${at}: unknown agent "${r.agent}"`);
-  for (const s of r.skills) {
+  if (r.escalate) {
+    if (!complexityIds.includes(r.escalate)) fail(`${at}: escalate to unknown complexity "${r.escalate}"`);
+    continue;
+  }
+  if (r.agent !== 'orchestrator' && !agentNames.includes(r.agent)) fail(`${at}: unknown agent "${r.agent}"`);
+  for (const s of [...r.skills, ...(r.if_unclear ?? [])]) {
     if (!skillNames.includes(s)) fail(`${at}: unknown skill "${s}"`);
+  }
+  if (r.lite && !(r.complexity.length === 1 && r.complexity[0] === 'TRIVIAL')) {
+    fail(`${at}: lite routes are TRIVIAL-only`);
   }
   if (r.then && skillNames.includes(r.then) === false) {
     // `then` may be an executor workflow or the literal "decompose"; only warn on
@@ -72,8 +79,28 @@ for (const [idx, r] of routing.routes.entries()) {
   }
 }
 
-const uncovered = missing(intentIds, routing.routes.map((r) => r.intent));
-if (uncovered.length) fail(`config/routing.yaml: intents with no route: ${uncovered.join(', ')}`);
+// Every intent x complexity cell has exactly one route, so the Router never
+// meets a request it has no answer for.
+const cells = new Map();
+for (const [idx, r] of routing.routes.entries()) {
+  for (const c of r.complexity.includes('any') ? complexityIds : r.complexity) {
+    const key = `${r.intent} × ${c}`;
+    cells.set(key, [...(cells.get(key) ?? []), idx]);
+  }
+}
+for (const intent of intentIds) {
+  for (const c of complexityIds) {
+    const hits = cells.get(`${intent} × ${c}`) ?? [];
+    if (hits.length === 0) fail(`config/routing.yaml: no route for ${intent} × ${c}`);
+    if (hits.length > 1) fail(`config/routing.yaml: ${intent} × ${c} is routed ${hits.length} times (routes ${hits.join(', ')})`);
+  }
+}
+// An escalation must land on a real route, not on another escalation.
+for (const r of routing.routes.filter((x) => x.escalate)) {
+  const target = routing.routes.find((x) => x.intent === r.intent && !x.escalate &&
+    (x.complexity.includes('any') || x.complexity.includes(r.escalate)));
+  if (!target) fail(`config/routing.yaml: ${r.intent} escalates to ${r.escalate}, which has no real route`);
+}
 
 const dre = routing.decision_record_example;
 if (!intentIds.includes(dre.intent)) fail(`decision_record_example: unknown intent "${dre.intent}"`);
@@ -156,6 +183,38 @@ if (statusField && !eq([...statusField.enum].sort(), [...lifecycleStatuses].sort
     else if (!eq(have, want)) fail(`bin/strix-task.mjs: ${name} [${have.join(', ')}] != config [${want.join(', ')}]`);
   }
 
+  const sectionNames = taskSchema.body_sections.map((b) => b.name);
+  for (const [name, want] of [
+    ['SECTIONS', sectionNames],
+    ['LITE_SECTIONS', taskSchema.body_sections.filter((b) => b.lite).map((b) => b.name)],
+  ]) {
+    const have = listIn(name);
+    if (!have) fail(`bin/strix-task.mjs: no \`const ${name} = [...]\` to check against config`);
+    else if (!eq(have, want)) fail(`bin/strix-task.mjs: ${name} [${have.join(', ')}] != config [${want.join(', ')}]`);
+  }
+
+  const noteBlock = cli.match(/const NOTE_SECTIONS = \{([^}]*)\}/);
+  const noteHave = noteBlock ? Object.fromEntries([...noteBlock[1].matchAll(/'([^']+)':\s*'([^']+)'/g)].map((x) => [x[1], x[2]])) : null;
+  const noteWant = Object.fromEntries(taskSchema.body_sections.filter((b) => b.note).map((b) => [b.name, b.note]));
+  if (JSON.stringify(noteHave) !== JSON.stringify(noteWant)) {
+    fail(`bin/strix-task.mjs: NOTE_SECTIONS ${JSON.stringify(noteHave)} != config ${JSON.stringify(noteWant)}`);
+  }
+
+  // One line per transition: 'from>to': { gate: 'x', reason: true },
+  const transBlock = cli.match(/const TRANSITIONS = \{([\s\S]*?)\n\};/);
+  const transHave = transBlock
+    ? [...transBlock[1].matchAll(/'(\w+)>(\w+)':\s*\{([^}]*)\}/g)].map(([, from, to, body]) => ({
+        from,
+        to,
+        gate: body.match(/gate:\s*'(\w+)'/)?.[1] ?? null,
+        reason: /reason:\s*true/.test(body),
+      }))
+    : null;
+  const transWant = taskSchema.transitions.map((t) => ({ from: t.from, to: t.to, gate: t.gate ?? null, reason: Boolean(t.reason) }));
+  if (JSON.stringify(transHave) !== JSON.stringify(transWant)) {
+    fail(`bin/strix-task.mjs: TRANSITIONS ${JSON.stringify(transHave)} != config ${JSON.stringify(transWant)}`);
+  }
+
   const statusBlock = cli.match(/const STATUS_OF = \{([^}]*)\}/);
   const statusOf = statusBlock
     ? Object.fromEntries([...statusBlock[1].matchAll(/(\w+):\s*'([^']*)'/g)].map((x) => [x[1], x[2]]))
@@ -167,6 +226,31 @@ if (statusField && !eq([...statusField.enum].sort(), [...lifecycleStatuses].sort
       fail(`bin/strix-task.mjs: STATUS_OF ${JSON.stringify(statusOf)} != config lifecycle ${JSON.stringify(want)}`);
     }
   }
+}
+
+// Transitions must join real stages, once each; a note section must name a stage.
+const stageIds = taskSchema.lifecycle.map((l) => l.stage);
+const seenMoves = new Set();
+for (const t of taskSchema.transitions) {
+  const key = `${t.from}>${t.to}`;
+  if (!stageIds.includes(t.from) || !stageIds.includes(t.to)) fail(`config/task-schema.yaml transitions ${key}: unknown stage`);
+  if (t.from === t.to) fail(`config/task-schema.yaml transitions ${key}: a move must change stage`);
+  if (seenMoves.has(key)) fail(`config/task-schema.yaml transitions ${key}: listed twice`);
+  seenMoves.add(key);
+}
+for (const b of taskSchema.body_sections) {
+  if (b.note && !stageIds.includes(b.note)) fail(`config/task-schema.yaml body_sections ${b.name}: note stage "${b.note}" is unknown`);
+}
+
+// The seeded template carries every section, in order, since strix-task finds
+// them by heading.
+{
+  const templateRel = join('templates', 'strix', 'tasks', 'TEMPLATE.md');
+  const headings = [...readFileSync(join(ROOT, templateRel), 'utf8').matchAll(/^## (.+)$/gm)].map((m) => m[1]);
+  const matched = taskSchema.body_sections.map((b) => headings.findIndex((h) => h === b.name || h.startsWith(`${b.name} (`)));
+  const missingHeadings = taskSchema.body_sections.filter((_b, i) => matched[i] === -1).map((b) => b.name);
+  if (missingHeadings.length) fail(`${templateRel}: missing section heading(s): ${missingHeadings.join(', ')}`);
+  else if (!eq([...matched].sort((x, y) => x - y), matched)) fail(`${templateRel}: section headings are out of order`);
 }
 
 // The board path groups by workstream, so a task must carry the field that says
@@ -231,6 +315,8 @@ if (!eq([...agentNames].sort(), agentFiles)) {
 
 /* ── 4. frontmatter contracts (Agent Skills spec) ───────────────────── */
 
+const STRIX_ONLY = 'Strix projects only (requires .strix/).';
+
 function checkFrontmatter(label, absPath, expectedName) {
   const { frontmatter, frontmatterText } = readFrontmatter(absPath);
   if (!frontmatter) {
@@ -247,6 +333,12 @@ function checkFrontmatter(label, absPath, expectedName) {
   if (/[<>]/.test(frontmatterText)) {
     fail(`${label}: frontmatter contains "<" or ">" — can inject instructions into the system prompt`);
   }
+  // Plugin skills and agents are listed in every session of every project, so
+  // they say up front that they only apply where Strix is active. strix-init is
+  // the one that runs before .strix/ exists.
+  if (expectedName !== 'strix-init' && !String(frontmatter.description ?? '').startsWith(STRIX_ONLY)) {
+    fail(`${label}: description must start with "${STRIX_ONLY}"`);
+  }
   const meta = frontmatter.metadata;
   if (!meta || !meta.kind || !meta.engine) {
     fail(`${label}: metadata.kind and metadata.engine are required`);
@@ -260,6 +352,32 @@ for (const name of skillDirs) {
 }
 for (const name of agentFiles) {
   checkFrontmatter(`agents/${name}.md`, join(ROOT, 'agents', `${name}.md`), name);
+}
+
+// Agents run with every tool unless they list their own. Each must list them,
+// none may spawn agents (the orchestrator sequences the work), and the two
+// read-only agents may not write files.
+const WRITE_TOOLS = ['Edit', 'Write', 'MultiEdit', 'NotebookEdit'];
+const READ_ONLY_AGENTS = ['triage-agent', 'reviewer-agent'];
+const MODELS = ['inherit', 'sonnet', 'opus', 'haiku', 'fable'];
+for (const name of agentFiles) {
+  const label = `agents/${name}.md`;
+  const { frontmatter } = readFrontmatter(join(ROOT, 'agents', `${name}.md`));
+  if (!frontmatter) continue;
+  const tools = typeof frontmatter.tools === 'string' ? frontmatter.tools.split(',').map((t) => t.trim()).filter(Boolean) : null;
+  if (!tools?.length) {
+    fail(`${label}: \`tools:\` must list the agent's tools (comma-separated); without it the agent gets every tool`);
+    continue;
+  }
+  const base = tools.map((t) => t.replace(/\(.*$/, ''));
+  if (base.includes('Agent') || base.includes('Task')) fail(`${label}: agents must not spawn agents; drop Agent from tools`);
+  if (READ_ONLY_AGENTS.includes(name)) {
+    const writes = base.filter((t) => WRITE_TOOLS.includes(t));
+    if (writes.length) fail(`${label}: a read-only agent must not have ${writes.join(', ')}`);
+  }
+  if (frontmatter.model !== undefined && !MODELS.includes(frontmatter.model)) {
+    fail(`${label}: model "${frontmatter.model}" is not one of ${MODELS.join(', ')}`);
+  }
 }
 
 /* ── 5. version parity ──────────────────────────────────────────────── */

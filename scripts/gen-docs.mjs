@@ -30,15 +30,23 @@ const period = (s) => (/[.!?]$/.test(s) ? s : `${s}.`);
 
 const fmtComplexity = (c) => c.join('/');
 
+const ADR_NOTE = { always: ' (+ADR)', 'when-structural': ' (+ADR if structural)' };
+
 function fmtDispatch(r) {
-  let s = code(r.agent);
+  if (r.escalate) return `reclassify as ${r.escalate}${r.agent_note ? ` (${r.agent_note})` : ''}`;
+  let s = r.agent === 'orchestrator' ? 'orchestrator' : code(r.agent);
   if (r.agent_note) s += ` (${r.agent_note})`;
-  if (r.adr) s += ' (+ADR)';
+  if (r.adr) s += ADR_NOTE[r.adr];
+  if (r.lite) s += ' · lite task, no reviewer';
   if (r.then) s += ` → ${code(r.then)}`;
   return s;
 }
 
-const fmtSkills = (list) => (list.length ? list.join(', ') : '—');
+const fmtSkills = (r) => {
+  if (r.escalate) return '—';
+  const base = r.skills.length ? r.skills.join(', ') : '—';
+  return r.if_unclear?.length ? `${base}; if unclear first: ${r.if_unclear.join(', ')}` : base;
+};
 
 /* ── renderers, keyed by marker id ──────────────────────────────────── */
 
@@ -92,7 +100,7 @@ const RENDER = {
         r.intent,
         fmtComplexity(r.complexity),
         fmtDispatch(r),
-        fmtSkills(r.skills),
+        fmtSkills(r),
       ]),
     ),
 
@@ -211,6 +219,36 @@ const RENDER = {
     '`.strix/tasks/{' + taskSchema.lifecycle.map((l) => l.stage).join(' → ') + '}`',
 
   'board-path': () => code(`.strix/tasks/${taskSchema.board.path}`),
+
+  'transition-diagram': () => {
+    const stages = taskSchema.lifecycle.map((l) => l.stage);
+    return [
+      '```mermaid',
+      'stateDiagram-v2',
+      `    [*] --> ${stages[0]}`,
+      ...taskSchema.transitions.map((t) => `    ${t.from} --> ${t.to}: ${t.label}`),
+      `    ${stages[stages.length - 1]} --> [*]`,
+      '```',
+    ].join('\n');
+  },
+
+  'transition-table': () => {
+    const gates = {
+      ready: 'no placeholders, Definition of Ready ticked, dependencies Done',
+      reported: 'Execution Report filled',
+      checklist: 'Review Checklist filled',
+    };
+    return table(
+      ['Move', 'Owner', 'Gate', 'Meaning'],
+      ['------', '-------', '------', '---------'],
+      taskSchema.transitions.map((t) => [
+        `${code(t.from)} → ${code(t.to)}`,
+        t.owner,
+        [t.gate ? gates[t.gate] : null, t.reason ? '`--reason` required' : null].filter(Boolean).join('; ') || '—',
+        t.meaning,
+      ]),
+    );
+  },
 
   'board-layout': () => {
     const { default_workstream: fallback, registry } = taskSchema.board;

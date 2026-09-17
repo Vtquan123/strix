@@ -33,8 +33,9 @@ Cline **MUST NOT**:
 
 - **The task is the boundary.** Nothing outside its Requirements is in scope.
 - **Knowledge is law, and read-only.** Follow conventions; never rewrite them.
-- **Green or escalate.** Finish with green build/lint/tests, or return the task
-  to Review with a clear note. Never silently improvise a redesign.
+- **Green or escalate.** Finish with green build/lint/tests, or escalate with
+  `.strix/bin/strix-task move <ID> queue --reason "..." --by executor`. Never silently
+  improvise a redesign.
 - **Smallest correct change.** Prevent over-engineering by default.
 
 See also: [workflow.md](./workflow.md) · [permissions.md](./permissions.md) ·

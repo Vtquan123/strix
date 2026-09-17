@@ -101,6 +101,14 @@ if [ -n "$TEMPLATED" ]; then
   warn "these knowledge files are still templates: ${TEMPLATED% }. Run the \`project-scan\` skill before planning work."
 fi
 
+# strix-task needs the template's sections to enforce its gates, so a board
+# seeded by an older plugin version must be refreshed.
+BOARD_TEMPLATE="$STRIX_DIR/tasks/TEMPLATE.md"
+if [ -f "$BOARD_TEMPLATE" ] && [ -f "$PLUGIN_ROOT/templates/strix/tasks/TEMPLATE.md" ] &&
+  ! cmp -s "$BOARD_TEMPLATE" "$PLUGIN_ROOT/templates/strix/tasks/TEMPLATE.md"; then
+  warn "\`.strix/tasks/TEMPLATE.md\` differs from this Strix version's template, so new tasks may fail the board's gates. Refresh it with \`cp \"$PLUGIN_ROOT/templates/strix/tasks/TEMPLATE.md\" .strix/tasks/TEMPLATE.md\` (\`/strix:init --force\` also works, but re-seeds the executor's config files too)."
+fi
+
 EXEC_ID="$(yaml_value "$CONFIG" executor)"
 if [ -z "$EXEC_ID" ]; then
   echo "No executor recorded in \`.strix/config.yaml\` — run \`/strix:init\`."

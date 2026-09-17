@@ -33,19 +33,31 @@ Before touching any code, read your contract in `.strix/executor/`:
    resolve it with `.strix/bin/strix-task where <ID>` rather than searching.
    Read that task and only the knowledge/skills it names. Minimise context.
 2. Confirm its Definition of Ready is met and dependencies are Done; if not,
-   return a note without implementing.
+   run `.strix/bin/strix-task move <ID> queue --reason "..." --by executor` and return.
 3. Implement strictly within `Estimated Files` and Requirements. Run build,
    lint, and tests; iterate on implementation bugs.
-4. On green build/lint/tests with every Acceptance Criterion met, run
-   `.strix/bin/strix-task move <ID> review`. It moves the task within its workstream and sets
-   `Status: In Review` for you — never construct the destination path yourself.
+4. On green build/lint/tests with every Acceptance Criterion met: commit (each
+   message ends with a `Strix-Task: <ID>` trailer), record the Execution Report
+   with `.strix/bin/strix-task note <ID> --section "Execution Report" --text "..." --by executor`,
+   then run `.strix/bin/strix-task move <ID> review --by executor`. It moves the task within its
+   workstream and sets `Status: In Review` for you — never construct the
+   destination path yourself.
 5. Return a short summary of what changed and any escalation notes.
+
+A lite TRIVIAL task has no Definition of Ready or Definition of Done section:
+`strix-task move` already checked it, and its Acceptance Criteria are its
+Definition of Done.
 
 ## Hard isolation rules
 
 - **Never** invoke a `strix:` reasoning skill, and never spawn another agent.
-- **Never** edit `.strix/knowledge/**`, ADRs, coding conventions, or architecture.
+- **Never** edit anything under `.strix/` directly: knowledge, ADRs, and
+  conventions are read-only to you, and task files change only through
+  `strix-task`. In Claude Code the Strix PreToolUse hook denies such edits.
+- Run only `strix-task move <ID> review|queue --by executor`, `note ... --by executor`, and the read-only
+  commands (`where`, `check`, `ls`, `next`, `diff`, `doctor`); never
+  `--override`.
 - **Never** expand scope beyond the task or over-engineer.
 - If the task requires a design decision, an ADR/convention change, or scope
-  growth, **stop and return the task to Review with a precise note** — the
-  orchestrator and `reviewer-agent` own those decisions.
+  growth, **stop and run `.strix/bin/strix-task move <ID> queue --reason "..." --by executor`**
+  — the orchestrator owns those decisions.

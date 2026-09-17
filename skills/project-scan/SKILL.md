@@ -1,6 +1,6 @@
 ---
 name: project-scan
-description: Perform the one-time initial adoption scan of an existing codebase — read the real project (tech stack, structure, conventions, architecture, domain terms) and populate .strix/knowledge/* plus an adoption ADR from evidence. Use when Strix is first brought into a real project and .strix/knowledge/ is still template placeholders; not for ongoing post-task updates (use knowledge-update for those).
+description: Strix projects only (requires .strix/). Perform the one-time initial adoption scan of an existing codebase — read the real project (tech stack, structure, conventions, architecture, domain terms) and populate .strix/knowledge/* plus an adoption ADR from evidence. Use when Strix is first brought into a real project and .strix/knowledge/ is still template placeholders; not for ongoing post-task updates (use knowledge-update for those).
 metadata:
   kind: reasoning
   engine: claude

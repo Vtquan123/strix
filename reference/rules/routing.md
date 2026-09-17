@@ -15,7 +15,8 @@ un-requested context is violating the framework.
 2. **Complexity Detection** — classify its size as exactly one level (below).
 3. **Skill Selection** — minimal skill set, recorded in `Suggested Skills`.
 4. **Context Selection** — minimal `knowledge/*` + task fields to load.
-5. **Agent Selection** — the Claude agent or the executor workflow to run.
+5. **Agent Selection** — the orchestrator itself, a Claude agent, or the
+   executor workflow to run. Agents return results to the orchestrator.
 
 **Intents:**
 
@@ -37,17 +38,26 @@ then run `npm run gen`.
 <!-- strix:gen start id=routing-table -->
 | Intent | Complexity | Agent / Workflow | Typical skills |
 | -------- | ----------- | ------------------ | ---------------- |
-| question | any | `triage-agent` (answer or route) | — |
+| question | any | orchestrator (answer, or route as another intent) | — |
+| feature | TRIVIAL | orchestrator · lite task, no reviewer → `implement` | — |
 | feature | SIMPLE | `task-creator-agent` → `implement` | planning |
-| feature | STANDARD | `task-creator-agent` (+ADR) → `implement` | architecture, task-breakdown |
-| feature | EPIC | `task-creator-agent` → `decompose` | planning, task-breakdown, architecture |
-| fix | TRIVIAL/SIMPLE | `task-creator-agent` → `fix` | — |
-| refactor | STANDARD | `task-creator-agent` → `refactor` | architecture, risk-analysis |
-| arch | STANDARD/EPIC | `task-creator-agent` (+ADR) | architecture, risk-analysis, adr |
+| feature | STANDARD | `task-creator-agent` (+ADR if structural) → `implement` | planning, architecture; if unclear first: brainstorming |
+| feature | EPIC | `task-creator-agent` → `decompose` | planning, task-breakdown, architecture; if unclear first: brainstorming |
+| fix | TRIVIAL | orchestrator · lite task, no reviewer → `fix` | — |
+| fix | SIMPLE | `task-creator-agent` → `fix` | — |
+| fix | STANDARD | `task-creator-agent` → `fix` | risk-analysis |
+| fix | EPIC | `task-creator-agent` → `decompose` | task-breakdown, risk-analysis |
+| refactor | TRIVIAL | orchestrator · lite task, no reviewer → `refactor` | — |
+| refactor | SIMPLE | `task-creator-agent` → `refactor` | risk-analysis |
+| refactor | STANDARD | `task-creator-agent` (+ADR if structural) → `refactor` | architecture, risk-analysis |
+| refactor | EPIC | `task-creator-agent` → `decompose` | task-breakdown, architecture, risk-analysis |
+| arch | TRIVIAL/SIMPLE | reclassify as STANDARD (an architecture decision is never trivial) | — |
+| arch | STANDARD | `task-creator-agent` (+ADR) | architecture, risk-analysis, adr; if unclear first: brainstorming |
+| arch | EPIC | `task-creator-agent` (+ADR) → `decompose` | architecture, task-breakdown, risk-analysis, adr; if unclear first: brainstorming |
 | review | any | `reviewer-agent` | review, risk-analysis |
 | onboarding | any | `knowledge-agent` → `project-scan` | project-scan, architecture, adr |
 | knowledge | any | `knowledge-agent` | knowledge-update, documentation |
-| skill-install | any | `knowledge-agent` → `skill-manager` | skill-manager, risk-analysis |
+| skill-install | any | orchestrator → `skill-manager` | skill-manager, risk-analysis |
 <!-- strix:gen end id=routing-table -->
 
 ## Capability-Matrix Discipline

@@ -16,8 +16,8 @@ flowchart TD
     C --> D[Run suite]
     D --> E{All green + coverage target met?}
     E -->|No, test bug| C
-    E -->|No, reveals code defect| ESC[File/attach a fix task]
-    E -->|Yes| F[Move task to Review]
+    E -->|No, reveals code defect| ESC[Report the defect in the Execution Report]
+    E -->|Yes| F[Commit, report, move to Review]
 ```
 
 ## Steps
@@ -29,11 +29,16 @@ flowchart TD
 3. **Write tests** following the project's test conventions
    (`coding-conventions.md`).
 4. **Run** the suite; ensure new tests pass and nothing regresses.
-5. **If a test uncovers a real defect**, do not silently patch scope — surface
-   it: attach a note and, per Router, spin a `fix` task.
-6. **Complete**: when the coverage/criteria target is met, run
-   `.strix/bin/strix-task move <ID> review` — it moves the task inside its workstream and
-   sets `Status: In Review`.
+5. **If a test uncovers a real defect**, do not silently patch scope — record it
+   in the Execution Report so the orchestrator can file a `fix` task.
+6. **Complete**: when the Definition of Done holds:
+   - commit the work; every commit message ends with the trailer line
+     `Strix-Task: <ID>`;
+   - record the Execution Report with
+     `.strix/bin/strix-task note <ID> --section "Execution Report" --text "..." --by executor`:
+     each command run, its exit code, the tail of its output, and the commit SHAs;
+   - run `.strix/bin/strix-task move <ID> review --by executor`. It refuses without the report,
+     and it moves the task within its workstream and sets `Status: In Review`.
 
 ## Guardrails
 

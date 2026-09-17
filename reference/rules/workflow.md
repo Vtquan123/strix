@@ -10,12 +10,13 @@ flowchart TD
     C -->|No| E[task-creator: single task]
     D --> F[Queue tasks]
     E --> F
-    F --> G[Hand READY task to Executor]
-    G --> H[Executor executes -> Review]
-    H --> I[reviewer-agent]
-    I -->|changes| G
-    I -->|approve| J[knowledge-agent: update if warranted]
-    J --> K[Done -> Archive]
+    F --> G[check + move active, hand to Executor]
+    G --> H[Executor commits, reports, moves to Review]
+    G -->|stop condition| F
+    H --> I[reviewer-agent: diff since Base, re-run checks]
+    I -->|changes: Review Checklist| G
+    I -->|approve: move done| J[knowledge-agent: update if warranted]
+    J --> K[Archive on close]
 ```
 
 ## Steps
@@ -30,20 +31,25 @@ flowchart TD
    Fill every remaining field. Set `Suggested Skills` and `Estimated Files`.
 4. **Route.** Select minimal skills and context; assign the executing engine via
    the [capability matrix](../workflow/capability-matrix.md).
-5. **Hand off.** Move a task to Active with `strix-task move <ID> active`, only
-   when its Definition of Ready is met and dependencies are Done.
-6. **Review.** After the executor returns a task to Review, run `reviewer-agent`.
-7. **Govern knowledge.** After approval, `knowledge-agent` decides whether the
-   change warrants a knowledge/ADR update.
-8. **Close.** Move to Done, then Archive on epic/sprint completion.
+5. **Hand off.** `strix-task check <ID>`, then `strix-task move <ID> active`,
+   which refuses until the task is ready and records its Base. Give the executor
+   the task path. It commits with `Strix-Task: <ID>` trailers, fills the
+   Execution Report, and moves the task to Review, or back to Queue with a
+   reason when it hits a stop condition.
+6. **Review.** Run `reviewer-agent`: it reads `strix-task diff <ID>`, re-runs the
+   reported checks, and returns a verdict it has already recorded on the board.
+   A TRIVIAL lite task skips it; check its diff yourself and move it to Done.
+7. **Govern knowledge.** After approval, decide (or have `knowledge-agent`
+   decide) whether the change warrants a knowledge/ADR update.
+8. **Close.** Move Done tasks to Archive on workstream or sprint completion.
 
 ## Boundaries
 
-- Claude stops at the task boundary. It never edits source, and it never runs
-  build, lint, or tests — those are the executor's.
-- Claude **may** run the terminal on demand to inspect state or verify, which is
-  what `strix-task` calls are. See
-  [permissions.md](./permissions.md) and the `run_terminal` row of the
-  [capability matrix](../workflow/capability-matrix.md).
+- Claude stops at the task boundary. It never edits source, commits, or runs
+  build, lint, or tests to produce a change — those are the executor's.
+- Claude **may** run the terminal to inspect state, which is what `strix-task`
+  calls are, and may **verify** by re-running the commands an Execution Report
+  lists. See [permissions.md](./permissions.md) and the `run_terminal` and
+  `verify` rows of the [capability matrix](../workflow/capability-matrix.md).
 - Claude produces artifacts (tasks, knowledge, ADRs, review verdicts) only.
 - One task = one unit of the executor's work. EPICs are never handed over whole.

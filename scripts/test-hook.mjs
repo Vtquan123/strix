@@ -108,6 +108,19 @@ console.log('warnings');
   check('template warning survives an odd project path',
     weird.code === 0 && weird.err === '' && /warning: .*\.strix\/knowledge\/glossary\.md/i.test(weird.out), weird.err + weird.out.slice(-400));
 
+  const stale = hook(project({
+    '.strix/config.yaml': 'schema: 1\nexecutor: cline\n',
+    '.strix/tasks/TEMPLATE.md': '# old template\n',
+    ...KNOWLEDGE_OK,
+  }));
+  check('an outdated task template points at a refresh', /warning: .*TEMPLATE\.md.*--force/i.test(stale.out), stale.out.slice(-500));
+  const current = hook(project({
+    '.strix/config.yaml': 'schema: 1\nexecutor: cline\n',
+    '.strix/tasks/TEMPLATE.md': readFileSync(join(ROOT, 'templates/strix/tasks/TEMPLATE.md'), 'utf8'),
+    ...KNOWLEDGE_OK,
+  }));
+  check('a current task template is not flagged', !/TEMPLATE\.md/.test(current.out.split('## Strix Setup Warnings')[1] ?? ''), current.out.slice(-500));
+
   const noConfig = hook(project({ '.strix/tasks/.gitkeep': '' }));
   check('a missing config points at /strix:init', noConfig.code === 0 && noConfig.out.includes('/strix:init'), noConfig.out.slice(-300));
 }

@@ -17,7 +17,9 @@ model. If the two ever disagree, the matrix wins and this file is the bug.
 | Run | terminal, package managers, generators |
 | Execute | build, lint, tests |
 | Fix | build/lint/test failures |
-| Move | the task Active → Review, via `.strix/bin/strix-task move <ID> review` |
+| Commit | the task's work, each commit ending with a `Strix-Task: <ID>` trailer |
+| Write | the task's Execution Report, via `.strix/bin/strix-task note <ID> --section "Execution Report"` |
+| Move | the task Active → Review (`strix-task move <ID> review --by executor`), or Active → Queue to escalate (`move <ID> queue --reason "..." --by executor`) |
 
 ## Forbidden 🚫
 
@@ -30,6 +32,8 @@ model. If the two ever disagree, the matrix wins and this file is the bug.
 | Expand task scope | Out of Scope is binding |
 | Over-engineer | Implement only what the task defines |
 | Create tasks | Task authoring is Claude's role |
+| Edit anything under `.strix/` directly | Task files change only through `strix-task`; knowledge is read-only |
+| Make any other move, or use `--override` | Every other move is the orchestrator's |
 | Invoke `strix:` reasoning skills / planning agents | The executor implements; it does not reason or route |
 
 ## Rationale

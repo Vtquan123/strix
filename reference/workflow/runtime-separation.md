@@ -47,8 +47,10 @@ flowchart LR
 architecture, task breakdown, review, knowledge updates, ADR management.
 
 **Claude MUST NOT:** write production code, modify source files directly,
-execute build, execute lint, execute tests. Claude **MAY** run the terminal on
-demand (inspect state, verify) — this capability is shared with the executor.
+commit, or execute build, lint, or tests to produce a change. Claude **MAY** run
+the terminal to inspect state, and may **verify** by re-running the exact
+commands a task's Execution Report lists — both capabilities are shared with the
+executor.
 
 ## Execution Runtime
 
@@ -69,7 +71,7 @@ The two runtimes communicate exclusively through **two immutable artifacts**:
 1. **The Task** (Task Management Layer) — the sole unit of work the executor accepts.
 2. **The Knowledge** (Project Knowledge Layer) — read-only for the executor.
 
-Claude never reaches into the infrastructure; the executor never reaches into the
-reasoning. This one-way street is what makes the framework auditable: every
+Claude never changes the infrastructure (re-running reported checks changes
+nothing); the executor never reaches into the reasoning. This one-way street is what makes the framework auditable: every
 change the executor makes maps to a task Claude authored, and every architectural
 decision maps to an ADR Claude wrote.

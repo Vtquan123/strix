@@ -1,8 +1,9 @@
 # Complexity Levels
 
 Every request is classified by the **Claude Triage Router** into exactly one of
-four levels. The level decides how much planning ceremony a request gets and
-whether it may go straight to the executor.
+four levels. The level decides how much planning ceremony a request gets. A
+TRIVIAL change gets a lite task (`strix-task new --lite`) and skips
+`reviewer-agent`; everything else gets the full task and review.
 
 ```mermaid
 flowchart TD
@@ -31,7 +32,7 @@ then run `npm run gen`.
 - **What:** A single, obvious edit with no design content.
 - **Examples:** fix a typo, rename a variable, tweak a CSS value, update a copy string.
 - **Files:** usually 1.
-- **Planning:** none. Router may hand a one-line task straight to the execution engine.
+- **Planning:** a lite task (`strix-task new --lite`: Goal, Estimated Files, Acceptance Criteria). The executor runs it like any task; the orchestrator checks the diff itself instead of calling reviewer-agent.
 - **Knowledge:** never updated.
 
 ### SIMPLE

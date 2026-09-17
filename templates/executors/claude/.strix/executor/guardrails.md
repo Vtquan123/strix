@@ -12,7 +12,7 @@ rather than duplicating, so the rules cannot drift apart.
 
 Before editing, make your reasoning explicit — don't code on a silent guess:
 
-- State the assumptions the task leaves open (in the task's Review note if they
+- State the assumptions the task leaves open (in the Execution Report if they
   are load-bearing).
 - If a requirement has more than one plausible reading, **escalate** rather than
   picking one silently — see the stop conditions in
@@ -42,7 +42,7 @@ Every changed line must trace to the task's Requirements.
 - Don't refactor, reformat, or "improve" adjacent code — file a follow-up task
   instead.
 - Remove imports/variables/functions **your** change orphaned; leave pre-existing
-  dead code alone and mention it in the Review note.
+  dead code alone and mention it in the Execution Report.
 
 ## 4. Goal-Driven Execution
 

@@ -1,6 +1,6 @@
 ---
 name: knowledge-update
-description: Apply the knowledge governance policy — update .strix/knowledge/* only when a real trigger fires (architecture, convention, module, business rule, EPIC completion, tech stack), keeping the source of truth coherent and drift-free. Use for the knowledge-agent after a task is approved; record "n/a" when no trigger fires.
+description: Strix projects only (requires .strix/). Apply the knowledge governance policy — update .strix/knowledge/* only when a real trigger fires (architecture, convention, module, business rule, EPIC completion, tech stack), keeping the source of truth coherent and drift-free. Use for the knowledge-agent after a task is approved; record "n/a" when no trigger fires.
 metadata:
   kind: reasoning
   engine: claude

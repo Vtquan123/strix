@@ -50,7 +50,7 @@ Per request the Router emits an auditable object:
 ```yaml
 intent: feature
 complexity: STANDARD
-skills: [architecture, task-breakdown]
+skills: [planning, architecture]
 context: [project-context.md, coding-conventions.md]
 agent: task-creator-agent
 capability: task_breakdown
@@ -65,17 +65,26 @@ then run `npm run gen`.
 <!-- strix:gen start id=routing-table-summary -->
 | Intent | Complexity | Agent / Workflow |
 | -------- | ----------- | ------------------ |
-| question | any | `triage-agent` (answer or route) |
+| question | any | orchestrator (answer, or route as another intent) |
+| feature | TRIVIAL | orchestrator · lite task, no reviewer → `implement` |
 | feature | SIMPLE | `task-creator-agent` → `implement` |
-| feature | STANDARD | `task-creator-agent` (+ADR) → `implement` |
+| feature | STANDARD | `task-creator-agent` (+ADR if structural) → `implement` |
 | feature | EPIC | `task-creator-agent` → `decompose` |
-| fix | TRIVIAL/SIMPLE | `task-creator-agent` → `fix` |
-| refactor | STANDARD | `task-creator-agent` → `refactor` |
-| arch | STANDARD/EPIC | `task-creator-agent` (+ADR) |
+| fix | TRIVIAL | orchestrator · lite task, no reviewer → `fix` |
+| fix | SIMPLE | `task-creator-agent` → `fix` |
+| fix | STANDARD | `task-creator-agent` → `fix` |
+| fix | EPIC | `task-creator-agent` → `decompose` |
+| refactor | TRIVIAL | orchestrator · lite task, no reviewer → `refactor` |
+| refactor | SIMPLE | `task-creator-agent` → `refactor` |
+| refactor | STANDARD | `task-creator-agent` (+ADR if structural) → `refactor` |
+| refactor | EPIC | `task-creator-agent` → `decompose` |
+| arch | TRIVIAL/SIMPLE | reclassify as STANDARD (an architecture decision is never trivial) |
+| arch | STANDARD | `task-creator-agent` (+ADR) |
+| arch | EPIC | `task-creator-agent` (+ADR) → `decompose` |
 | review | any | `reviewer-agent` |
 | onboarding | any | `knowledge-agent` → `project-scan` |
 | knowledge | any | `knowledge-agent` |
-| skill-install | any | `knowledge-agent` → `skill-manager` |
+| skill-install | any | orchestrator → `skill-manager` |
 <!-- strix:gen end id=routing-table-summary -->
 
 Full rules: [../rules/routing.md](../rules/routing.md) ·

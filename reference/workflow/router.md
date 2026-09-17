@@ -63,12 +63,14 @@ fields relevant to this request. Minimising context is a first-class goal —
 never load the whole knowledge base "just in case".
 
 ### 5. Agent Selection
-Pick the Claude agent or the executor workflow (`implement`, `fix`, `refactor`,
-`testing`, `review-fixes`) that will run — chosen via the capability matrix, not
-hard-coded engine names. The Claude agents:
+Pick who runs the step: the orchestrator itself (`orchestrator` in the routing
+table), a Claude agent, or the executor workflow (`implement`, `fix`, `refactor`,
+`testing`, `review-fixes`) — chosen via the capability matrix, not hard-coded
+engine names. A Claude agent returns its result to the orchestrator; it never
+picks its own successor. The Claude agents:
 
 <!-- strix:gen start id=agents-inline -->
-`triage-agent` (classify + route) · `task-creator-agent` (author tasks, decompose EPICs) · `reviewer-agent` (gate Review → Done) · `knowledge-agent` (govern the knowledge layer)
+`triage-agent` (optional classifier, returns a decision) · `task-creator-agent` (author tasks, decompose EPICs) · `reviewer-agent` (gate Review → Done) · `knowledge-agent` (govern the knowledge layer)
 <!-- strix:gen end id=agents-inline -->
 
 ## Capability-Driven Dispatch
@@ -93,7 +95,7 @@ The Router emits a small, explicit decision object so routing is auditable:
 ```yaml
 intent: feature
 complexity: STANDARD
-skills: [architecture, task-breakdown]
+skills: [planning, architecture]
 context: [project-context.md, coding-conventions.md]
 agent: task-creator-agent
 capability: task_breakdown

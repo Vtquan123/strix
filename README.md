@@ -60,6 +60,21 @@ to commit: it finds the plugin at run time (`STRIX_PLUGIN_ROOT`, then the plugin
 `STRIX_PLUGIN_ROOT` where none of those exist, such as CI. The CLI needs Node 22
 or newer.
 
+### How the board keeps everyone honest
+
+- `strix-task move` enforces the lifecycle: a task goes active only when it is
+  ready (no template placeholders, Definition of Ready ticked, dependencies
+  Done), and goes to review only with an Execution Report. Every move is logged
+  in the task's History; `--override "<reason>"` is the recorded exception.
+- The executor commits with a `Strix-Task: <ID>` trailer, and `strix-task diff <ID>`
+  shows the reviewer exactly those commits since the task's Base. The reviewer
+  re-runs the reported checks instead of trusting them.
+- TRIVIAL changes use a lite task (`strix-task new --lite`) and skip the reviewer.
+- In Claude Code, a PreToolUse hook denies the `strix-executor` subagent any edit
+  under `.strix/` or any board move but review/queue, and asks before the planning
+  session edits project files. It is a guardrail, not a security boundary.
+- Strix never commits `.strix/`; commit board changes with your normal workflow.
+
 ### How activation works
 
 The plugin's **SessionStart hook is guarded**: it injects the Strix operating
@@ -155,7 +170,7 @@ engine-agnostic data directory: `.strix/knowledge/…` and `.strix/tasks/…`.
 | | Claude (Planning) | Executor (Execution) |
 |---|---|---|
 | **Owns** | analyze, brainstorm, triage, plan, architect, break down, review, govern | implement, edit, refactor, terminal, build, lint, test, fix |
-| **Never** | write code, build, lint, test (may run terminal on demand) | redesign, change conventions/knowledge/ADRs, expand scope |
+| **Never** | write code, commit, build/lint/test to produce a change (may inspect state and re-run reported checks) | redesign, change conventions/knowledge/ADRs, edit `.strix/`, expand scope |
 
 Authoritative split: [reference/workflow/capability-matrix.md](reference/workflow/capability-matrix.md).
 

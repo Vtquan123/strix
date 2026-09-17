@@ -1,6 +1,6 @@
 ---
 name: risk-analysis
-description: Surface security, data, and blast-radius risks in a plan, task, or change, and turn them into mitigations or Out-of-Scope boundaries. Use when the Router routes planning, task creation, or review of higher-risk work; escalate irreversible risks to an ADR.
+description: Strix projects only (requires .strix/). Surface security, data, and blast-radius risks in a plan, task, or change, and turn them into mitigations or Out-of-Scope boundaries. Use when the Router routes planning, task creation, or review of higher-risk work; escalate irreversible risks to an ADR.
 metadata:
   kind: reasoning
   engine: claude

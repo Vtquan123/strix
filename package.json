@@ -20,7 +20,7 @@
   "scripts": {
     "validate": "node scripts/validate-config.mjs",
     "gen": "node scripts/gen-docs.mjs",
-    "test": "node scripts/test-strix-task.mjs && node scripts/test-strix-init.mjs && node scripts/test-hook.mjs",
+    "test": "node scripts/test-strix-task.mjs && node scripts/test-strix-init.mjs && node scripts/test-hook.mjs && node scripts/test-guard.mjs",
     "check": "npm run validate && npm test && node scripts/gen-docs.mjs --check"
   },
   "devDependencies": {
