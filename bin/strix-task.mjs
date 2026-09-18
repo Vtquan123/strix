@@ -422,6 +422,28 @@ function dependenciesOf(text, placeholders, prefixes) {
 
 const prefixesOf = (boardDir) => new Set(readRegistry(boardDir).map((w) => w.prefix));
 
+/**
+ * Which gates this task's History waives. An `--override` move is a recorded
+ * exception, so `doctor` stops reporting the gate that move bypassed — but only
+ * that gate, and only until an ordinary move crosses it again.
+ *
+ *   ready    (placeholders, Base) — waived when the latest move into active was
+ *            overridden, or when the task never entered active at all
+ *   reported (Execution Report)   — waived when the latest move into the task's
+ *            current stage was overridden
+ */
+function waivedGates(text, stage) {
+  const moves = (sectionBody(text, 'History') ?? '').split('\n').filter((l) => l.includes('→'));
+  const latestInto = (into) => moves.filter((l) => l.includes(`→ ${into} ·`)).at(-1) ?? null;
+  const overridden = (line) => line !== null && / · override: /.test(line);
+  const activation = latestInto('active');
+  const entry = latestInto(stage);
+  return {
+    ready: activation === null ? overridden(entry) : overridden(activation),
+    reported: overridden(entry),
+  };
+}
+
 const isLite = (text) => readField(text, 'Complexity') === 'TRIVIAL' && !sectionRange(text, 'Definition of Ready');
 
 /** Everything that stops a task going active. Empty means ready. */
@@ -924,12 +946,13 @@ function cmdDoctor(boardDir) {
       if (!places.has(dep)) problems.push(`${at}: depends on unknown task ${dep}`);
     }
 
-    if (STARTED_STAGES.includes(task.stage)) {
+    const waived = waivedGates(text, task.stage);
+    if (STARTED_STAGES.includes(task.stage) && !waived.ready) {
       const left = leftoverPlaceholders(text, placeholders);
       if (left.length) problems.push(`${at}: ${left.length} template placeholder(s) left past the queue, e.g. "${left[0]}"`);
       if (!hasBase(text)) problems.push(`${at}: no Base recorded (strix-task move sets it on the way to active)`);
     }
-    if (['review', 'done'].includes(task.stage) && !sectionBody(text, 'Execution Report')) {
+    if (['review', 'done'].includes(task.stage) && !waived.reported && !sectionBody(text, 'Execution Report')) {
       problems.push(`${at}: Execution Report is empty in ${task.stage}/`);
     }
   }

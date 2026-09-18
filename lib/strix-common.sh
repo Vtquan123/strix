@@ -1,3 +1,4 @@
+# shellcheck shell=bash
 # Shared shell helpers for bin/strix-init and hooks/strix-context.sh.
 #
 # Sourced, never executed. Bash 3.2+ (the macOS system bash), plus awk and sed;

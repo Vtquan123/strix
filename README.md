@@ -187,6 +187,10 @@ Authoritative split: [reference/workflow/capability-matrix.md](reference/workflo
 - Extending it? → [reference/docs/contribution-guide.md](reference/docs/contribution-guide.md)
 - All docs → [reference/docs/README.md](reference/docs/README.md)
 
+## Releases
+
+Changes and upgrade notes: [CHANGELOG.md](CHANGELOG.md).
+
 ## Status
 
 Framework packaged as a plugin. The seeded knowledge files

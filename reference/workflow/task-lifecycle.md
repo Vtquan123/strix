@@ -125,6 +125,12 @@ Every move appends one line to the task's `## History`:
 - 2026-09-17T17:20:00Z · active → queue · executor · needs an ADR first
 ```
 
+An `--override` move is a waiver, not a defect: `strix-task doctor` stops
+checking the gate that move bypassed — the `ready` gate when the activation was
+overridden, the `reported` gate when the move into the task's current stage was
+— and the reason stays in History. An ordinary move that crosses a gate again
+restores it.
+
 The actor is `--by`, else `STRIX_ACTOR`, else the OS user. Executors pass
 `--by executor` and the reviewer `--by reviewer-agent`. An `--override` move
 records `override: <reason>`.

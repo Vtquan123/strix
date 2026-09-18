@@ -565,17 +565,52 @@ console.log('doctor, extended');
     check('doctor finds a dependency cycle', /cycle/i.test(d.text) && /TASK-001/.test(d.text), d.text);
   }
 
-  // placeholders, a missing Base, and an empty report past the gates
+  // A task that passed the gates and was then edited by hand is still caught.
   {
     const board = newBoard();
-    run(board, 'new', 'general', '--title', 'Forced along');
-    run(board, 'move', 'TASK-001', 'review', '--override', 'test');
-    const path = run(board, 'where', 'TASK-001').out;
-    writeFileSync(path, readFileSync(path, 'utf8').replace(/\| \*\*Base\*\* \|[^\n]*\n/, ''));
+    const { id, path } = activeTask(board, 'general', 'Tampered');
+    run(board, 'note', id, '--section', 'Execution Report', '--text', 'npm test → exit 0');
+    const reviewPath = run(board, 'move', id, 'review').out;
+    const template = readFileSync(join(board, 'TEMPLATE.md'), 'utf8');
+    const goal = /## Goal\n\n([^\n]*)/.exec(template)[1];
+    writeFileSync(reviewPath, readFileSync(reviewPath, 'utf8')
+      .replace(/\| \*\*Base\*\* \|[^\n]*\n/, '')
+      .replace(/(## Goal\n\n)[^\n]*/, (_m, h) => h + goal)
+      .replace(/(## Execution Report\n)[\s\S]*?(\n## )/, '$1$2'));
     const d = doctorOf(board);
     check('doctor finds placeholders past the queue', /placeholder/.test(d.text), d.text);
     check('doctor finds a missing Base past the queue', /Base/.test(d.text), d.text);
     check('doctor finds an empty Execution Report in review', /Execution Report/.test(d.text), d.text);
+    check('the tampered task is not excused', d.code === 1 && !/path/.test(path));
+  }
+
+  // A move made with --override is a recorded exception, not a permanent defect.
+  {
+    const board = newBoard();
+    run(board, 'new', 'general', '--title', 'Legacy task');
+    run(board, 'move', 'TASK-001', 'done', '--override', 'pre-1.1 task');
+    const d = doctorOf(board);
+    check('an overridden move leaves the board clean', d.code === 0, d.text);
+    // An override waives only the gate that move crossed: a task overridden
+    // into review keeps the gates its legitimate activation passed.
+    const scoped = newBoard();
+    const { id: sid } = activeTask(scoped, 'general', 'Scoped');
+    run(scoped, 'move', sid, 'review', '--override', 'reviewer offline');
+    const spath = run(scoped, 'where', sid).out;
+    const goal = /## Goal\n\n([^\n]*)/.exec(readFileSync(join(scoped, 'TEMPLATE.md'), 'utf8'))[1];
+    writeFileSync(spath, readFileSync(spath, 'utf8')
+      .replace(/(## Goal\n\n)[^\n]*/, (_m, h) => h + goal)
+      .replace(/\| \*\*Base\*\* \|[^\n]*\n/, ''));
+    const sd = doctorOf(scoped);
+    check('an override into review does not waive the placeholder gate', /placeholder/.test(sd.text), sd.text);
+    check('an override into review does not waive the Base gate', /Base/.test(sd.text), sd.text);
+    check('an override into review waives only its own report gate', !/Execution Report/.test(sd.text), sd.text);
+
+    const forced = run(board, 'new', 'general', '--title', 'Second').out;
+    run(board, 'move', 'TASK-002', 'review', '--override', 'imported');
+    writeFileSync(forced.replace('/queue/', '/review/'), readFileSync(run(board, 'where', 'TASK-002').out, 'utf8'));
+    check('a later ordinary move is still checked',
+      run(board, 'move', 'TASK-002', 'active').code === 1);
   }
 
   // registry status outside the enum
