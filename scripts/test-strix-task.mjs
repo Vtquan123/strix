@@ -731,6 +731,44 @@ console.log('git base, extended');
     readFileSync(run(board, 'where', 'TASK-001').out, 'utf8').includes(`| **Base** | ${base} |`));
 }
 
+console.log('registry comments and slugs');
+{
+  const board = newBoard();
+  const seed = readFileSync(join(ROOT, 'templates', 'strix', 'tasks', 'workstreams.yaml'), 'utf8');
+  run(board, 'workstream', 'add', 'billing', '--prefix', 'BILL', '--owner', 'quan');
+  const added = readFileSync(join(board, 'workstreams.yaml'), 'utf8');
+  check('workstream add keeps every comment and line of the registry', added.startsWith(seed), added);
+  check('workstream add appends the new entry', added.endsWith('  - id: billing\n    prefix: BILL\n    owner: quan\n    status: active\n'), added);
+
+  run(board, 'workstream', 'close', 'billing');
+  const closed = readFileSync(join(board, 'workstreams.yaml'), 'utf8');
+  check('workstream close edits only the status line', closed === added.replace(/status: active\n$/, 'status: closed\n'), closed);
+
+  const badOwner = run(board, 'workstream', 'add', 'x', '--prefix', 'X', '--owner', 'me # boss');
+  check('an owner that the registry cannot hold is refused', badOwner.code === 1 && /owner/.test(badOwner.err), badOwner.err);
+
+  // A registry entry may list its keys in any order; `close` must still find it.
+  const reordered = newBoard();
+  writeFileSync(join(reordered, 'workstreams.yaml'),
+    `${readFileSync(join(reordered, 'workstreams.yaml'), 'utf8')}  - status: active\n    id: billing\n    prefix: BILL\n    owner: quan\n`);
+  const closedOdd = run(reordered, 'workstream', 'close', 'billing');
+  check('close finds an entry whose id is not the first key', closedOdd.code === 0, closedOdd.err);
+  check('close sets that entry to closed', /status: closed/.test(readFileSync(join(reordered, 'workstreams.yaml'), 'utf8')));
+
+  const fresh = newBoard();
+  rmSync(join(fresh, 'workstreams.yaml'));
+  run(fresh, 'migrate');
+  check('migrate seeds the registry from the plugin template', readFileSync(join(fresh, 'workstreams.yaml'), 'utf8') === seed);
+
+  const longTitle = run(board, 'new', 'general', '--title', `${'a'.repeat(47)} b`);
+  check('a truncated slug never ends in a hyphen', /-a+\.md$/.test(longTitle.out), longTitle.out);
+  const wide = run(board, 'new', 'general', '--title', 'ＡＢＣ fullwidth');
+  check('fullwidth letters survive slugging', /abc-fullwidth\.md$/.test(wide.out), wide.out);
+
+  const accented = run(board, 'new', 'general', '--title', 'Sửa lỗi đăng nhập Café');
+  check('titles lose their accents, not their letters, in the slug', /-sua-loi-dang-nhap-cafe\.md$/.test(accented.out), accented.out);
+}
+
 /* ── report ──────────────────────────────────────────────────────────── */
 
 for (const b of boards) rmSync(join(b, '..'), { recursive: true, force: true });

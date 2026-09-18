@@ -20,8 +20,9 @@ flowchart LR
    `Estimated Files`. Confirm Definition of Ready.
 2. **Stay in scope.** Touch only files the task implies. New files are fine if
    the task needs them; new *features* are not.
-3. **Follow conventions verbatim.** `coding-conventions.md` is law. If code
-   would need to break a convention, escalate — do not bend the convention.
+3. **Follow conventions verbatim.** `.strix/knowledge/coding-conventions.md` is
+   law. If code would need to break a convention, escalate — do not bend the
+   convention.
 4. **Verify continuously.** Build, lint, and test after meaningful changes, not
    only at the end.
 5. **Fix implementation bugs; escalate design flaws.** If a failure reveals a

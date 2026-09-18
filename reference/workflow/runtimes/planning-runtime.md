@@ -52,6 +52,6 @@ flowchart LR
 
 ## Entry Points
 
-Every user request enters here through the **Claude Triage Router**
+Every user request enters here through the **Router**, run by the Claude orchestrator
 (see [../router.md](../router.md)). The Router owns all selection decisions;
 individual agents never choose their own skills, context, or successors.

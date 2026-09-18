@@ -17,8 +17,8 @@ Complexity detection and **returns** a decision; it starts nothing itself.
 
 ## Responsibilities
 
-- **Intent Detection** — feature | fix | refactor | question | arch | knowledge | review | skill-install | onboarding.
-- **Complexity Detection** — TRIVIAL | SIMPLE | STANDARD | EPIC.
+- **Intent Detection** — exactly one of the intents below.
+- **Complexity Detection** — exactly one of the levels below.
 - **Workstream selection** — which line of work the request belongs to. Pick an
   existing one from `.strix/tasks/workstreams.yaml`; if the request is an EPIC it
   earns a new workstream of its own; if it belongs to no EPIC it goes to
@@ -26,6 +26,18 @@ Complexity detection and **returns** a decision; it starts nothing itself.
 - **Routing recommendation** — the next step per the routing table, with the
   selected skills and the minimal context to load.
 - **Answer directly** when the request is a question that needs no task.
+
+**Intents:**
+
+<!-- strix:gen start id=intents-inline -->
+`feature` · `fix` · `refactor` · `question` · `arch` · `knowledge` · `review` · `skill-install` · `onboarding`
+<!-- strix:gen end id=intents-inline -->
+
+**Complexity:**
+
+<!-- strix:gen start id=complexity-inline -->
+`TRIVIAL` · `SIMPLE` · `STANDARD` · `EPIC`
+<!-- strix:gen end id=complexity-inline -->
 
 ## Inputs
 

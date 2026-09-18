@@ -35,7 +35,7 @@ flowchart TD
    identical.
 5. **Escalate** if the "refactor" actually requires a design change or new ADR —
    that is a Planning-Runtime decision.
-   Escalate with `.strix/bin/strix-task move <ID> queue --reason "<what needs deciding>" --by executor` and stop.
+   Run `.strix/bin/strix-task move <ID> queue --reason "<what needs deciding>" --by executor` and stop.
 6. **Complete**: when the Definition of Done holds:
    - commit the work; every commit message ends with the trailer line
      `Strix-Task: <ID>`;

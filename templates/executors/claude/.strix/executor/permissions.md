@@ -41,6 +41,6 @@ model. If the two ever disagree, the matrix wins and this file is the bug.
 The executor has full power over the infrastructure and zero power over the
 design. This asymmetry is deliberate: it guarantees that every architectural or
 convention change is a reasoned Claude decision, while every keystroke of
-implementation is reproducible and scoped to a task. Because this executor is a
-Claude subagent, the isolation is what keeps the planning and execution runtimes
-from blurring.
+implementation is reproducible and scoped to a task.
+Because this executor is a Claude subagent, the isolation is what keeps the
+planning and execution runtimes from blurring.

@@ -1,4 +1,4 @@
-# Cline Permissions
+# {{Title}} Permissions
 
 Explicit allow/deny for the Execution Runtime. Hand-written operational rules,
 kept consistent with the Strix capability matrix (shipped with the plugin, under
@@ -25,7 +25,7 @@ model. If the two ever disagree, the matrix wins and this file is the bug.
 
 | Action | Reason |
 |--------|--------|
-| Write `.strix/knowledge/**` | Knowledge is Claude-only, read-only for Cline |
+| Write `.strix/knowledge/**` | Knowledge is Claude-only, read-only for {{name}} |
 | Write `.strix/knowledge/decisions/**` (ADRs) | Decisions belong to Claude |
 | Redesign architecture | Design belongs to the Planning Runtime |
 | Change conventions | Conventions are a single source of truth Claude owns |
@@ -34,10 +34,17 @@ model. If the two ever disagree, the matrix wins and this file is the bug.
 | Create tasks | Task authoring is Claude's role |
 | Edit anything under `.strix/` directly | Task files change only through `strix-task`; knowledge is read-only |
 | Make any other move, or use `--override` | Every other move is the orchestrator's |
+{{#claude}}
+| Invoke `strix:` reasoning skills / planning agents | The executor implements; it does not reason or route |
+{{/claude}}
 
 ## Rationale
 
-Cline has full power over the infrastructure and zero power over the
+{{Name}} has full power over the infrastructure and zero power over the
 design. This asymmetry is deliberate: it guarantees that every architectural or
 convention change is a reasoned Claude decision, while every keystroke of
 implementation is reproducible and scoped to a task.
+{{#claude}}
+Because this executor is a Claude subagent, the isolation is what keeps the
+planning and execution runtimes from blurring.
+{{/claude}}

@@ -6,7 +6,7 @@ Strix separates *thinking* from *doing*. **Claude** plans, designs, reviews, and
 governs knowledge (the Planning Runtime). A **selectable executor** — **Cline**,
 **GitHub Copilot**, or **Claude** — implements, builds, lints, tests, and fixes
 (the Execution Runtime). You choose the executor per project at init. A single
-Claude Triage Router decides everything; agents never self-select. The result is
+Claude orchestrator runs the Router and decides everything; agents never self-select. The result is
 small prompts, reusable context, auditable changes, and a knowledge base that
 stays coherent over time.
 
@@ -89,7 +89,7 @@ arrives separately through the hook.
 
 ```mermaid
 flowchart TD
-    U[User] --> R[Claude Triage Router]
+    U[User] --> R[Claude orchestrator: Router]
     R --> TM[Task Management]
     TM --> PK[Project Knowledge]
     PK --> AG[Agents]
@@ -109,43 +109,43 @@ Full picture: [reference/docs/architecture.md](reference/docs/architecture.md).
 ```mermaid
 flowchart LR
     REQ[Request] --> TRI[Triage: TRIVIAL/SIMPLE/STANDARD/EPIC]
-    TRI -->|EPIC| BD[Break into STANDARD tasks + deps]
-    TRI -->|else| TSK[Create task]
+    TRI -->|EPIC| BD[Workstream + STANDARD tasks + deps]
+    TRI -->|TRIVIAL| LITE[Lite task]
+    TRI -->|else| TSK[Task]
     BD --> TSK
-    TSK --> EXE[Executor: implement -> build -> lint -> test -> fix]
-    EXE --> REV[reviewer-agent]
-    REV -->|changes| EXE
-    REV -->|approve| GOV[knowledge-agent governs]
+    TSK --> GATE[check + move active]
+    LITE --> GATE
+    GATE --> EXE[Executor: implement, test, commit, report]
+    EXE -->|stop condition| TSK
+    EXE --> REV[reviewer-agent: diff since Base, re-run checks]
+    REV -->|Review Checklist| EXE
+    REV -->|approve| GOV[Knowledge updated if triggered]
     GOV --> DONE[Done -> Archive]
 ```
 
+A lite task skips `reviewer-agent`: the orchestrator checks its diff and moves it
+to Done.
+
 ## Repository Structure (the plugin source)
 
+<!-- strix:gen start id=readme-tree -->
 ```text
 strix/
-├── .claude-plugin/
-│   ├── plugin.json                 # plugin manifest (name, version, description)
-│   └── marketplace.json            # self-hosted, single-plugin marketplace entry
-├── skills/                         # 13 reasoning skills (one SKILL.md each) + strix-init
-├── agents/                         # 4 Claude agents: triage, task-creator, reviewer, knowledge
-├── commands/                       # slash commands (/strix:init)
-├── hooks/
-│   ├── hooks.json                  # guarded SessionStart: activates only when .strix/ exists
-│   └── strix-context.md            # the operating contract the hook injects
-├── bin/
-│   └── strix-init                  # idempotent scaffolder (shared by /strix:init)
-├── templates/                      # seed content copied into a project on init
-│   ├── strix/                      #   → <project>/.strix/  (knowledge base + task board)
-│   └── executors/                  #   per-executor config trees, chosen at init:
-│       ├── cline/.clinerules/      #     → <project>/.clinerules/
-│       ├── copilot/.github/        #     → <project>/.github/
-│       └── claude/                 #     → <project>/.claude/agents/ + .strix/executor/
-└── reference/                      # framework docs — skill-referenced background, not auto-loaded
-    ├── docs/                       #   the documentation set
-    ├── workflow/                   #   engine-agnostic core (capability matrix, router, lifecycle)
-    ├── rules/                      #   Claude's rules (identity, permissions, routing, …)
-    └── examples/                   #   example ADR
+├── agents/          # 4 Claude agents: triage, task-creator, reviewer, knowledge
+├── bin/             # strix-init (scaffolder) and strix-task (board CLI, runs strix-task.mjs)
+├── .claude-plugin/  # plugin.json + marketplace.json (versions synced by `npm run gen`)
+├── commands/        # slash commands (/strix:init)
+├── config/          # YAML source of truth + JSON Schemas; docs are generated from it
+├── docs/            # design specs for the plugin itself (not shipped)
+├── .github/         # CI: validate, test, and the generated-docs drift gate
+├── hooks/           # SessionStart contract (strix-context) + PreToolUse guard (strix-guard)
+├── lib/             # shell helpers shared by strix-init and the hooks
+├── reference/       # framework docs: docs/, workflow/, rules/, examples/
+├── scripts/         # validate, gen, and the test suites (not shipped)
+├── skills/          # 11 reasoning skills + strix-init (one SKILL.md each)
+└── templates/       # seed content: strix/ → .strix/; executors/<id>/ → executor config
 ```
+<!-- strix:gen end id=readme-tree -->
 
 Per-project footprint after `/strix:init` (executor = Cline shown; Copilot seeds
 `.github/`, Claude seeds `.claude/agents/strix-executor.md` + `.strix/executor/`):
@@ -153,10 +153,12 @@ Per-project footprint after `/strix:init` (executor = Cline shown; Copilot seeds
 ```text
 <project>/
 ├── .strix/
-│   ├── config.yaml                 # records the chosen executor
+│   ├── config.yaml                 # records the chosen executor (commit it)
+│   ├── bin/strix-task              # board CLI shim; holds no machine path (commit it)
+│   ├── local.yaml                  # this machine's plugin path (gitignored)
 │   ├── knowledge/ (project-context, coding-conventions, architecture, glossary, decisions/)
-│   └── tasks/ (TEMPLATE.md + queue active review done archive)
-└── .clinerules/                    # copied from templates/executors/cline/.clinerules
+│   └── tasks/ (workstreams.yaml, TEMPLATE.md, queue active review done archive)
+└── .clinerules/                    # generated from templates/executors/_shared, seeded on init
     ├── *.md                        #   rules
     ├── workflows/                  #   execution workflows
     └── skills/                     #   implementation skills
@@ -179,6 +181,9 @@ Authoritative split: [reference/workflow/capability-matrix.md](reference/workflo
 - New to Strix? → [reference/docs/architecture.md](reference/docs/architecture.md)
 - Want the flow? → [reference/docs/workflow.md](reference/docs/workflow.md)
 - Writing tasks? → the seeded `.strix/tasks/TEMPLATE.md` (template: [templates/strix/tasks/TEMPLATE.md](templates/strix/tasks/TEMPLATE.md))
+- Driving the board? → [reference/workflow/task-lifecycle.md](reference/workflow/task-lifecycle.md) and `strix-task --help`
+- How routing works? → [reference/workflow/router.md](reference/workflow/router.md)
+- Changing config or executor rules? → [config/README.md](config/README.md)
 - Extending it? → [reference/docs/contribution-guide.md](reference/docs/contribution-guide.md)
 - All docs → [reference/docs/README.md](reference/docs/README.md)
 

@@ -1,15 +1,27 @@
----
-agent: agent
-description: Add or strengthen tests for existing or new code (testing workflow) to meet the task's coverage criteria.
----
-Task file: ${input:task:absolute or repo-relative path to the READY testing task, under .strix/tasks/active/<workstream>/}
+# Workflow: testing
 
-Add or strengthen tests as defined by the task above. Follow the always-on Strix
-executor instructions in `.github/copilot-instructions.md`.
+Add or strengthen tests for existing or new code, as defined by a testing task.
+
+## When The Router Selects It
+
+Intent = `feature`/`fix` with a testing-focused task, or an explicit
+"increase coverage / add tests" task.
+
+## Execution Flow
+
+```mermaid
+flowchart TD
+    A[Read testing task] --> B[Identify units + criteria to cover]
+    B --> C[Write tests: happy path, edges, errors]
+    C --> D[Run suite]
+    D --> E{All green + coverage target met?}
+    E -->|No, test bug| C
+    E -->|No, reveals code defect| ESC[Report the defect in the Execution Report]
+    E -->|Yes| F[Commit, report, move to Review]
+```
 
 ## Steps
 
-<!-- strix:gen start id=shared.workflows.testing.steps -->
 1. **Read** the task; identify the units and the Acceptance Criteria that define
    "adequately tested".
 2. **Design cases** with the `testing` skill: happy path, boundaries, error
@@ -27,13 +39,12 @@ executor instructions in `.github/copilot-instructions.md`.
      each command run, its exit code, the tail of its output, and the commit SHAs;
    - run `.strix/bin/strix-task move <ID> review --by executor`. It refuses without the report,
      and it moves the task within its workstream and sets `Status: In Review`.
+{{#copilot}}
    If your current mode cannot run commands, print these exact commands and ask
    the human to run them.
-<!-- strix:gen end id=shared.workflows.testing.steps -->
+{{/copilot}}
 
 ## Guardrails
 
-<!-- strix:gen start id=shared.workflows.testing.guardrails -->
 - Tests assert real behaviour, not implementation trivia.
 - Meeting a coverage number by testing nothing meaningful fails review.
-<!-- strix:gen end id=shared.workflows.testing.guardrails -->

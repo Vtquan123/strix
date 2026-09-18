@@ -32,7 +32,7 @@ flowchart TD
 5. **Fix minimally**: the smallest change that makes the test pass.
 6. **Verify**: build, lint, and run the whole suite to check for regressions.
 7. **Escalate** if the true fix requires an architecture or convention change.
-   Escalate with `.strix/bin/strix-task move <ID> queue --reason "<what needs deciding>" --by executor` and stop.
+   Run `.strix/bin/strix-task move <ID> queue --reason "<what needs deciding>" --by executor` and stop.
 8. **Complete**: when the Definition of Done holds:
    - commit the work; every commit message ends with the trailer line
      `Strix-Task: <ID>`;

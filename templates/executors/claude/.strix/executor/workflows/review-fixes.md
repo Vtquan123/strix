@@ -27,7 +27,7 @@ flowchart TD
 3. **Verify** after each fix: build, lint, run tests.
 4. **Escalate** any checklist item that would require an architecture,
    convention, or ADR change — those are Claude decisions, not the executor's.
-   Escalate with `.strix/bin/strix-task move <ID> queue --reason "<what needs deciding>" --by executor` and stop.
+   Run `.strix/bin/strix-task move <ID> queue --reason "<what needs deciding>" --by executor` and stop.
 5. **Complete**: when the Definition of Done holds:
    - commit the work; every commit message ends with the trailer line
      `Strix-Task: <ID>`;

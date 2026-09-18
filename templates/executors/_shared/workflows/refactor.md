@@ -44,6 +44,10 @@ flowchart TD
      each command run, its exit code, the tail of its output, and the commit SHAs;
    - run `.strix/bin/strix-task move <ID> review --by executor`. It refuses without the report,
      and it moves the task within its workstream and sets `Status: In Review`.
+{{#copilot}}
+   If your current mode cannot run commands, print these exact commands and ask
+   the human to run them.
+{{/copilot}}
 
 ## Guardrails
 

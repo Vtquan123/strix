@@ -1,6 +1,13 @@
-# Cline Workflow
+# {{Title}} Workflow
 
-How Cline processes one task from Active to Review.
+{{#claude}}
+How the executor processes the one task the orchestrator hands it, from Active to
+Review. Unlike an autonomous board-puller, the `strix-executor` subagent is
+**invoked with a specific READY task path** — it does not scan the queue itself.
+{{/claude}}
+{{^claude}}
+How {{name}} processes one task from Active to Review.
+{{/claude}}
 
 ```mermaid
 flowchart TD
@@ -29,9 +36,15 @@ flowchart TD
 
 ## Steps
 
+{{#claude}}
+1. **Receive** the task path the orchestrator gives you; confirm its Definition
+   of Ready is met and its dependencies are Done.
+{{/claude}}
+{{^claude}}
 1. **Pull** a task the orchestrator moved to `active/`
    (`.strix/bin/strix-task ls --stage active`); `strix-task move` already checked
    its Definition of Ready and dependencies.
+{{/claude}}
 2. **Read** the task and only the knowledge/skills it lists. Minimise context.
 3. **Choose the workflow**: [implement](workflows/implement.md),
    [fix](workflows/fix.md), [refactor](workflows/refactor.md),
@@ -50,6 +63,9 @@ flowchart TD
      each command run, its exit code, the tail of its output, and the commit SHAs;
    - run `.strix/bin/strix-task move <ID> review --by executor`. It refuses without the report,
      and it moves the task within its workstream and sets `Status: In Review`.
+{{#claude}}
+   - Return a short summary to the orchestrator.
+{{/claude}}
 
 A lite TRIVIAL task has no Definition of Ready or Definition of Done section:
 `strix-task move` already checked it, and its Acceptance Criteria are its
@@ -61,3 +77,6 @@ Definition of Done.
 - No architecture, convention, knowledge, or ADR edits, and no direct edits
   under `.strix/`: task files change only through `strix-task`.
 - No scope expansion — Out of Scope is binding.
+{{#claude}}
+- No `strix:` reasoning skills; no spawning planning agents.
+{{/claude}}

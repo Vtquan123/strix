@@ -67,7 +67,8 @@ move, enforcing its gate and recording it in the task's History. Canonical: [../
 
 ## Runtime Boundaries
 
-- **Claude** never writes code, builds, lints, or tests (may run the terminal on demand).
+- **Claude** never writes code, commits, or runs build/lint/tests to produce a
+  change (it may inspect state and re-run a task's reported checks).
 - **The executor** never redesigns, changes conventions/knowledge/ADRs, or expands
   scope.
 

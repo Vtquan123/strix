@@ -1,4 +1,4 @@
-# Executor Execution Rules
+# {{Title}} Execution Rules
 
 The operational discipline for turning a task into green, tested code.
 

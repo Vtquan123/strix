@@ -12,12 +12,14 @@
  *   <!-- strix:gen end id=routing-table -->
  * Never hand-edit inside one; edit config/*.yaml and re-run.
  */
-import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
-import { join, relative } from 'node:path';
+import { spawnSync } from 'node:child_process';
+import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
+import { dirname, join, relative } from 'node:path';
 import { ROOT, loadAll, loadJson } from './lib/config.mjs';
+import { renderShared, sharedSection } from './lib/shared-rules.mjs';
 
 const CHECK = process.argv.includes('--check');
-const { routing, capabilities, skills, taskSchema } = loadAll();
+const { routing, capabilities, skills, taskSchema, executors } = loadAll();
 
 /* ── formatting helpers ─────────────────────────────────────────────── */
 
@@ -102,13 +104,6 @@ const RENDER = {
         fmtDispatch(r),
         fmtSkills(r),
       ]),
-    ),
-
-  'routing-table-summary': () =>
-    table(
-      ['Intent', 'Complexity', 'Agent / Workflow'],
-      ['--------', '-----------', '------------------'],
-      routing.routes.map((r) => [r.intent, fmtComplexity(r.complexity), fmtDispatch(r)]),
     ),
 
   'decision-record': () => {
@@ -215,6 +210,48 @@ const RENDER = {
   'agents-inline': () =>
     skills.agents.map((a) => `${code(a.name)} (${a.role})`).join(' · '),
 
+  // The plugin's own tree. Every top-level directory needs a description here, so
+  // a new one cannot ship undocumented.
+  'readme-tree': () => {
+    const reasoning = skills.skills.filter((sk) => sk.name !== 'strix-init').length;
+    const agentNames = skills.agents.map((a) => a.name.replace(/-agent$/, '')).join(', ');
+    const describe = {
+      '.claude-plugin': ['.claude-plugin/', 'plugin.json + marketplace.json (versions synced by `npm run gen`)'],
+      '.github': ['.github/', 'CI: validate, test, and the generated-docs drift gate'],
+      agents: ['agents/', `${skills.agents.length} Claude agents: ${agentNames}`],
+      bin: ['bin/', 'strix-init (scaffolder) and strix-task (board CLI, runs strix-task.mjs)'],
+      commands: ['commands/', 'slash commands (/strix:init)'],
+      config: ['config/', 'YAML source of truth + JSON Schemas; docs are generated from it'],
+      docs: ['docs/', 'design specs for the plugin itself (not shipped)'],
+      hooks: ['hooks/', 'SessionStart contract (strix-context) + PreToolUse guard (strix-guard)'],
+      lib: ['lib/', 'shell helpers shared by strix-init and the hooks'],
+      reference: ['reference/', 'framework docs: docs/, workflow/, rules/, examples/'],
+      scripts: ['scripts/', 'validate, gen, and the test suites (not shipped)'],
+      skills: ['skills/', `${reasoning} reasoning skills + strix-init (one SKILL.md each)`],
+      templates: ['templates/', 'seed content: strix/ → .strix/; executors/<id>/ → executor config'],
+    };
+    // Tracked directories only, so local clutter (.vscode, a scratch .strix/) never counts.
+    const tracked = spawnSync('git', ['-C', ROOT, 'ls-files'], { encoding: 'utf8' });
+    const top = tracked.status === 0
+      ? tracked.stdout.split('\n').filter((f) => f.includes('/')).map((f) => f.split('/')[0])
+      : readdirSync(ROOT, { withFileTypes: true })
+          // Without git (a tarball), keep the directories this tree knows: a
+          // local .strix/ or .vscode/ is not part of the plugin.
+          .filter((e) => e.isDirectory() && (!e.name.startsWith('.') || describe[e.name]))
+          .map((e) => e.name);
+    const dirs = [...new Set(top)]
+      .filter((d) => !['.git', 'node_modules'].includes(d))
+      .sort((a, b) => a.replace(/^\./, '').localeCompare(b.replace(/^\./, '')));
+    const missing = dirs.filter((d) => !describe[d]);
+    if (missing.length) throw new Error(`readme-tree: describe these directories: ${missing.join(', ')}`);
+    const width = Math.max(...dirs.map((d) => describe[d][0].length)) + 6;
+    const lines = dirs.map((d, i) => {
+      const branch = i === dirs.length - 1 ? '└── ' : '├── ';
+      return `${`${branch}${describe[d][0]}`.padEnd(width)}# ${describe[d][1]}`;
+    });
+    return ['```text', 'strix/', ...lines, '```'].join('\n');
+  },
+
   'lifecycle-inline': () =>
     '`.strix/tasks/{' + taskSchema.lifecycle.map((l) => l.stage).join(' → ') + '}`',
 
@@ -301,6 +338,71 @@ const RENDER = {
   },
 };
 
+/* ── shared executor rules ──────────────────────────────────────────── */
+
+const SHARED_DIR = join(ROOT, 'templates', 'executors', '_shared');
+
+/**
+ * Template variables naming one executor, all derived from its `self_name`:
+ * a proper name ("Cline") is used as-is; a generic one ("the executor") gets
+ * the article and capitalisation each slot needs.
+ */
+function executorVars(e) {
+  const generic = e.self_name.match(/^the (.+)$/);
+  if (!generic) return { Title: e.self_name, Heading: e.self_name, Name: e.self_name, name: e.self_name };
+  const words = generic[1];
+  const titled = words.replace(/\b[a-z]/g, (c) => c.toUpperCase());
+  return { Title: titled, Heading: `The ${titled}`, Name: `The ${words}`, name: e.self_name };
+}
+
+function sharedFiles(dir = SHARED_DIR) {
+  return readdirSync(dir, { withFileTypes: true }).flatMap((entry) =>
+    entry.isDirectory()
+      ? sharedFiles(join(dir, entry.name))
+      : entry.name.endsWith('.md')
+        ? [relative(SHARED_DIR, join(dir, entry.name))]
+        : [],
+  );
+}
+
+const renderedShared = (file, executorId) => {
+  const e = executors.executors.find((x) => x.id === executorId);
+  return renderShared(readFileSync(join(SHARED_DIR, file), 'utf8'), executorId, executorVars(e));
+};
+
+// Copilot keeps its rules in one instructions file plus prompt files, so it
+// embeds shared sections as generated regions instead of whole files.
+const SHARED_REGIONS = {
+  'shared.execution.rules': ['execution.md', 'Rules'],
+  'shared.execution.commits': ['execution.md', 'Commits and the Execution Report'],
+  'shared.execution.stop': ['execution.md', 'Stop Conditions'],
+  'shared.execution.scope': ['execution.md', 'Anti-Over-Engineering'],
+  'shared.permissions.allowed': ['permissions.md', 'Allowed'],
+  'shared.permissions.forbidden': ['permissions.md', 'Forbidden'],
+  'shared.coding': ['coding.md', null],
+  'shared.guardrails': ['guardrails.md', null],
+};
+
+function renderSharedRegion(id, rel) {
+  const executorId = rel.match(/^templates\/executors\/([^/]+)\//)?.[1];
+  if (!executorId) throw new Error(`${rel}: shared region "${id}" outside an executor template`);
+  let spec = SHARED_REGIONS[id];
+  const workflow = id.match(/^shared\.workflows\.([a-z-]+)\.(steps|guardrails)$/);
+  if (workflow) spec = [`workflows/${workflow[1]}.md`, workflow[2] === 'steps' ? 'Steps' : 'Guardrails'];
+  if (!spec) return null;
+  return sharedSection(renderedShared(spec[0], executorId), spec[1]);
+}
+
+/** Whole rule files for every executor that keeps its rules as separate files. */
+const GENERATED_FILES = executors.executors
+  .filter((e) => e.rules_format !== 'copilot-instructions')
+  .flatMap((e) =>
+    sharedFiles().map((file) => ({
+      rel: join(e.template_dir, e.config_root, file),
+      render: () => renderedShared(file, e.id),
+    })),
+  );
+
 /* ── target files ───────────────────────────────────────────────────── */
 
 const TARGETS = [
@@ -311,15 +413,22 @@ const TARGETS = [
   'reference/docs/skills.md',
   'reference/docs/task-templates.md',
   'reference/workflow/router.md',
+  'README.md',
+  'agents/triage-agent.md',
   'reference/workflow/capability-matrix.md',
   'reference/workflow/complexity-levels.md',
   'reference/workflow/task-lifecycle.md',
   'templates/strix/tasks/TEMPLATE.md',
   'templates/strix/tasks/README.md',
+  'templates/executors/copilot/.github/copilot-instructions.md',
+  'templates/executors/copilot/.github/instructions/coding.instructions.md',
+  ...readdirSync(join(ROOT, 'templates/executors/copilot/.github/prompts')).map(
+    (f) => `templates/executors/copilot/.github/prompts/${f}`,
+  ),
 ];
 
-const MARKER =
-  /<!-- strix:gen start id=([a-z0-9-]+) -->\n[\s\S]*?<!-- strix:gen end id=\1 -->/g;
+const GEN_ID = '[a-z0-9.-]+';
+const MARKER = new RegExp(`<!-- strix:gen start id=(${GEN_ID}) -->\n[\\s\\S]*?<!-- strix:gen end id=\\1 -->`, 'g');
 
 const used = new Set();
 const changed = [];
@@ -329,18 +438,75 @@ for (const rel of TARGETS) {
   const abs = join(ROOT, rel);
   const before = readFileSync(abs, 'utf8');
   const after = before.replace(MARKER, (_m, id) => {
-    const render = RENDER[id];
-    if (!render) {
+    let content;
+    if (id.startsWith('shared.')) {
+      try {
+        content = renderSharedRegion(id, rel);
+      } catch (err) {
+        console.error(`✗ ${rel}: ${err.message}`);
+        errors++;
+        return _m;
+      }
+    } else if (RENDER[id]) {
+      used.add(id);
+      try {
+        content = RENDER[id]();
+      } catch (err) {
+        console.error(`✗ ${rel}: ${err.message}`);
+        errors++;
+        return _m;
+      }
+    }
+    if (content == null) {
       console.error(`✗ ${rel}: unknown generated-region id "${id}"`);
       errors++;
       return _m;
     }
-    used.add(id);
-    return `<!-- strix:gen start id=${id} -->\n${render()}\n<!-- strix:gen end id=${id} -->`;
+    return `<!-- strix:gen start id=${id} -->\n${content}\n<!-- strix:gen end id=${id} -->`;
   });
   if (after !== before) {
     changed.push(rel);
     if (!CHECK) writeFileSync(abs, after);
+  }
+}
+
+/* ── whole generated files ──────────────────────────────────────────── */
+
+for (const { rel, render } of GENERATED_FILES) {
+  const abs = join(ROOT, rel);
+  let after;
+  try {
+    after = render();
+  } catch (err) {
+    console.error(`✗ ${rel}: ${err.message}`);
+    errors++;
+    continue;
+  }
+  const before = existsSync(abs) ? readFileSync(abs, 'utf8') : null;
+  if (after !== before) {
+    changed.push(rel);
+    if (!CHECK) {
+      mkdirSync(dirname(abs), { recursive: true });
+      writeFileSync(abs, after);
+    }
+  }
+}
+
+// Nothing else may live in a generated rules directory: one source only.
+const GENERATED_DIR_EXTRAS = ['skills/README.md'];
+for (const e of executors.executors.filter((x) => x.rules_format !== 'copilot-instructions')) {
+  const dir = join(ROOT, e.template_dir, e.config_root);
+  if (!existsSync(dir)) continue;
+  const allowed = new Set([...sharedFiles(), ...GENERATED_DIR_EXTRAS]);
+  const walk = (d) =>
+    readdirSync(d, { withFileTypes: true }).flatMap((entry) =>
+      entry.isDirectory() ? walk(join(d, entry.name)) : [relative(dir, join(d, entry.name))],
+    );
+  for (const file of walk(dir).filter((f) => f.endsWith('.md'))) {
+    if (!allowed.has(file)) {
+      console.error(`✗ ${join(e.template_dir, e.config_root, file)}: not generated from templates/executors/_shared/ — move it there or remove it`);
+      errors++;
+    }
   }
 }
 
@@ -351,8 +517,12 @@ for (const rel of TARGETS) {
 function markdownFiles(dir) {
   const out = [];
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
-    if (entry.name === 'node_modules' || entry.name.startsWith('.git')) continue;
+    // `.git` itself, not `.github`: Copilot's regions live under a .github tree.
+    if (entry.name === 'node_modules' || entry.name === '.git') continue;
     const abs = join(dir, entry.name);
+    // The shared sources are templates, not targets; a dot-directory at the
+    // root (a local .strix/ board, .vscode/) is not part of the plugin.
+    if (entry.isDirectory() && (abs === SHARED_DIR || (dir === ROOT && entry.name.startsWith('.')))) continue;
     if (entry.isDirectory()) out.push(...markdownFiles(abs));
     else if (entry.name.endsWith('.md')) out.push(abs);
   }
@@ -365,7 +535,7 @@ for (const abs of markdownFiles(ROOT)) {
   // Fenced blocks are stripped first: config/README.md documents the marker
   // syntax by showing it, and that example is not a region to render.
   const text = readFileSync(abs, 'utf8').replace(/^```[\s\S]*?^```/gm, '');
-  const ids = [...text.matchAll(/<!-- strix:gen start id=([a-z0-9-]+) -->/g)];
+  const ids = [...text.matchAll(new RegExp(`<!-- strix:gen start id=(${GEN_ID}) -->`, 'g'))];
   for (const [, id] of ids) {
     console.error(`✗ ${rel}: has a generated region "${id}" but is not in TARGETS — it will never render`);
     errors++;

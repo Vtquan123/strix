@@ -45,7 +45,7 @@ governance loop.
    patterns. Never invent a convention the repo does not exhibit.
 5. **glossary.md** — pull real domain terms from identifiers, docs, and comments.
 6. **Adoption ADR** — author `.strix/knowledge/decisions/NNNN-adopt-<project>.md`
-   (per the [decisions README](.strix/knowledge/decisions/README.md) numbering):
+   (per the numbering in the project's `.strix/knowledge/decisions/README.md`):
    what was scanned, confidence per file, and anything left `n/a` for lack of
    evidence.
 

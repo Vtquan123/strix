@@ -49,11 +49,54 @@ worse than an unrendered renderer: the region ships blank instead of loudly
 missing, so it fails rather than warns. Fenced code blocks are excluded from the
 scan, which is why the example above does not trip it.
 
+## Generated executor rules
+
+The executor rules have one source, `templates/executors/_shared/`. Each file
+there is a template:
+
+```markdown
+# {{Title}} Execution Rules
+{{Name}} reads conventions; it never edits them.
+{{#claude}}
+A line only the Claude executor gets.
+{{/claude}}
+{{^claude}}
+A line every other executor gets.
+{{/claude}}
+```
+
+The variables come from each executor's `self_name` in `executors.yaml`.
+`npm run gen` renders them two ways:
+
+- **Whole files** for every executor whose `rules_format` is not
+  `copilot-instructions` (Cline, Claude). They land in
+  `<template_dir>/<config_root>/`, for example `templates/executors/cline/.clinerules/execution.md`.
+  Never edit those copies.
+- **Generated regions** (`shared.*` ids) for Copilot, which keeps its rules in
+  `copilot-instructions.md`, `instructions/coding.instructions.md`, and the
+  prompt files. `shared.workflows.<name>.steps` and `.guardrails` pull those
+  sections from `_shared/workflows/<name>.md`; the other ids are listed in
+  `SHARED_REGIONS` in `gen-docs.mjs`.
+
+Copilot's `## Role` and `## Task lifecycle` sections stay hand-written: they
+describe the human-in-the-loop handoff that only Copilot has, so `_shared/identity.md`
+and `_shared/workflow.md` have no Copilot region. Everything else — execution
+rules, permissions, coding, guardrails, and the workflow steps — comes from the
+shared source.
+
+`gen --check` fails when any rendered copy drifts from its source, and when a
+file that is not generated appears inside a generated rules directory. An unknown
+variable or a leftover `{{...}}` tag is a build error. Implementation:
+[`../scripts/lib/shared-rules.mjs`](../scripts/lib/shared-rules.mjs).
+
+The README's repository tree is generated too (`readme-tree`): every tracked
+top-level directory needs a description in `gen-docs.mjs`, or `gen` fails.
+
 ### Known leak: markers ship to consuming projects
 
-`templates/strix/tasks/TEMPLATE.md` and `templates/strix/tasks/README.md` each
-contain generated regions, and `bin/strix-init` copies both verbatim into
-`<project>/.strix/tasks/`. The `strix:gen` comments travel with them. They are
+`templates/strix/tasks/TEMPLATE.md`, `templates/strix/tasks/README.md`, and the
+Copilot executor files contain generated regions, and `bin/strix-init` copies
+them verbatim into the project. The `strix:gen` comments travel with them. They are
 inert there — `gen` only ever runs in the plugin repo, and `TARGETS` lists each
 file's path inside the plugin, not the copy. Accepted as harmless noise rather
 than adding a strip-on-copy step to `bin/strix-init`. Two constraints follow:
@@ -79,9 +122,11 @@ save, not at generation time.
 
 Beyond schema shape, `npm run validate` checks what a schema cannot:
 
-- Every `routes[].intent` / `.complexity` / `.agent` / `.skills[]` resolves to a
-  declared intent, level, agent, or skill.
-- Every intent has at least one route.
+- Every `routes[].intent` / `.complexity` / `.agent` / `.skills[]` /
+  `.if_unclear[]` resolves to a declared intent, level, agent (or
+  `orchestrator`), or skill.
+- Every intent × complexity cell has exactly one route; an `escalate` cell lands
+  on a real route; `lite` routes are TRIVIAL-only.
 - `decision_record_example` uses a real intent, level, capability, and skills.
 - Each capability declares access for **every** engine; `mode: exclusive` means
   exactly one owner.
@@ -102,6 +147,15 @@ Beyond schema shape, `npm run validate` checks what a schema cannot:
   `<` or `>` anywhere in the frontmatter (they can inject instructions into the
   system prompt — Agent Skills spec).
 - `plugin.json` and `marketplace.json` versions equal `package.json`.
+- `bin/strix-task.mjs`'s own copies of the stages, statuses, priorities,
+  complexities, sections, lite sections, note sections, and transitions equal
+  `task-schema.yaml` and `routing.yaml`.
+- `templates/strix/tasks/TEMPLATE.md` has every body section, in order.
+- Transitions join real stages, once each.
+- Every agent declares `tools:` without `Agent`; `triage-agent` and
+  `reviewer-agent` have no write tools; `model` is a known value.
+- Every skill and agent description except `strix-init`'s starts with
+  "Strix projects only (requires .strix/).".
 
 ## YAML conventions
 

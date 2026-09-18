@@ -1,6 +1,6 @@
 # Complexity Levels
 
-Every request is classified by the **Claude Triage Router** into exactly one of
+Every request is classified by the **Router** (run by the Claude orchestrator) into exactly one of
 four levels. The level decides how much planning ceremony a request gets. A
 TRIVIAL change gets a lite task (`strix-task new --lite`) and skips
 `reviewer-agent`; everything else gets the full task and review.

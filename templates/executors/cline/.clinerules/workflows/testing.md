@@ -27,7 +27,7 @@ flowchart TD
 2. **Design cases** with the `testing` skill: happy path, boundaries, error
    handling, and state transitions.
 3. **Write tests** following the project's test conventions
-   (`coding-conventions.md`).
+   (`.strix/knowledge/coding-conventions.md`).
 4. **Run** the suite; ensure new tests pass and nothing regresses.
 5. **If a test uncovers a real defect**, do not silently patch scope — record it
    in the Execution Report so the orchestrator can file a `fix` task.

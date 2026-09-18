@@ -10,15 +10,15 @@ executor instructions in `.github/copilot-instructions.md`.
 
 ## Steps
 
-1. **Read** the reviewer's `## Review Checklist` in the task file. Act on the
-   **newest** entry (earlier rounds are history). Each item is a discrete,
-   required change.
-2. **Address each item** exactly — do not add unrequested changes.
+<!-- strix:gen start id=shared.workflows.review-fixes.steps -->
+1. **Read** the `## Review Checklist` section of the task. Act on the **newest**
+   entry (earlier rounds are history). Each item is a discrete, required change.
+2. **Address each item** exactly — do not add unrequested changes while in here.
 3. **Verify** after each fix: build, lint, run tests.
 4. **Escalate** any checklist item that would require an architecture,
    convention, or ADR change — those are Claude decisions, not the executor's.
-   Then escalate with `.strix/bin/strix-task move <ID> queue --reason "<what needs deciding>" --by executor` and stop.
-5. **Re-submit**: when the Definition of Done holds:
+   Run `.strix/bin/strix-task move <ID> queue --reason "<what needs deciding>" --by executor` and stop.
+5. **Complete**: when the Definition of Done holds:
    - commit the work; every commit message ends with the trailer line
      `Strix-Task: <ID>`;
    - record a **new** Execution Report entry for this round with
@@ -28,9 +28,12 @@ executor instructions in `.github/copilot-instructions.md`.
      and it moves the task within its workstream and sets `Status: In Review`.
    If your current mode cannot run commands, print these exact commands and ask
    the human to run them.
+<!-- strix:gen end id=shared.workflows.review-fixes.steps -->
 
 ## Guardrails
 
+<!-- strix:gen start id=shared.workflows.review-fixes.guardrails -->
 - Scope is the checklist, nothing more. New scope needs a new task.
 - Repeatedly bouncing on the same item signals a task/design problem — escalate
   rather than guess.
+<!-- strix:gen end id=shared.workflows.review-fixes.guardrails -->

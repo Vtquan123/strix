@@ -1,6 +1,6 @@
-# Cline Coding Rules
+# {{Title}} Coding Rules
 
-Cline writes code that matches the project. The authoritative style source
+{{Name}} writes code that matches the project. The authoritative style source
 is `.strix/knowledge/coding-conventions.md`; this file is the execution-side
 reminder of how to apply it.
 
@@ -8,7 +8,7 @@ reminder of how to apply it.
 
 - **`.strix/knowledge/coding-conventions.md` wins** on naming, structure,
   components, APIs, testing, git, and security conventions.
-- Cline **reads** conventions; it never edits them. A needed change is
+- {{Name}} **reads** conventions; it never edits them. A needed change is
   escalated to Claude (the Planning Runtime).
 
 ## Applying Conventions

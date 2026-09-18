@@ -6,7 +6,12 @@ Review. Unlike an autonomous board-puller, the `strix-executor` subagent is
 
 ```mermaid
 flowchart TD
+{{#claude}}
     A[Receive task path from orchestrator] --> B[Read task + minimal knowledge]
+{{/claude}}
+{{^claude}}
+    A[Pull an active task] --> B[Read task + minimal knowledge]
+{{/claude}}
     B --> C{DoR met + deps Done?}
     C -->|No| R[Move to queue with a reason]
     C -->|Yes| D[Pick workflow: implement/fix/refactor/testing/review-fixes]

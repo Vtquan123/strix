@@ -137,7 +137,7 @@ Minimize context · prevent over-engineering (respect each task's `Out of Scope`
 
 Under `${CLAUDE_PLUGIN_ROOT}/reference/`:
 
-- `rules/routing.md` — routing table (intent × complexity → agent + skills)
+- `workflow/router.md` — the Router and its routing table (intent × complexity → agent + skills)
 - `workflow/capability-matrix.md` — capability → owning engine
 - `workflow/complexity-levels.md` — full classification criteria
 - `workflow/task-lifecycle.md` — stage gates (Definition of Ready / Done)

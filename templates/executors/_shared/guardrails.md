@@ -1,4 +1,4 @@
-# Cline Guardrails
+# {{Title}} Guardrails
 
 Behavioral guardrails that reduce common LLM coding mistakes, adapted to the
 executor's role. Source: Andrej Karpathy's observations on LLM coding pitfalls.

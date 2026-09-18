@@ -88,13 +88,19 @@ const REGISTRY = 'workstreams.yaml';
 // Stages where a task counts as finished, so its workstream may be closed.
 const TERMINAL_STAGES = ['done', 'archive'];
 
+// Letters NFD does not split into a base letter plus a mark.
+const FOLD = { đ: 'd', ł: 'l', ø: 'o', ß: 'ss', æ: 'ae', œ: 'oe', þ: 'th', ı: 'i' };
+
 /** `Add invoice model` -> `add-invoice-model`, for the filename's trailing slug. */
 const slugify = (title) =>
   title
     .toLowerCase()
+    .normalize('NFKD')
+    .replace(/\p{M}/gu, '')
+    .replace(/[đłøßæœþı]/g, (c) => FOLD[c])
     .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
-    .slice(0, 48) || 'task';
+    .slice(0, 48)
+    .replace(/^-+|-+$/g, '') || 'task';
 
 const die = (msg) => {
   console.error(`strix-task: ${msg}`);
@@ -180,23 +186,50 @@ function readRegistry(boardDir) {
   return entries;
 }
 
-function writeRegistry(boardDir, workstreams) {
-  const header = [
-    '# Workstream registry — the named lines of work this project\'s task board is',
-    '# grouped by. A workstream is normally one EPIC; its tasks live under',
-    '# `<stage>/<id>/` in every stage directory.',
-    '#',
-    '# Shape is deliberately flat (a list of four scalar keys, no nesting, no anchors)',
-    '# so `strix-task` can read it without a YAML dependency. Keep it that way.',
-    '#',
-    '# Managed by `strix-task workstream add|close`.',
-    '',
-    'workstreams:',
-  ];
-  const body = workstreams.map(
-    (w) => `  - id: ${w.id}\n    prefix: ${w.prefix}\n    owner: ${w.owner}\n    status: ${w.status}`,
+/*
+ * The registry is edited in place, never regenerated, so the comments people
+ * (and the seed) put in it survive every add and close.
+ */
+function registryAppend(boardDir, w) {
+  const path = join(boardDir, REGISTRY);
+  const text = readFileSync(path, 'utf8');
+  const sep = text.endsWith('\n') ? '' : '\n';
+  writeFileSync(path, `${text}${sep}  - id: ${w.id}\n    prefix: ${w.prefix}\n    owner: ${w.owner}\n    status: ${w.status}\n`);
+}
+
+function registrySetStatus(boardDir, id, status) {
+  const path = join(boardDir, REGISTRY);
+  const lines = readFileSync(path, 'utf8').split('\n');
+  // Entries may list their keys in any order, so find the block that holds this
+  // id and then its status line, wherever each sits.
+  const clean = (l) => l.replace(/\s+#.*$/, '').trimEnd();
+  const blocks = [];
+  for (const [i, line] of lines.entries()) {
+    if (/^ {2}- /.test(line)) blocks.push({ start: i, end: lines.length });
+    else if (blocks.length && /^\S/.test(line)) blocks[blocks.length - 1].end = Math.min(blocks.at(-1).end, i);
+  }
+  for (let b = 0; b < blocks.length - 1; b++) blocks[b].end = Math.min(blocks[b].end, blocks[b + 1].start);
+  const block = blocks.find(({ start, end }) =>
+    lines.slice(start, end).some((l) => clean(l).replace(/^ {2}- /, '    ') === `    id: ${id}`),
   );
-  writeFileSync(join(boardDir, REGISTRY), `${[...header, ...body].join('\n')}\n`);
+  let at = -1;
+  if (block) {
+    for (let i = block.start; i < block.end; i++) {
+      if (/^( {2}- | {4})status:/.test(lines[i])) at = i;
+    }
+  }
+  if (at === -1) die(`${REGISTRY}: cannot find the status line of workstream "${id}"`);
+  lines[at] = lines[at].replace(/^( {2}- status:\s*| {4}status:\s*)\S+/, (_m, key) => `${key}${status}`);
+  writeFileSync(path, lines.join('\n'));
+}
+
+/** A new registry is a copy of the plugin's seed, comments and all. */
+function seedRegistry(boardDir) {
+  const seed = join(import.meta.dirname, '..', 'templates', 'strix', 'tasks', REGISTRY);
+  const text = existsSync(seed)
+    ? readFileSync(seed, 'utf8')
+    : `workstreams:\n  - id: ${DEFAULT_WORKSTREAM}\n    prefix: TASK\n    owner: shared\n    status: active\n`;
+  writeFileSync(join(boardDir, REGISTRY), text);
 }
 
 /* ── board scanning ──────────────────────────────────────────────────── */
@@ -785,13 +818,14 @@ function cmdWorkstream(boardDir, positional, flags) {
     const owner = flags.owner ?? die('workstream add needs --owner');
     if (!/^[a-z][a-z0-9-]*$/.test(id)) die(`workstream id "${id}" must be lowercase kebab-case`);
     if (!/^[A-Z][A-Z0-9]*$/.test(prefix)) die(`prefix "${prefix}" must be uppercase`);
+    // The registry reader drops `# comments` and reads one line per value.
+    if (!owner.trim() || /[#\r\n]/.test(owner)) die(`owner "${owner}" cannot contain "#" or a line break`);
     if (registry.some((w) => w.id === id)) die(`workstream "${id}" already exists`);
     // A shared prefix would mean an ID no longer names one workstream, which is
     // the entire point of prefixing them.
     const clash = registry.find((w) => w.prefix === prefix);
     if (clash) die(`prefix "${prefix}" is already used by "${clash.id}"`);
-    registry.push({ id, prefix, owner, status: 'active' });
-    writeRegistry(boardDir, registry);
+    registryAppend(boardDir, { id, prefix, owner: owner.trim(), status: 'active' });
     console.log(`added workstream ${id} (${prefix}), owner ${owner}`);
     return;
   }
@@ -806,8 +840,7 @@ function cmdWorkstream(boardDir, positional, flags) {
     if (live.length) {
       die(`workstream "${id}" still has ${live.length} live task(s): ${live.map((t) => t.id).join(', ')}`);
     }
-    ws.status = 'closed';
-    writeRegistry(boardDir, registry);
+    registrySetStatus(boardDir, id, 'closed');
     console.log(`closed workstream ${id}`);
     return;
   }
@@ -930,9 +963,7 @@ function cmdDoctor(boardDir) {
 
 function cmdMigrate(boardDir) {
   if (!existsSync(join(boardDir, REGISTRY))) {
-    writeRegistry(boardDir, [
-      { id: DEFAULT_WORKSTREAM, prefix: 'TASK', owner: 'shared', status: 'active' },
-    ]);
+    seedRegistry(boardDir);
     console.log(`created ${REGISTRY}`);
   }
 

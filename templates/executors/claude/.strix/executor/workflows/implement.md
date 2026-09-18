@@ -31,7 +31,7 @@ flowchart TD
    `.strix/bin/strix-task move <ID> queue --reason "<what is missing>" --by executor` and stop.
 3. **Implement** the Requirements within `Estimated Files`. No extra scope.
 4. **Build** and resolve compile errors.
-5. **Lint** and fix style to match `coding-conventions.md`.
+5. **Lint** and fix style to match `.strix/knowledge/coding-conventions.md`.
 6. **Test**: add/extend tests to cover the Acceptance Criteria; run the suite.
 7. **Check** every Acceptance Criterion. Iterate on implementation bugs.
 8. **Complete**: when the Definition of Done holds:
