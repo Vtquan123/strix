@@ -7,7 +7,8 @@
 | **Title** | Add rate limiting to the login endpoint |
 | **Priority** | P1 |
 | **Complexity** | STANDARD |
-| **Status** | Queued |
+| **Status** | In Review |
+| **Base** | 4f1c2a9d0b7e6c5a3f2e1d0c9b8a7f6e5d4c3b2a |
 
 ## Goal
 
@@ -59,16 +60,54 @@ full contract.
 ## Definition of Ready (DoR)
 
 - [x] Goal and Requirements are unambiguous
-- [x] Dependencies are Done (none)
+- [x] Dependencies are listed (none)
 - [x] Suggested Skills and Estimated Files are set
 - [x] Acceptance Criteria are testable
 
 ## Definition of Done (DoD)
+
+<!-- Not ticked by hand: the executor attests each item in the Execution Report,
+and the reviewer verifies them. -->
 
 - [ ] All Acceptance Criteria met
 - [ ] Build passes
 - [ ] Lint passes
 - [ ] Tests pass (new rate-limit tests added)
 - [ ] No Out-of-Scope work introduced
+- [ ] Changes committed, each commit carrying a `Strix-Task:` trailer with this task's ID
+- [ ] Execution Report filled
 - [ ] Knowledge/ADR updated if triggered (new middleware pattern → note in
       architecture.md; else "n/a")
+
+## Execution Report
+
+**2026-09-17T15:42:10Z · executor**
+
+```
+$ npm run build      → exit 0
+$ npm run lint       → exit 0
+$ npm test -- rate-limit
+  ✓ under limit (4 ms)
+  ✓ at limit (3 ms)
+  ✓ over limit returns 429 (5 ms)
+  ✓ resets on success (3 ms)
+  Tests: 4 passed, 4 total   → exit 0
+```
+
+Definition of Done: all Acceptance Criteria met (the four tests above); build,
+lint, and tests pass; no Out-of-Scope work; knowledge: `n/a` for the executor
+(the new middleware pattern is flagged for the orchestrator).
+
+Commits (each ends with `Strix-Task: TASK-000`):
+- `9c8b7a6` Add login rate-limit middleware
+- `1d2e3f4` Read the login limit from config
+
+## Review Checklist
+
+<!-- Empty unless the reviewer requests changes. -->
+
+## History
+
+- 2026-09-17T14:05:31Z · queue → active · quan · —
+- 2026-09-17T15:42:18Z · active → review · executor · —
+

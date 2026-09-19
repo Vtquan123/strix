@@ -27,7 +27,7 @@ traceable back to one of them.
 
 ```mermaid
 flowchart TD
-    U[1. User] --> R[2. Claude Triage Router]
+    U[1. User] --> R[2. Claude orchestrator: Router]
     R --> TM[3. Task Management Layer]
     TM --> PK[4. Project Knowledge Layer]
     PK --> AG[5. Agent Layer]
@@ -46,7 +46,7 @@ flowchart TD
 | # | Layer | Responsibility | Owner |
 |---|-------|----------------|-------|
 | 1 | User | Submits requests in natural language | Human |
-| 2 | Claude Triage Router | Classifies, routes, selects skills/context/agents | Claude |
+| 2 | Claude orchestrator (Router) | Classifies, routes, selects skills/context/agents, drives the board | Claude |
 | 3 | Task Management Layer | Holds tasks and moves them through the lifecycle | Claude writes, the executor reads |
 | 4 | Project Knowledge Layer | Source of truth for context, conventions, architecture, ADRs | Claude writes, the executor reads |
 | 5 | Agent Layer | Specialised Claude reasoning agents | Claude |
@@ -58,7 +58,7 @@ flowchart TD
 ```mermaid
 sequenceDiagram
     actor User
-    participant Router as Claude Triage Router
+    participant Router as Claude orchestrator (Router)
     participant Tasks as Task Management
     participant Know as Knowledge
     participant Executor as Executor (Execution)

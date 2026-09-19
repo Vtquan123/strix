@@ -28,6 +28,7 @@ sequenceDiagram
     participant Router
     participant Tasks
     participant Executor
+    participant Reviewer as reviewer-agent
     participant Know as Knowledge
     User->>Router: request
     Router->>Router: triage (intent + complexity)
@@ -36,15 +37,23 @@ sequenceDiagram
     else STANDARD/SIMPLE/TRIVIAL
       Router->>Tasks: create task
     end
+    Router->>Tasks: check + move active (records Base)
     Tasks->>Executor: hand READY task
     Executor->>Know: read-only
-    Executor->>Executor: implement -> build -> lint -> test -> fix
-    Executor->>Tasks: task -> Review
-    Router->>Router: reviewer-agent
+    Executor->>Executor: implement -> build -> lint -> test -> fix -> commit (Strix-Task trailer)
+    alt stop condition
+      Executor->>Tasks: move queue --reason
+    else done
+      Executor->>Tasks: note Execution Report, move review
+    end
+    Router->>Reviewer: review (diff since Base, re-run checks)
     alt approved
+      Reviewer->>Tasks: move done
+      Reviewer->>Router: verdict
       Router->>Know: knowledge-agent updates if triggered
-      Router->>Tasks: Done -> Archive
     else changes
+      Reviewer->>Tasks: note Review Checklist, move active
+      Reviewer->>Router: verdict
       Router->>Executor: review-fixes
     end
     Router->>User: outcome
@@ -54,11 +63,12 @@ sequenceDiagram
 
 Queue → Active → Review → Done → Archive. Each stage is a directory under
 `tasks/`, with tasks grouped by workstream inside it, and `strix-task` owns every
-move. Canonical: [../workflow/task-lifecycle.md](../workflow/task-lifecycle.md).
+move, enforcing its gate and recording it in the task's History. Canonical: [../workflow/task-lifecycle.md](../workflow/task-lifecycle.md).
 
 ## Runtime Boundaries
 
-- **Claude** never writes code, builds, lints, or tests (may run the terminal on demand).
+- **Claude** never writes code, commits, or runs build/lint/tests to produce a
+  change (it may inspect state and re-run a task's reported checks).
 - **The executor** never redesigns, changes conventions/knowledge/ADRs, or expands
   scope.
 

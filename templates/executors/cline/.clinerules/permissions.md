@@ -17,7 +17,9 @@ model. If the two ever disagree, the matrix wins and this file is the bug.
 | Run | terminal, package managers, generators |
 | Execute | build, lint, tests |
 | Fix | build/lint/test failures |
-| Move | the task Active → Review, via `.strix/bin/strix-task move <ID> review` |
+| Commit | the task's work, each commit ending with a `Strix-Task: <ID>` trailer |
+| Write | the task's Execution Report, via `.strix/bin/strix-task note <ID> --section "Execution Report"` |
+| Move | the task Active → Review (`strix-task move <ID> review --by executor`), or Active → Queue to escalate (`move <ID> queue --reason "..." --by executor`) |
 
 ## Forbidden 🚫
 
@@ -30,10 +32,12 @@ model. If the two ever disagree, the matrix wins and this file is the bug.
 | Expand task scope | Out of Scope is binding |
 | Over-engineer | Implement only what the task defines |
 | Create tasks | Task authoring is Claude's role |
+| Edit anything under `.strix/` directly | Task files change only through `strix-task`; knowledge is read-only |
+| Make any other move, or use `--override` | Every other move is the orchestrator's |
 
 ## Rationale
 
-Cline has full power over the infrastructure and zero power over the design.
-This asymmetry is deliberate: it guarantees that every architectural or
+Cline has full power over the infrastructure and zero power over the
+design. This asymmetry is deliberate: it guarantees that every architectural or
 convention change is a reasoned Claude decision, while every keystroke of
 implementation is reproducible and scoped to a task.

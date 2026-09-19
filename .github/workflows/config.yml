@@ -1,20 +1,72 @@
-name: config
+name: check
 
 on:
   push:
-    branches: [main]
+    branches: [main, develop]
   pull_request:
 
 jobs:
   check:
-    name: validate config + generated docs
+    # The CLI, the hooks, and the scaffolder run on whatever the user has, so
+    # the suite runs on every supported Node and on both shells that matter:
+    # GNU bash + GNU userland on Linux, bash 3.2 + BSD userland on macOS.
+    name: check (node ${{ matrix.node }}, ${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        node: ['22', '24', '26']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      # ci, not install: the committed lockfile is what contributors resolve to.
+      - run: npm ci --no-audit --no-fund
+      # Validates config/*.yaml and its cross-file invariants, runs every test
+      # suite, and fails when a generated region or file is stale or hand-edited.
+      - run: npm run check
+
+  shell:
+    name: shellcheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # Pinned, so the ruleset changes when this file does, not when the runner
+      # image does. -S warning: the remaining info notes are style preferences
+      # (SC1091 for a sourced file, SC2012 for the plugin-cache glob).
+      - run: npx --yes shellcheck@0.11.0 -S warning bin/strix-init hooks/*.sh lib/*.sh
+      # The task-board shim is generated, so it is linted where it lands.
+      - run: |
+          mkdir -p /tmp/shim-project
+          bin/strix-init --target /tmp/shim-project --executor cline
+          npx --yes shellcheck@0.11.0 -S warning /tmp/shim-project/.strix/bin/strix-task
+
+  package:
+    name: npm pack + install from the tarball
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
-      - run: npm install --no-audit --no-fund
-      # Fails when config/*.yaml is invalid, when a cross-file reference breaks,
-      # or when a generated doc region was hand-edited / left stale.
-      - run: npm run check
+          node-version: '24'
+      # The plugin ships from the `files` whitelist, so a missing entry breaks a
+      # consuming project rather than CI. Scaffold every executor out of the
+      # packed tarball and let the board's own doctor judge the result.
+      - run: |
+          set -euo pipefail
+          npm pack --no-audit --no-fund
+          mkdir -p /tmp/unpacked && tar -xzf ./*.tgz -C /tmp/unpacked
+          ROOT=/tmp/unpacked/package
+          test -f "$ROOT/CHANGELOG.md"
+          for id in $(sed -n 's/^  - id: //p' "$ROOT/config/executors.yaml"); do
+            project="/tmp/project-$id"
+            mkdir -p "$project"
+            STRIX_PLUGIN_ROOT="$ROOT" "$ROOT/bin/strix-init" --target "$project" --executor "$id"
+            STRIX_PLUGIN_ROOT="$ROOT" "$project/.strix/bin/strix-task" --board "$project/.strix/tasks" doctor
+            contract=$(STRIX_PLUGIN_ROOT="$ROOT" CLAUDE_PROJECT_DIR="$project" CLAUDE_PLUGIN_ROOT="$ROOT" \
+              bash "$ROOT/hooks/strix-context.sh")
+            case "$contract" in *"Strix Operating Contract"*) ;; *) echo "no contract for $id" >&2; exit 1 ;; esac
+            echo "✓ $id scaffolds from the tarball"
+          done

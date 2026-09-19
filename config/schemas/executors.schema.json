@@ -4,12 +4,20 @@
   "title": "Strix selectable executor catalog",
   "type": "object",
   "additionalProperties": false,
-  "required": ["default", "executors"],
+  "required": [
+    "default",
+    "executors"
+  ],
   "definitions": {
-    "executorId": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" }
+    "executorId": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*$"
+    }
   },
   "properties": {
-    "default": { "$ref": "#/definitions/executorId" },
+    "default": {
+      "$ref": "#/definitions/executorId"
+    },
     "executors": {
       "type": "array",
       "minItems": 1,
@@ -22,18 +30,50 @@
           "template_dir",
           "config_root",
           "skills_dir",
-          "rules_format"
+          "rules_format",
+          "self_name"
         ],
         "properties": {
-          "id": { "$ref": "#/definitions/executorId" },
-          "label": { "type": "string", "minLength": 1 },
-          "template_dir": { "type": "string", "minLength": 1 },
-          "config_root": { "type": "string", "minLength": 1 },
-          "skills_dir": { "type": "string", "minLength": 1 },
-          "catalog": { "type": "string" },
-          "rules_format": { "type": "string", "minLength": 1 },
-          "skills_agent": { "type": ["string", "null"] },
-          "handoff": { "type": "string" }
+          "id": {
+            "$ref": "#/definitions/executorId"
+          },
+          "label": {
+            "type": "string",
+            "minLength": 1
+          },
+          "self_name": {
+            "type": "string",
+            "pattern": "^(the [a-z]+( [a-z]+)*|[A-Z][A-Za-z]*( [A-Za-z]+)*)$",
+            "description": "How the shared executor rules name this executor: a proper name, or \"the ...\"."
+          },
+          "template_dir": {
+            "type": "string",
+            "minLength": 1
+          },
+          "config_root": {
+            "type": "string",
+            "minLength": 1
+          },
+          "skills_dir": {
+            "type": "string",
+            "minLength": 1
+          },
+          "catalog": {
+            "type": "string"
+          },
+          "rules_format": {
+            "type": "string",
+            "minLength": 1
+          },
+          "skills_agent": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "handoff": {
+            "type": "string"
+          }
         }
       }
     }

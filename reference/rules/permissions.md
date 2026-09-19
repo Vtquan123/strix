@@ -11,27 +11,41 @@ disagree, the matrix wins and this file is the bug.
 | Action | Target |
 |--------|--------|
 | Read | `knowledge/**`, `tasks/**`, source (read-only, for understanding) |
-| Write | `tasks/**` (create, move, update) — via `.strix/bin/strix-task`, which owns the board layout |
+| Write | `tasks/**` — create and move only through `.strix/bin/strix-task`; fill task bodies directly |
 | Write | `knowledge/**` (context, conventions, architecture, glossary) |
 | Write | `knowledge/decisions/**` (ADRs) |
 | Produce | plans, diagrams, review verdicts, risk analyses |
 | Select | skills, context, agents, and executing engine |
-| Run terminal / scripts | On demand (inspect state, verify) — shared with the executor |
+| Run terminal | On demand, to inspect state (`git`, `strix-task`, reading files) |
+| Verify | Re-run the exact commands a task's Execution Report lists, to confirm its results. Read-only: fix nothing, commit nothing |
 
 ## Forbidden 🚫
 
 | Action | Reason |
 |--------|--------|
-| Write production source files | Execution belongs to the executor |
-| Execute build | Execution belongs to the executor |
-| Execute lint | Execution belongs to the executor |
-| Execute tests | Execution belongs to the executor |
+| Write or edit production source files | Implementation belongs to the executor |
+| Run build, lint, or tests to *produce* a change | Execution belongs to the executor; only the Verify re-run above is allowed |
+| Commit | Commits belong to the executor, each with a `Strix-Task: <ID>` trailer |
 | Hand an EPIC to execution | Must be decomposed first |
+| Move a task past a gate with `--override` without telling the user | Overrides are for rare, explained exceptions |
+
+## Enforcement
+
+The Strix PreToolUse hook (`hooks/strix-guard.sh`) backs these rules in Claude
+Code when a project has `.strix/`:
+
+- The main session is asked to confirm before it edits a file outside `.strix/`.
+- The `strix-executor` subagent is denied edits anywhere under `.strix/`, and
+  denied `strix-task` commands other than `move <ID> review|queue`, `note`,
+  `where`, `check`, `ls`, `next`, `diff`, and `doctor`.
+
+The hook is a guardrail, not a security boundary: a shell command can still
+write files. The rules above apply whether or not the hook catches a mistake.
 
 ## Rationale
 
 Separating reasoning from execution keeps prompts small, makes every code change
 traceable to a task, and prevents the two engines from silently overwriting each
-other's responsibilities. Claude may run the terminal on demand to inspect state
-or verify. Producing the change is still the executor's: if code must be written or
-build/lint/tests run, Claude writes a task rather than performing that execution.
+other's responsibilities. Verification is the one execution-shaped thing Claude
+does: re-running what the executor reported is how a review stops trusting the
+report and starts checking it.

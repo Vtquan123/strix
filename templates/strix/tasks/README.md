@@ -28,16 +28,25 @@ bucket for work that belongs to no EPIC.
 
 ## Lifecycle
 
+<!-- strix:gen start id=transition-diagram -->
 ```mermaid
 stateDiagram-v2
     [*] --> queue
-    queue --> active: DoR met + deps Done
-    active --> review: DoD met
+    queue --> active: ready
+    queue --> archive: cancelled
+    active --> review: reported
+    active --> queue: escalated
     review --> active: changes requested
+    review --> queue: re-plan
     review --> done: approved
-    done --> archive: epic/sprint closed
+    done --> active: reopened
+    done --> archive: closed out
     archive --> [*]
 ```
+<!-- strix:gen end id=transition-diagram -->
+
+Only these moves are allowed; `strix-task move` enforces each gate and records
+every move in the task's History. Anything else needs `--override "<reason>"`.
 
 Full detail: the Strix plugin's `reference/workflow/task-lifecycle.md`.
 
@@ -52,16 +61,29 @@ Full detail: the Strix plugin's `reference/workflow/task-lifecycle.md`.
 - **EPICs never enter `queue/` as a single executable task** — they are split
   into STANDARD tasks first, with dependencies, inside their own workstream.
 - **Move, don't copy.** A task is a single file that travels between stages.
+- **Gates are enforced.** A task goes active only when it is ready (no
+  placeholders, Definition of Ready ticked, dependencies Done), and goes to
+  review only with a filled Execution Report. `--override "<reason>"` exists for
+  the rare exception and is recorded in History.
+- **Commits name their task.** Every commit for a task carries a
+  `Strix-Task: <ID>` trailer, so `strix-task diff <ID>` can show exactly its work.
 
 ## Commands
 
 ```bash
 .strix/bin/strix-task workstream add billing-system --prefix BILL --owner quan
 .strix/bin/strix-task new billing-system --title "Add invoice model"
-.strix/bin/strix-task move BILL-001 active
+.strix/bin/strix-task new general --title "Fix footer typo" --lite   # TRIVIAL only
+.strix/bin/strix-task check BILL-001        # ready to go active?
+.strix/bin/strix-task next                  # queued tasks, ready first
+.strix/bin/strix-task move BILL-001 active  # records Base
+.strix/bin/strix-task note BILL-001 --section "Execution Report" --text "npm test: exit 0; abc123"
+.strix/bin/strix-task move BILL-001 review
+.strix/bin/strix-task diff BILL-001         # its Strix-Task commits since Base
+.strix/bin/strix-task move BILL-001 queue --reason "needs an ADR"   # escalate
 .strix/bin/strix-task where BILL-001
 .strix/bin/strix-task ls --owner quan
-.strix/bin/strix-task doctor        # checks every board invariant
+.strix/bin/strix-task doctor                # checks every board invariant
 ```
 
 ## Naming

@@ -8,6 +8,9 @@
 # written by bin/strix-init. The SessionStart hook and skill-manager resolve a
 # tool's paths and handoff text from here. Adding a future tool is a data edit.
 #
+# `self_name` is how the shared executor rules (templates/executors/_shared/)
+# name the executor in that tool's files: a proper name, or "the executor".
+#
 # `template_dir` follows the convention `templates/executors/<id>` so the
 # scaffolder can build the source path from the id alone; the validator asserts
 # every `template_dir` exists on disk.
@@ -17,6 +20,7 @@ default: cline
 executors:
   - id: cline
     label: Cline
+    self_name: Cline
     template_dir: templates/executors/cline
     config_root: .clinerules
     skills_dir: .clinerules/skills
@@ -27,6 +31,7 @@ executors:
 
   - id: copilot
     label: GitHub Copilot
+    self_name: the executor
     template_dir: templates/executors/copilot
     config_root: .github
     skills_dir: .github/skills
@@ -37,6 +42,7 @@ executors:
 
   - id: claude
     label: Claude (executor)
+    self_name: the executor
     template_dir: templates/executors/claude
     config_root: .strix/executor
     skills_dir: .strix/executor/skills

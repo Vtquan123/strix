@@ -104,5 +104,6 @@ Adding skills to a **consuming project** (the common case):
 
 Changing Strix's **built-in** reasoning skills (the table above) is Strix-plugin
 development done in the plugin repo itself — create `skills/<name>/SKILL.md` and
-reference it from [../rules/routing.md](../rules/routing.md). The project-scoped
+add it to `config/skills.yaml` and to the routes in `config/routing.yaml` (see
+[../workflow/router.md](../workflow/router.md)), then run `npm run gen`. The project-scoped
 `skill-manager` skill never touches these built-ins.

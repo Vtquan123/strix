@@ -19,6 +19,7 @@ Every task **must** contain the following, generated from
 | Priority | P0–P3 |
 | Complexity | TRIVIAL / SIMPLE / STANDARD / EPIC |
 | Status | Queued / In Progress / In Review / Done / Archived |
+| Base | The commit the task started from, recorded by `strix-task move <ID> active`; the reviewer diffs from it |
 | Goal | The outcome in one sentence |
 | Background | Why it exists; links to knowledge |
 | Requirements | Concrete, testable requirements |
@@ -29,6 +30,9 @@ Every task **must** contain the following, generated from
 | Acceptance Criteria | Observable done-conditions |
 | Definition of Ready | Gate to enter Active |
 | Definition of Done | Gate to enter Review |
+| Execution Report | Commands run, exit codes, output tail, and the `Strix-Task:` commits; required to enter Review |
+| Review Checklist | Each change the reviewer requires; required to return a task to Active |
+| History | Every move, with time, actor, and reason |
 <!-- strix:gen end id=task-fields -->
 
 ## Markdown Template
@@ -46,9 +50,15 @@ Canonical: [../workflow/task-lifecycle.md](../workflow/task-lifecycle.md).
 
 - **STANDARD is the atomic unit** the executor executes. Everything larger decomposes.
 - **Out of Scope + Estimated Files** are the guardrails against over-engineering.
-- **DoR** must be satisfiable before a task leaves Queue; **DoD** before it
-  leaves Active.
+- **TRIVIAL work uses a lite task** (`strix-task new --lite`): Goal, Estimated
+  Files, Acceptance Criteria, Execution Report, and History only.
+- **The gates are enforced by `strix-task move`:** no placeholders and a ticked
+  DoR to leave Queue; a filled Execution Report to leave Active; a Review
+  Checklist to go back from Review to Active.
+- **Execution Report and Review Checklist are written with `strix-task note`,**
+  and History only by `strix-task` itself. Base is recorded on the first move to
+  Active.
 - The `Status` field must match the task's stage directory, and the `Workstream`
-  field its parent directory. `strix-task doctor` checks these alongside the ID
-  prefix and the registry; see
+  field its parent directory. `strix-task doctor` checks these alongside IDs,
+  dependencies, placeholders, Base, and reports; see
   [../workflow/task-lifecycle.md](../workflow/task-lifecycle.md).

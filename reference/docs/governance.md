@@ -56,9 +56,9 @@ Generated from [`config/capabilities.yaml`](../../config/capabilities.yaml), the
 source of the [capability matrix](../workflow/capability-matrix.md).
 
 <!-- strix:gen start id=capability-ownership-summary -->
-- **Claude** owns 15 of 21 capabilities — every capability in Router / Planning, Planning, Router, Task Management, Knowledge, Shared.
-- **Executor** owns 7 of 21 capabilities — every capability in Infrastructure, Shared. Read-only on Knowledge read.
-- Shared by more than one engine: **Knowledge read** (Executor read-only), **Run terminal** (Claude on demand confirm).
+- **Claude** owns 16 of 23 capabilities — every capability in Router / Planning, Planning, Router, Task Management, Knowledge, Shared.
+- **Executor** owns 9 of 23 capabilities — every capability in Infrastructure, Shared. Read-only on Knowledge read.
+- Shared by more than one engine: **Knowledge read** (Executor read-only), **Run terminal** (Claude on demand confirm), **Verify (re-run reported checks)** (Claude rerun reported commands only).
 <!-- strix:gen end id=capability-ownership-summary -->
 
 ## Enforcement

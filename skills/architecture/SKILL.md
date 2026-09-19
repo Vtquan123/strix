@@ -1,6 +1,6 @@
 ---
 name: architecture
-description: Design or evolve system structure and keep architecture.md diagrams true to reality, pairing significant choices with an ADR. Use when the Router routes STANDARD/EPIC work that introduces or changes modules, boundaries, or cross-cutting concerns.
+description: Strix projects only (requires .strix/). Design or evolve system structure and keep architecture.md diagrams true to reality, pairing significant choices with an ADR. Use when the Router routes STANDARD/EPIC work that introduces or changes modules, boundaries, or cross-cutting concerns.
 metadata:
   kind: reasoning
   engine: claude

@@ -1,6 +1,6 @@
 ---
 name: documentation
-description: Write and maintain clear docs and knowledge prose that is accurate, minimal, and current. Use when the Router routes knowledge or docs authoring/updating, often paired with the knowledge-update skill.
+description: Strix projects only (requires .strix/). Write and maintain clear docs and knowledge prose that is accurate, minimal, and current. Use when the Router routes knowledge or docs authoring/updating, often paired with the knowledge-update skill.
 metadata:
   kind: reasoning
   engine: claude

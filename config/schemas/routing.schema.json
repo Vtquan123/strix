@@ -4,7 +4,12 @@
   "title": "Strix routing configuration",
   "type": "object",
   "additionalProperties": false,
-  "required": ["intents", "complexity_levels", "routes", "decision_record_example"],
+  "required": [
+    "intents",
+    "complexity_levels",
+    "routes",
+    "decision_record_example"
+  ],
   "definitions": {
     "intentId": {
       "type": "string",
@@ -12,7 +17,12 @@
     },
     "complexityId": {
       "type": "string",
-      "enum": ["TRIVIAL", "SIMPLE", "STANDARD", "EPIC"]
+      "enum": [
+        "TRIVIAL",
+        "SIMPLE",
+        "STANDARD",
+        "EPIC"
+      ]
     },
     "skillName": {
       "type": "string",
@@ -26,10 +36,18 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["id", "summary"],
+        "required": [
+          "id",
+          "summary"
+        ],
         "properties": {
-          "id": { "$ref": "#/definitions/intentId" },
-          "summary": { "type": "string", "minLength": 3 }
+          "id": {
+            "$ref": "#/definitions/intentId"
+          },
+          "summary": {
+            "type": "string",
+            "minLength": 3
+          }
         }
       }
     },
@@ -39,17 +57,48 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["id", "what", "examples", "files", "planning", "knowledge", "heuristic", "short"],
+        "required": [
+          "id",
+          "what",
+          "examples",
+          "files",
+          "planning",
+          "knowledge",
+          "heuristic",
+          "short"
+        ],
         "properties": {
-          "id": { "$ref": "#/definitions/complexityId" },
-          "what": { "type": "string" },
-          "examples": { "type": "array", "minItems": 1, "items": { "type": "string" } },
-          "files": { "type": "string" },
-          "planning": { "type": "string" },
-          "knowledge": { "type": "string" },
-          "heuristic": { "type": "string" },
-          "short": { "type": "string" },
-          "note": { "type": "string" }
+          "id": {
+            "$ref": "#/definitions/complexityId"
+          },
+          "what": {
+            "type": "string"
+          },
+          "examples": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            }
+          },
+          "files": {
+            "type": "string"
+          },
+          "planning": {
+            "type": "string"
+          },
+          "knowledge": {
+            "type": "string"
+          },
+          "heuristic": {
+            "type": "string"
+          },
+          "short": {
+            "type": "string"
+          },
+          "note": {
+            "type": "string"
+          }
         }
       }
     },
@@ -58,10 +107,17 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["signal", "level"],
+        "required": [
+          "signal",
+          "level"
+        ],
         "properties": {
-          "signal": { "type": "string" },
-          "level": { "type": "string" }
+          "signal": {
+            "type": "string"
+          },
+          "level": {
+            "type": "string"
+          }
         }
       }
     },
@@ -71,38 +127,143 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["intent", "complexity", "agent", "skills"],
+        "required": [
+          "intent",
+          "complexity"
+        ],
         "properties": {
-          "intent": { "$ref": "#/definitions/intentId" },
+          "intent": {
+            "$ref": "#/definitions/intentId"
+          },
           "complexity": {
             "type": "array",
             "minItems": 1,
             "items": {
               "oneOf": [
-                { "$ref": "#/definitions/complexityId" },
-                { "type": "string", "enum": ["any"] }
+                {
+                  "$ref": "#/definitions/complexityId"
+                },
+                {
+                  "type": "string",
+                  "enum": [
+                    "any"
+                  ]
+                }
               ]
             }
           },
-          "agent": { "type": "string", "pattern": "^[a-z][a-z0-9-]*-agent$" },
-          "agent_note": { "type": "string" },
-          "then": { "type": "string" },
-          "adr": { "type": "boolean" },
-          "skills": { "type": "array", "items": { "$ref": "#/definitions/skillName" } }
-        }
+          "agent": {
+            "type": "string",
+            "pattern": "^([a-z][a-z0-9-]*-agent|orchestrator)$"
+          },
+          "agent_note": {
+            "type": "string"
+          },
+          "then": {
+            "type": "string"
+          },
+          "adr": {
+            "type": "string",
+            "enum": [
+              "when-structural",
+              "always"
+            ]
+          },
+          "skills": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/skillName"
+            }
+          },
+          "lite": {
+            "type": "boolean"
+          },
+          "if_unclear": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/skillName"
+            }
+          },
+          "escalate": {
+            "$ref": "#/definitions/complexityId"
+          }
+        },
+        "oneOf": [
+          {
+            "required": [
+              "escalate"
+            ],
+            "not": {
+              "anyOf": [
+                {
+                  "required": [
+                    "agent"
+                  ]
+                },
+                {
+                  "required": [
+                    "skills"
+                  ]
+                },
+                {
+                  "required": [
+                    "then"
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "required": [
+              "agent",
+              "skills"
+            ],
+            "not": {
+              "required": [
+                "escalate"
+              ]
+            }
+          }
+        ]
       }
     },
     "decision_record_example": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["intent", "complexity", "skills", "context", "agent", "capability"],
+      "required": [
+        "intent",
+        "complexity",
+        "skills",
+        "context",
+        "agent",
+        "capability"
+      ],
       "properties": {
-        "intent": { "$ref": "#/definitions/intentId" },
-        "complexity": { "$ref": "#/definitions/complexityId" },
-        "skills": { "type": "array", "items": { "$ref": "#/definitions/skillName" } },
-        "context": { "type": "array", "items": { "type": "string" } },
-        "agent": { "type": "string" },
-        "capability": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" }
+        "intent": {
+          "$ref": "#/definitions/intentId"
+        },
+        "complexity": {
+          "$ref": "#/definitions/complexityId"
+        },
+        "skills": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/skillName"
+          }
+        },
+        "context": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "agent": {
+          "type": "string"
+        },
+        "capability": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$"
+        }
       }
     }
   }
