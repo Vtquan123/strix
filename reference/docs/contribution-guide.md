@@ -38,9 +38,9 @@ everything through tasks.
 |---------|---------|
 | A **skill** | Reasoning: create `skills/<name>/SKILL.md` with `name`+`description`+`metadata` frontmatter, add it to `config/skills.yaml`, route it in `config/routing.yaml`, run `npm run gen`. Implementation (a project): install into the active executor's skills dir with the `skill-manager` skill |
 | An **agent** | Add `agents/<name>.md` (reasoning only — no coding agents) **and** add it to `agents:` in `config/skills.yaml`; the validator asserts the two match |
-| An **executor workflow** | Add `<name>.md` under the executor profile's `workflows/` (e.g. `templates/executors/cline/.clinerules/workflows/`) describing its execution flow |
+| An **executor rule or workflow** | Edit or add it once under `templates/executors/_shared/` (workflows in `_shared/workflows/`), then run `npm run gen`: it writes the Cline and Claude copies and refreshes Copilot's regions. A new workflow also needs a Copilot prompt in `templates/executors/copilot/.github/prompts/` with `shared.workflows.<name>.steps` and `.guardrails` regions, and a `knownFollowOns` entry in `scripts/validate-config.mjs`. Never edit the generated copies |
 | A **capability** | Add an entry to `capabilities:` in `config/capabilities.yaml`, with an `access:` value for every engine; run `npm run gen` |
-| A **future executor** | Add a tree under `templates/executors/<id>/` and an entry to `config/executors.yaml` (the validator checks its `template_dir` exists) — the capability matrix's generic `executor` engine is unchanged |
+| A **future executor** | Add a tree under `templates/executors/<id>/` and an entry to `config/executors.yaml`, including its `self_name` (the validator checks its `template_dir` exists). Unless its `rules_format` is `copilot-instructions`, `npm run gen` writes the shared rules into `<template_dir>/<config_root>/`. The capability matrix's generic `executor` engine is unchanged |
 | A **convention** | Update `knowledge/coding-conventions.md` (Claude only) + often an ADR |
 
 After any `config/*.yaml` change, `npm run check` must pass — it validates the

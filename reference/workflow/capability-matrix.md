@@ -30,6 +30,8 @@ Legend: ✅ owns · 🚫 forbidden · 📖 read-only
 | Implement / edit source | 🚫 | ✅ | Infrastructure |
 | Refactor | 🚫 | ✅ | Infrastructure |
 | Run terminal | ✅ | ✅ | Shared |
+| Verify (re-run reported checks) | ✅ | ✅ | Shared |
+| Commit (with a Strix-Task trailer) | 🚫 | ✅ | Infrastructure |
 | Build | 🚫 | ✅ | Infrastructure |
 | Lint | 🚫 | ✅ | Infrastructure |
 | Test | 🚫 | ✅ | Infrastructure |

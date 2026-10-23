@@ -1,6 +1,6 @@
 {
   "name": "strix",
-  "version": "1.0.3",
+  "version": "1.1.0",
   "description": "Task-driven AI coding workflow: Claude reasons and routes (Planning Runtime); a selectable executor — Cline, GitHub Copilot, or Claude — implements (Execution Runtime), with a per-project .strix/ knowledge base and task board.",
   "author": {
     "name": "Quan Vu"

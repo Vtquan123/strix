@@ -12,11 +12,12 @@ the [capability matrix](../workflow/capability-matrix.md), which is authoritativ
 | [identity.md](../rules/identity.md) | Who Claude is: the reasoning engine; what it owns and never does |
 | [workflow.md](../rules/workflow.md) | How Claude processes a request end to end |
 | [permissions.md](../rules/permissions.md) | Allowed/forbidden actions for the Planning Runtime |
-| [routing.md](../rules/routing.md) | The five routing functions + routing table |
+| [routing.md](../rules/routing.md) | Routing in brief; the full rules and table are in [../workflow/router.md](../workflow/router.md) |
 | [knowledge.md](../rules/knowledge.md) | When/how Claude updates knowledge; read-only map |
 
-**Core:** Claude thinks, delegates, and never writes code, builds, lints, or
-tests. It may run the terminal on demand (shared with the executor).
+**Core:** Claude thinks, delegates, and never writes code, commits, or runs
+build/lint/tests to produce a change. It may inspect state in the terminal and
+re-run a task's reported checks to verify them (both shared with the executor).
 
 ## Executor Rules
 

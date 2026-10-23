@@ -1,6 +1,6 @@
 ---
 name: brainstorming
-description: Explore intent, requirements, and design options before committing to a plan, surfacing unknowns and trade-offs early. Use when the Router routes an ambiguous or STANDARD/EPIC request at its start, before the planning skill.
+description: Strix projects only (requires .strix/). Explore intent, requirements, and design options before committing to a plan, surfacing unknowns and trade-offs early. Use when the Router routes an ambiguous or STANDARD/EPIC request at its start, before the planning skill.
 metadata:
   kind: reasoning
   engine: claude

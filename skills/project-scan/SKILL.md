@@ -1,6 +1,6 @@
 ---
 name: project-scan
-description: Perform the one-time initial adoption scan of an existing codebase — read the real project (tech stack, structure, conventions, architecture, domain terms) and populate .strix/knowledge/* plus an adoption ADR from evidence. Use when Strix is first brought into a real project and .strix/knowledge/ is still template placeholders; not for ongoing post-task updates (use knowledge-update for those).
+description: Strix projects only (requires .strix/). Perform the one-time initial adoption scan of an existing codebase — read the real project (tech stack, structure, conventions, architecture, domain terms) and populate .strix/knowledge/* plus an adoption ADR from evidence. Use when Strix is first brought into a real project and .strix/knowledge/ is still template placeholders; not for ongoing post-task updates (use knowledge-update for those).
 metadata:
   kind: reasoning
   engine: claude
@@ -45,7 +45,7 @@ governance loop.
    patterns. Never invent a convention the repo does not exhibit.
 5. **glossary.md** — pull real domain terms from identifiers, docs, and comments.
 6. **Adoption ADR** — author `.strix/knowledge/decisions/NNNN-adopt-<project>.md`
-   (per the [decisions README](.strix/knowledge/decisions/README.md) numbering):
+   (per the numbering in the project's `.strix/knowledge/decisions/README.md`):
    what was scanned, confidence per file, and anything left `n/a` for lack of
    evidence.
 

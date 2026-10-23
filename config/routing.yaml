@@ -33,7 +33,10 @@ complexity_levels:
       - tweak a CSS value
       - update a copy string
     files: "usually 1"
-    planning: none. Router may hand a one-line task straight to the execution engine.
+    planning: >-
+      a lite task (`strix-task new --lite`: Goal, Estimated Files, Acceptance
+      Criteria). The executor runs it like any task; the orchestrator checks the
+      diff itself instead of calling reviewer-agent
     knowledge: never updated
     heuristic: No decision to make, one edit
     short: one obvious edit, no design content
@@ -88,13 +91,28 @@ extra_heuristics:
   - signal: Requires sequencing / dependencies
     level: EPIC
 
-# intent x complexity -> agent + follow-on + skills.
-# `complexity: [any]` means the route applies at every level.
+# intent x complexity -> agent + follow-on + skills. Every intent covers every
+# complexity exactly once; the validator checks the grid.
+#   complexity: [any]      the route applies at every level
+#   agent: orchestrator    the main session handles it without a helper agent
+#   then:                  the executor workflow (or `decompose`, or a skill) that follows
+#   adr:                   when-structural (only if the change is structural) | always
+#   lite: true             TRIVIAL fast path: `strix-task new --lite`, no reviewer-agent;
+#                          the orchestrator checks the diff itself
+#   if_unclear:            skills to run first when the request is ambiguous
+#   escalate: <LEVEL>      this cell is not a real size for the intent; reclassify
 routes:
   - intent: question
     complexity: [any]
-    agent: triage-agent
-    agent_note: answer or route
+    agent: orchestrator
+    agent_note: answer, or route as another intent
+    skills: []
+
+  - intent: feature
+    complexity: [TRIVIAL]
+    agent: orchestrator
+    lite: true
+    then: implement
     skills: []
 
   - intent: feature
@@ -106,33 +124,88 @@ routes:
   - intent: feature
     complexity: [STANDARD]
     agent: task-creator-agent
-    adr: true
+    adr: when-structural
     then: implement
-    skills: [architecture, task-breakdown]
+    skills: [planning, architecture]
+    if_unclear: [brainstorming]
 
   - intent: feature
     complexity: [EPIC]
     agent: task-creator-agent
     then: decompose
     skills: [planning, task-breakdown, architecture]
+    if_unclear: [brainstorming]
 
   - intent: fix
-    complexity: [TRIVIAL, SIMPLE]
+    complexity: [TRIVIAL]
+    agent: orchestrator
+    lite: true
+    then: fix
+    skills: []
+
+  - intent: fix
+    complexity: [SIMPLE]
     agent: task-creator-agent
     then: fix
     skills: []
 
+  - intent: fix
+    complexity: [STANDARD]
+    agent: task-creator-agent
+    then: fix
+    skills: [risk-analysis]
+
+  - intent: fix
+    complexity: [EPIC]
+    agent: task-creator-agent
+    then: decompose
+    skills: [task-breakdown, risk-analysis]
+
+  - intent: refactor
+    complexity: [TRIVIAL]
+    agent: orchestrator
+    lite: true
+    then: refactor
+    skills: []
+
+  - intent: refactor
+    complexity: [SIMPLE]
+    agent: task-creator-agent
+    then: refactor
+    skills: [risk-analysis]
+
   - intent: refactor
     complexity: [STANDARD]
     agent: task-creator-agent
+    adr: when-structural
     then: refactor
     skills: [architecture, risk-analysis]
 
-  - intent: arch
-    complexity: [STANDARD, EPIC]
+  - intent: refactor
+    complexity: [EPIC]
     agent: task-creator-agent
-    adr: true
+    then: decompose
+    skills: [task-breakdown, architecture, risk-analysis]
+
+  - intent: arch
+    complexity: [TRIVIAL, SIMPLE]
+    escalate: STANDARD
+    agent_note: an architecture decision is never trivial
+
+  - intent: arch
+    complexity: [STANDARD]
+    agent: task-creator-agent
+    adr: always
     skills: [architecture, risk-analysis, adr]
+    if_unclear: [brainstorming]
+
+  - intent: arch
+    complexity: [EPIC]
+    agent: task-creator-agent
+    adr: always
+    then: decompose
+    skills: [architecture, task-breakdown, risk-analysis, adr]
+    if_unclear: [brainstorming]
 
   - intent: review
     complexity: [any]
@@ -152,7 +225,7 @@ routes:
 
   - intent: skill-install
     complexity: [any]
-    agent: knowledge-agent
+    agent: orchestrator
     then: skill-manager
     skills: [skill-manager, risk-analysis]
 
@@ -160,7 +233,7 @@ routes:
 decision_record_example:
   intent: feature
   complexity: STANDARD
-  skills: [architecture, task-breakdown]
+  skills: [planning, architecture]
   context: [project-context.md, coding-conventions.md]
   agent: task-creator-agent
   capability: task_breakdown

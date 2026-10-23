@@ -1,6 +1,6 @@
 ---
 name: adr
-description: Author an Architecture Decision Record capturing a significant, hard-to-reverse choice — context, options, decision, and consequences — as an immutable numbered record in .strix/knowledge/decisions/. Use when the Router routes an architecture, convention, tech-stack, or business-rule decision with structural impact; not for typos, renames, CSS, or minor bugs.
+description: Strix projects only (requires .strix/). Author an Architecture Decision Record capturing a significant, hard-to-reverse choice — context, options, decision, and consequences — as an immutable numbered record in .strix/knowledge/decisions/. Use when the Router routes an architecture, convention, tech-stack, or business-rule decision with structural impact; not for typos, renames, CSS, or minor bugs.
 metadata:
   kind: reasoning
   engine: claude

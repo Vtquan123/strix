@@ -5,18 +5,30 @@
 #   templates/strix/               -> <project>/.strix/   (knowledge base + task board)
 #   templates/executors/<exec>/... -> <project>/          (the chosen executor's config)
 #
-# It also writes <project>/.strix/bin/strix-task, a shim onto the plugin's own
-# bin/strix-task. Everything that touches the task board goes through that one
-# path, so the docs can name it without assuming a global install.
+# It also writes:
+#   .strix/bin/strix-task   a shim onto the plugin's task-board CLI. It holds no
+#                           machine path, so it is safe to commit.
+#   .strix/local.yaml       this machine's plugin root, read by the shim (gitignored)
+#   .strix/.gitignore       keeps local.yaml out of git
+#   .strix/config.yaml      the chosen executor, edited in place on later runs
 #
 # The executor's tree carries its own top-level directory, so it lands at the
 # project root: Cline -> .clinerules/, Copilot -> .github/, Claude -> .claude/
-# + .strix/executor/. The choice is recorded in <project>/.strix/config.yaml.
+# + .strix/executor/.
 #
-# Idempotent: existing files are skipped unless --force is given.
+# Idempotent: existing files are skipped unless a force flag is given. Project
+# state is never overwritten, even when forced: .strix/knowledge/**, the
+# workstream registry, and the executor's skill catalog are seeded only when
+# missing.
 #
 # Usage:
-#   strix-init [--executor <cline|copilot|claude>] [--force] [--target <dir>]
+#   strix-init [--executor <id>] [--force-executor | --force] [--target <dir>]
+#
+#   --executor <id>     cline | copilot | claude. Default: the executor already
+#                       recorded in .strix/config.yaml, else the catalog default.
+#   --force-executor    re-seed the executor's files; required to switch executors
+#   --force             re-seed everything (implies --force-executor)
+#   --target <dir>      seed a project other than the current directory
 #
 # Resolution of the plugin root (where templates/ live):
 #   1. $STRIX_PLUGIN_ROOT if set
@@ -25,19 +37,35 @@
 
 set -euo pipefail
 
+usage_error() {
+  echo "strix-init: $1" >&2
+  echo "  Run 'strix-init --help' for usage." >&2
+  exit 2
+}
+
 FORCE=0
+FORCE_EXECUTOR=0
 TARGET="$PWD"
 EXECUTOR=""
 
 while [ $# -gt 0 ]; do
   case "$1" in
-    --executor) EXECUTOR="${2:?--executor needs an id (cline|copilot|claude)}"; shift 2 ;;
-    --force) FORCE=1; shift ;;
-    --target) TARGET="${2:?--target needs a directory}"; shift 2 ;;
+    --executor)
+      [ $# -ge 2 ] || usage_error "--executor needs an id"
+      EXECUTOR="$2"
+      [ -n "$EXECUTOR" ] || usage_error "--executor needs an id"
+      shift 2 ;;
+    --force) FORCE=1; FORCE_EXECUTOR=1; shift ;;
+    --force-executor) FORCE_EXECUTOR=1; shift ;;
+    --target)
+      [ $# -ge 2 ] && [ -n "$2" ] || usage_error "--target needs a directory"
+      TARGET="$2"
+      shift 2 ;;
     -h|--help)
-      sed -n '2,20p' "$0" | sed 's/^# \{0,1\}//'
+      # The header comment is the help text: every line up to the first blank one.
+      awk 'NR > 1 && /^#/ { sub(/^# ?/, ""); print; next } NR > 1 { exit }' "$0"
       exit 0 ;;
-    *) echo "strix-init: unknown argument: $1" >&2; exit 2 ;;
+    *) usage_error "unknown argument: $1" ;;
   esac
 done
 
@@ -53,110 +81,247 @@ fi
 
 STRIX_SEED="$ROOT/templates/strix"
 EXECUTORS_DIR="$ROOT/templates/executors"
+CATALOG="$ROOT/config/executors.yaml"
 
-# Default executor: the `default:` in config/executors.yaml, falling back to cline.
-if [ -z "$EXECUTOR" ]; then
-  EXECUTOR="$(sed -n 's/^default:[[:space:]]*//p' "$ROOT/config/executors.yaml" 2>/dev/null | head -1)"
-  EXECUTOR="${EXECUTOR:-cline}"
-fi
-
-EXEC_SEED="$EXECUTORS_DIR/$EXECUTOR"
-
-if [ ! -d "$STRIX_SEED" ] || [ ! -d "$EXECUTORS_DIR" ]; then
+if [ ! -d "$STRIX_SEED" ] || [ ! -d "$EXECUTORS_DIR" ] || [ ! -f "$CATALOG" ]; then
   echo "strix-init: cannot find templates under '$ROOT'." >&2
   echo "  Set STRIX_PLUGIN_ROOT to the Strix plugin directory and retry." >&2
   exit 1
 fi
 
-if [ ! -d "$EXEC_SEED" ]; then
-  echo "strix-init: unknown executor '$EXECUTOR'." >&2
+# shellcheck source=../lib/strix-common.sh
+. "$ROOT/lib/strix-common.sh"
+
+TARGET="$(cd "$TARGET" && pwd)"
+CONFIG="$TARGET/.strix/config.yaml"
+
+# --- decide the executor, before anything is written --------------------------
+EXISTING="$(yaml_value "$CONFIG" executor)"
+if [ -z "$EXECUTOR" ]; then
+  EXECUTOR="${EXISTING:-$(yaml_value "$CATALOG" default)}"
+  EXECUTOR="${EXECUTOR:-cline}"
+fi
+
+list_executors() {
   echo "  Available executors:" >&2
-  ls -1 "$EXECUTORS_DIR" | sed 's/^/    /' >&2
+  executor_ids "$CATALOG" | sed 's/^/    /' >&2
+}
+
+if ! is_known_executor "$CATALOG" "$EXECUTOR"; then
+  echo "strix-init: unknown executor '$EXECUTOR'." >&2
+  list_executors
   exit 2
 fi
 
-TARGET="$(cd "$TARGET" && pwd)"
+SWITCHING=0
+if [ -n "$EXISTING" ] && [ "$EXISTING" != "$EXECUTOR" ]; then
+  if ! is_known_executor "$CATALOG" "$EXISTING"; then
+    echo "strix-init: .strix/config.yaml records an unknown executor '$EXISTING'." >&2
+    echo "  Re-run with --executor <id> --force-executor to record a valid one." >&2
+    list_executors
+    [ "$FORCE_EXECUTOR" -eq 1 ] || exit 2
+  fi
+  SWITCHING=1
+fi
 
-# --- copy one tree, honoring idempotency ------------------------------------
-# copy_tree <src-dir> <dst-dir>
+SEED_EXECUTOR=1
+if [ "$SWITCHING" -eq 1 ] && [ "$FORCE_EXECUTOR" -ne 1 ]; then
+  SEED_EXECUTOR=0
+fi
+
+# The executor's skill catalog is maintained by skill-manager, so it is project
+# state from the moment it is seeded.
+CATALOG_FILE="$(executor_field "$CATALOG" "$EXECUTOR" catalog)"
+EXEC_SEED="$EXECUTORS_DIR/$EXECUTOR"
+
+# --- copy one tree -----------------------------------------------------------
+# copy_tree <src-dir> <dst-dir> <force 0|1> <first-seed 0|1> [protected-glob...]
+# Paths are matched relative to <dst-dir>. A protected path is written only when
+# it is missing. On a first seed, any file already there belongs to the user, not
+# to an earlier strix-init run, so it is kept whatever the force flag says and
+# called out, because the Strix version of it was not installed.
 copy_tree() {
-  local src="$1" dst="$2" rel f
-  # iterate over every file in the source tree
+  local src="$1" dst="$2" force="$3" first="$4" f rel out pattern protected
+  shift 4
   while IFS= read -r -d '' f; do
     rel="${f#"$src"/}"
-    local out="$dst/$rel"
-    if [ -e "$out" ] && [ "$FORCE" -ne 1 ]; then
-      echo "  skip (exists): $out"
-      continue
+    out="$dst/$rel"
+    if [ -e "$out" ]; then
+      protected=0
+      for pattern in "$@"; do
+        # shellcheck disable=SC2254 # the pattern is meant to glob
+        case "$rel" in $pattern) protected=1 ;; esac
+      done
+      if [ "$protected" -eq 1 ]; then
+        if [ "$force" -eq 1 ]; then echo "  keep (protected): $out"; else echo "  skip (exists): $out"; fi
+        continue
+      fi
+      if cmp -s "$f" "$out"; then
+        echo "  up to date: $out"
+        continue
+      fi
+      if [ "$first" -eq 1 ]; then
+        echo "  keep (yours): $out"
+        echo "  warning: $out already existed and was kept, so the Strix version is NOT installed there." >&2
+        echo "           Merge $f into it by hand, or delete it and re-run strix-init." >&2
+        echo "           If it is an older Strix copy, re-run with --force-executor: this run records the executor, so the next forced run refreshes it." >&2
+        continue
+      fi
+      if [ "$force" -ne 1 ]; then
+        echo "  skip (exists): $out"
+        continue
+      fi
     fi
     mkdir -p "$(dirname "$out")"
     cp "$f" "$out"
     echo "  wrote: $out"
-  done < <(find "$src" -type f -print0)
+  done < <(find "$src" -type f -print0 | sort -z)
 }
 
 echo "strix-init: seeding into $TARGET"
 echo "  plugin root: $ROOT"
 echo "  executor: $EXECUTOR"
-[ "$FORCE" -eq 1 ] && echo "  --force: overwriting existing files"
+[ "$FORCE" -eq 1 ] && echo "  --force: overwriting plugin-owned files (project state is kept)"
+[ "$FORCE" -ne 1 ] && [ "$FORCE_EXECUTOR" -eq 1 ] && echo "  --force-executor: overwriting the executor's files"
 
 echo "-> .strix/ (knowledge base + task board)"
-copy_tree "$STRIX_SEED" "$TARGET/.strix"
+copy_tree "$STRIX_SEED" "$TARGET/.strix" "$FORCE" 0 'knowledge/*' 'tasks/workstreams.yaml'
 
 # --- shim onto the plugin's strix-task ---------------------------------------
-# The real binary lives in the plugin, but every agent, prompt and doc refers to
-# `.strix/bin/strix-task`. The shim keeps that one invocation string stable, and
-# re-resolves the plugin root the same way this script does so a moved plugin is
-# reported rather than silently failing.
+# Every agent, prompt and doc says `.strix/bin/strix-task`, so that string must
+# work in any tool. The shim finds the plugin when it runs rather than recording
+# where it was at init time: plugin updates move the install, and a committed
+# path would be wrong on every other machine.
 SHIM="$TARGET/.strix/bin/strix-task"
-if [ -e "$SHIM" ] && [ "$FORCE" -ne 1 ]; then
-  echo "  skip (exists): $SHIM"
-else
-  mkdir -p "$(dirname "$SHIM")"
-  cat > "$SHIM" <<SHIM_EOF
+SHIM_TMP="$(mktemp)"
+cat > "$SHIM_TMP" <<'SHIM_EOF'
 #!/usr/bin/env bash
-# Generated by strix-init. Runs the Strix task-board CLI from the plugin.
-# Regenerate with \`strix-init --force\` if the plugin moves.
+# Generated by strix-init. Runs the Strix task-board CLI from the installed plugin.
+# It holds no machine-specific path, so it is safe to commit. The plugin is found
+# when this runs; the first usable candidate wins:
+#   1. $STRIX_PLUGIN_ROOT   explicit; an unusable value is an error
+#   2. $CLAUDE_PLUGIN_ROOT  set for Claude Code hooks, not for Bash tool commands
+#   3. strix-task on PATH   Claude Code puts the enabled plugin's bin/ there
+#   4. plugin_root: in .strix/local.yaml (gitignored; written by strix-init and
+#      refreshed by the Strix SessionStart hook)
+#   5. the newest Strix install in the Claude Code plugin cache
 set -euo pipefail
 
-ROOT="\${STRIX_PLUGIN_ROOT:-\${CLAUDE_PLUGIN_ROOT:-$ROOT}}"
-BIN="\$ROOT/bin/strix-task"
+STRIX_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
-if [ ! -x "\$BIN" ]; then
-  echo "strix-task: cannot find the Strix plugin at '\$ROOT'." >&2
-  echo "  Set STRIX_PLUGIN_ROOT, or re-run 'strix-init --force' to repoint this shim." >&2
-  exit 1
-fi
+# A plugin root is usable when it ships the CLI module. That also rules out this
+# shim, which lives in a bin/ of its own.
+usable() { [ -n "$1" ] && [ -f "$1/bin/strix-task.mjs" ] && [ -x "$1/bin/strix-task" ]; }
 
-exec "\$BIN" "\$@"
+find_root() {
+  local candidate recorded=""
+  if [ -n "${STRIX_PLUGIN_ROOT:-}" ]; then
+    if usable "$STRIX_PLUGIN_ROOT"; then echo "$STRIX_PLUGIN_ROOT"; return 0; fi
+    echo "strix-task: STRIX_PLUGIN_ROOT='$STRIX_PLUGIN_ROOT' is not a Strix plugin directory." >&2
+    return 1
+  fi
+  if usable "${CLAUDE_PLUGIN_ROOT:-}"; then echo "$CLAUDE_PLUGIN_ROOT"; return 0; fi
+
+  candidate="$(command -v strix-task 2>/dev/null || true)"
+  if [ -n "$candidate" ]; then
+    candidate="$(cd "$(dirname "$candidate")/.." && pwd)"
+    if usable "$candidate"; then echo "$candidate"; return 0; fi
+  fi
+
+  if [ -f "$STRIX_DIR/local.yaml" ]; then
+    # Same reading as strix-init's yaml_value: quotes kept whole, else a
+    # trailing comment dropped.
+    recorded="$(awk -v sq="'" '
+      { sub(/\r$/, "") }
+      index($0, "plugin_root:") == 1 {
+        v = substr($0, 13); sub(/^[ \t]+/, "", v); q = substr(v, 1, 1)
+        if (q == "\"" || q == sq) { v = substr(v, 2); e = index(v, q); if (e) v = substr(v, 1, e - 1) }
+        else { sub(/[ \t]+#.*$/, "", v); sub(/[ \t]+$/, "", v) }
+        print v; exit
+      }' "$STRIX_DIR/local.yaml")"
+    if usable "$recorded"; then echo "$recorded"; return 0; fi
+  fi
+
+  while IFS= read -r candidate; do
+    if usable "$candidate"; then echo "$candidate"; return 0; fi
+  done < <(ls -d "${CLAUDE_CONFIG_DIR:-${HOME:-}/.claude}"/plugins/cache/*/strix/*/ 2>/dev/null | sed 's#/$##' | sort -V -r)
+
+  echo "strix-task: cannot find the Strix plugin." >&2
+  echo "  Checked STRIX_PLUGIN_ROOT, CLAUDE_PLUGIN_ROOT, PATH, .strix/local.yaml${recorded:+ ($recorded)}," >&2
+  echo "  and the Claude Code plugin cache. Set STRIX_PLUGIN_ROOT to the plugin directory," >&2
+  echo "  or open the project in Claude Code once so the Strix hook records it." >&2
+  return 1
+}
+
+ROOT="$(find_root)" || exit 1
+exec "$ROOT/bin/strix-task" "$@"
 SHIM_EOF
-  chmod +x "$SHIM"
+if [ -f "$SHIM" ] && cmp -s "$SHIM_TMP" "$SHIM"; then
+  rm -f "$SHIM_TMP"
+  echo "  up to date: $SHIM"
+else
+  # The shim is plugin-owned and holds nothing local, so it is always refreshed.
+  mkdir -p "$(dirname "$SHIM")"
+  mv "$SHIM_TMP" "$SHIM"
   echo "  wrote: $SHIM"
 fi
+# mktemp creates 0600; everyone who can read the project must be able to run it.
+chmod 755 "$SHIM"
 
-# --- decide whether to seed the executor tree + record the choice ------------
-CONFIG="$TARGET/.strix/config.yaml"
-SEED_EXECUTOR=1
-if [ -e "$CONFIG" ] && [ "$FORCE" -ne 1 ]; then
-  EXISTING="$(sed -n 's/^executor:[[:space:]]*//p' "$CONFIG" | head -1)"
-  if [ -n "$EXISTING" ] && [ "$EXISTING" != "$EXECUTOR" ]; then
-    echo "-> executor: SKIPPED"
-    echo "  warning: this project is already initialized with executor '$EXISTING'."
-    echo "  Not switching to '$EXECUTOR'. Re-run with --force to switch executors."
-    SEED_EXECUTOR=0
-    EXECUTOR="$EXISTING"
-  fi
-fi
+write_local_root "$TARGET/.strix" "$ROOT"
 
-if [ "$SEED_EXECUTOR" -eq 1 ]; then
+# --- executor tree + recorded choice ------------------------------------------
+if [ "$SEED_EXECUTOR" -eq 0 ]; then
+  echo "-> executor: SKIPPED"
+  echo "  warning: this project is already initialized with executor '$EXISTING'."
+  echo "  Not switching to '$EXECUTOR'. Re-run with --force-executor to switch executors."
+  EXECUTOR="$EXISTING"
+else
   echo "-> $EXECUTOR executor config"
-  copy_tree "$EXEC_SEED" "$TARGET"
-
-  if [ -e "$CONFIG" ] && [ "$FORCE" -ne 1 ]; then
-    echo "  skip (exists): $CONFIG"
+  # Pre-existing files only matter the first time this executor is seeded; on a
+  # re-run they are simply Strix's own earlier copies.
+  FIRST_SEED=0
+  [ "$EXISTING" != "$EXECUTOR" ] && FIRST_SEED=1
+  if [ -n "$CATALOG_FILE" ]; then
+    copy_tree "$EXEC_SEED" "$TARGET" "$FORCE_EXECUTOR" "$FIRST_SEED" "$CATALOG_FILE"
   else
-    printf '# Strix per-project configuration. Written by bin/strix-init; safe to edit.\nschema: 1\nexecutor: %s\n' "$EXECUTOR" > "$CONFIG"
+    copy_tree "$EXEC_SEED" "$TARGET" "$FORCE_EXECUTOR" "$FIRST_SEED"
+  fi
+
+  if [ ! -f "$CONFIG" ]; then
+    printf '%s\n' \
+      '# Strix per-project configuration. Written by bin/strix-init; safe to edit.' \
+      'schema: 1' \
+      "executor: $EXECUTOR" > "$CONFIG"
     echo "  wrote: $CONFIG"
+  elif [ "$EXISTING" != "$EXECUTOR" ]; then
+    # Edit only the executor line so comments and other keys survive.
+    awk -v id="$EXECUTOR" '
+      !done && /^executor:/ { print "executor: " id; done = 1; next }
+      { print }
+      END { if (!done) print "executor: " id }
+    ' "$CONFIG" > "$CONFIG.tmp"
+    mv "$CONFIG.tmp" "$CONFIG"
+    echo "  updated: $CONFIG (executor: $EXECUTOR)"
+  else
+    echo "  skip (exists): $CONFIG"
+  fi
+
+  if [ "$SWITCHING" -eq 1 ] && [ -d "$EXECUTORS_DIR/$EXISTING" ]; then
+    # List only what the old executor's template seeded; its config root can hold
+    # the project's own files (for Copilot it is all of .github/).
+    LEFTOVERS="$(
+      cd "$EXECUTORS_DIR/$EXISTING" &&
+        find . -type f | sed 's#^\./##' | sort | while IFS= read -r rel; do
+          # An if, not an && chain: a false last test would fail the pipeline.
+          if [ -e "$TARGET/$rel" ] && [ ! -e "$EXEC_SEED/$rel" ]; then echo "    $rel"; fi
+        done
+    )"
+    if [ -n "$LEFTOVERS" ]; then
+      echo "  note: the previous executor '$EXISTING' left these files. Nothing was deleted;"
+      echo "        remove the ones you no longer need so only one executor contract is live:"
+      echo "$LEFTOVERS"
+    fi
   fi
 fi
 
@@ -177,4 +342,5 @@ strix-init: done (executor: $EXECUTOR).
    2. Run the 'project-scan' skill to populate .strix/knowledge/* from the real
       codebase.
    3. $OPEN_STEP
+   4. Commit .strix/ (local.yaml stays out of git on its own).
 EOF

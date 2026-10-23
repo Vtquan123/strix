@@ -37,7 +37,7 @@ skills:
 # docs cannot disagree about which agents exist.
 agents:
   - name: triage-agent
-    role: classify + route
+    role: optional classifier, returns a decision
   - name: task-creator-agent
     role: author tasks, decompose EPICs
   - name: reviewer-agent

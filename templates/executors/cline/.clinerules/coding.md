@@ -1,15 +1,15 @@
 # Cline Coding Rules
 
-Cline writes code that matches the project. The authoritative style source is
-`.strix/knowledge/coding-conventions.md`; this file is the execution-side reminder of
-how to apply it.
+Cline writes code that matches the project. The authoritative style source
+is `.strix/knowledge/coding-conventions.md`; this file is the execution-side
+reminder of how to apply it.
 
 ## Source of Truth
 
-- **`.strix/knowledge/coding-conventions.md` wins** on naming, structure, components,
-  APIs, testing, git, and security conventions.
-- Cline **reads** conventions; it never edits them. A needed change is escalated
-  to Claude.
+- **`.strix/knowledge/coding-conventions.md` wins** on naming, structure,
+  components, APIs, testing, git, and security conventions.
+- Cline **reads** conventions; it never edits them. A needed change is
+  escalated to Claude (the Planning Runtime).
 
 ## Applying Conventions
 
@@ -20,7 +20,7 @@ how to apply it.
 | Components | Mirror the established component shape and boundaries |
 | APIs | Follow the project's request/response and error conventions |
 | Testing | Meet the project's coverage and structure expectations |
-| Git | Use the project's commit and branch conventions |
+| Git | Use the project's commit and branch conventions; every commit for a task ends with a `Strix-Task: <ID>` trailer |
 | Security | Apply the project's security conventions by default |
 
 ## Code Quality Bar

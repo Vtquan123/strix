@@ -9,7 +9,7 @@ spec.
 
 ```mermaid
 flowchart TD
-    U[1. User] --> R[2. Claude Triage Router]
+    U[1. User] --> R[2. Claude orchestrator: Router]
     R --> TM[3. Task Management Layer]
     TM --> PK[4. Project Knowledge Layer]
     PK --> AG[5. Agent Layer]
@@ -24,7 +24,7 @@ flowchart TD
 | Layer | What it is | Canonical spec |
 |-------|-----------|----------------|
 | User | Human requests | — |
-| Claude Triage Router | Classifies + routes | [router.md](./router.md) |
+| Claude orchestrator (Router) | Classifies, routes, drives the board | [router.md](../workflow/router.md) |
 | Task Management | The task board + lifecycle | [../../templates/strix/tasks/README.md](../../templates/strix/tasks/README.md) |
 | Project Knowledge | Source of truth | [knowledge.md](./knowledge.md) |
 | Agent Layer | 4 Claude agents | [agents.md](./agents.md) |

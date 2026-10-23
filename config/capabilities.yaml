@@ -130,6 +130,19 @@ capabilities:
     access: { claude: owns, executor: owns }
     constraints: { claude: on_demand_confirm }
 
+  - id: verify
+    label: Verify (re-run reported checks)
+    layer: Shared
+    mode: shared
+    access: { claude: owns, executor: owns }
+    constraints: { claude: rerun_reported_commands_only }
+
+  - id: commit
+    label: Commit (with a Strix-Task trailer)
+    layer: Infrastructure
+    mode: exclusive
+    access: { claude: forbidden, executor: owns }
+
   - id: build
     label: Build
     layer: Infrastructure

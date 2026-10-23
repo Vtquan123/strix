@@ -18,7 +18,7 @@ coherent over time. It produces **artifacts, never side effects**.
 | Task breakdown | STANDARD tasks with deps | `task-breakdown` |
 | Review | Approve / request changes | `review`, `risk-analysis` |
 | Knowledge updates | Updated `knowledge/*` | `knowledge-update`, `documentation` |
-| ADR management | New/updated ADRs | `ADR` |
+| ADR management | New/updated ADRs | `adr` |
 
 ## Hard Prohibitions
 
@@ -26,12 +26,12 @@ Claude in the Planning Runtime **MUST NOT**:
 
 - Write production code
 - Modify source files directly
-- Execute build
-- Execute lint
-- Execute tests
+- Commit
+- Execute build, lint, or tests to produce a change
 
-Claude **MAY** run the terminal on demand (e.g. to inspect state or verify),
-shared with the executor. If a request requires code to be written or build/lint/tests
+Claude **MAY** run the terminal to inspect state, and may **verify** by
+re-running the exact commands a task's Execution Report lists, changing nothing.
+Both are shared with the executor. If a request requires code to be written or build/lint/tests
 run, Claude produces a **task** that the executor will execute — it does not perform
 that action itself.
 
@@ -52,6 +52,6 @@ flowchart LR
 
 ## Entry Points
 
-Every user request enters here through the **Claude Triage Router**
+Every user request enters here through the **Router**, run by the Claude orchestrator
 (see [../router.md](../router.md)). The Router owns all selection decisions;
 individual agents never choose their own skills, context, or successors.

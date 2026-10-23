@@ -1,6 +1,6 @@
 ---
 name: planning
-description: Turn a clarified requirement into an ordered, dependency-aware plan of STANDARD tasks that the executor can execute one at a time. Use when the Router routes SIMPLE+ features, and as the backbone step before task-breakdown on EPICs.
+description: Strix projects only (requires .strix/). Turn a clarified requirement into an ordered, dependency-aware plan of STANDARD tasks that the executor can execute one at a time. Use when the Router routes SIMPLE+ features, and as the backbone step before task-breakdown on EPICs.
 metadata:
   kind: reasoning
   engine: claude
@@ -26,7 +26,8 @@ The Router selects this for SIMPLE+ features and as the backbone step before
 3. Map capabilities to candidate STANDARD tasks.
 4. Order tasks; draw the dependency edges.
 5. Estimate scope (files touched) per task.
-6. Hand the plan to `task-creator-agent`.
+6. Return the plan to the orchestrator (or, inside `task-creator-agent`, author
+   the tasks from it).
 
 _No terminal commands — planning is reasoning only._
 

@@ -24,11 +24,18 @@ header_fields:
   - name: Status
     meaning: Queued / In Progress / In Review / Done / Archived
     enum: ["Queued", "In Progress", "In Review", "Done", "Archived"]
+  - name: Base
+    meaning: "The commit the task started from, recorded by `strix-task move <ID> active`; the reviewer diffs from it"
+    placeholder: <set on the move to active>
 
 # Sections rendered as the task body, in order.
+#   lite: kept in a TRIVIAL task made with `strix-task new --lite`
+#   note: written only through `strix-task note`, in the stage named here
+#   cli:  written only by strix-task itself
 body_sections:
   - name: Goal
     meaning: The outcome in one sentence
+    lite: true
   - name: Background
     meaning: Why it exists; links to knowledge
   - name: Requirements
@@ -41,12 +48,25 @@ body_sections:
     meaning: Skills the Router selected
   - name: Estimated Files
     meaning: Files expected to change
+    lite: true
   - name: Acceptance Criteria
     meaning: Observable done-conditions
+    lite: true
   - name: Definition of Ready
     meaning: Gate to enter Active
   - name: Definition of Done
     meaning: Gate to enter Review
+  - name: Execution Report
+    meaning: "Commands run, exit codes, output tail, and the `Strix-Task:` commits; required to enter Review"
+    lite: true
+    note: active
+  - name: Review Checklist
+    meaning: Each change the reviewer requires; required to return a task to Active
+    note: review
+  - name: History
+    meaning: Every move, with time, actor, and reason
+    lite: true
+    cli: true
 
 # Board stages. The directory IS the board; `Status` must agree with it.
 lifecycle:
@@ -60,6 +80,65 @@ lifecycle:
     status: Done
   - stage: archive
     status: Archived
+
+# The only moves `strix-task move` allows without `--override "<reason>"`.
+#   gate:   what must hold before the move (see reference/workflow/task-lifecycle.md)
+#   reason: the move needs `--reason "<why>"`, which is recorded in History
+#   owner:  who is expected to make the move
+#   label:  the short edge label in generated diagrams
+transitions:
+  - from: queue
+    to: active
+    label: ready
+    gate: ready
+    owner: orchestrator
+    meaning: Definition of Ready met and every dependency Done
+  - from: queue
+    to: archive
+    label: cancelled
+    reason: true
+    owner: orchestrator
+    meaning: cancelled before work started
+  - from: active
+    to: review
+    label: reported
+    gate: reported
+    owner: executor
+    meaning: Definition of Done met and the Execution Report filled
+  - from: active
+    to: queue
+    label: escalated
+    reason: true
+    owner: executor
+    meaning: escalated — a stop condition needs re-planning
+  - from: review
+    to: active
+    label: changes requested
+    gate: checklist
+    owner: reviewer
+    meaning: changes requested in the Review Checklist
+  - from: review
+    to: queue
+    label: re-plan
+    reason: true
+    owner: reviewer
+    meaning: the task itself is wrong and needs re-planning
+  - from: review
+    to: done
+    label: approved
+    owner: reviewer
+    meaning: approved
+  - from: done
+    to: active
+    label: reopened
+    reason: true
+    owner: orchestrator
+    meaning: reopened
+  - from: done
+    to: archive
+    label: closed out
+    owner: orchestrator
+    meaning: workstream or sprint closed
 
 # Where a task file lives on the board. Tasks are grouped by workstream — a named
 # line of work, normally one EPIC — so parallel efforts stay isolated in a shared

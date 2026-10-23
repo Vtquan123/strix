@@ -33,8 +33,9 @@ The executor in the Execution Runtime **MUST NOT**:
 - Over-engineer
 
 > **Always implement only what is inside the task.** If the task is wrong,
-> incomplete, or requires a design decision, the executor **stops and returns the task
-> to Review** with a note — it does not improvise.
+> incomplete, or requires a design decision, the executor **stops and sends the task
+> back to Queue** with `strix-task move <ID> queue --reason "..."` — it does not
+> improvise.
 
 ## Inputs and Outputs
 
@@ -45,6 +46,8 @@ flowchart LR
     IN3[Suggested Skills] --> N
     N --> OUT1[Edited source files]
     N --> OUT2[Green build / lint / tests]
+    N --> OUT4[Commits with a Strix-Task trailer]
+    N --> OUT5[Execution Report via strix-task note]
     N --> OUT3[Task -> Review]
     classDef exec fill:#fde8e8,stroke:#ea4335,color:#1a1a1a;
     class N exec;

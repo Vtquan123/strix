@@ -1,11 +1,27 @@
 {
   "name": "@vtquan124/strix",
-  "version": "1.0.3",
+  "version": "1.1.0",
   "description": "A task-driven, hybrid AI coding workflow — packaged as a Claude Code plugin.",
+  "engines": {
+    "node": ">=22"
+  },
+  "files": [
+    ".claude-plugin/",
+    "agents/",
+    "bin/",
+    "commands/",
+    "config/",
+    "hooks/",
+    "lib/",
+    "reference/",
+    "skills/",
+    "templates/",
+    "CHANGELOG.md"
+  ],
   "scripts": {
     "validate": "node scripts/validate-config.mjs",
     "gen": "node scripts/gen-docs.mjs",
-    "test": "node scripts/test-strix-task.mjs",
+    "test": "node scripts/test-strix-task.mjs && node scripts/test-strix-init.mjs && node scripts/test-hook.mjs && node scripts/test-guard.mjs && node scripts/test-gen.mjs",
     "check": "npm run validate && npm test && node scripts/gen-docs.mjs --check"
   },
   "devDependencies": {
